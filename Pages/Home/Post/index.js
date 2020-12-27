@@ -24,10 +24,21 @@ export default class Post extends React.Component {
     this.setState({ hasPermission: status === "granted" })
   }
 
+  snap = async () => {
+    if (this.camera) {
+      let photo = await this.camera.takePictureAsync();
+    }
+  };
+
   render() {
     return (
       <View style={styles.container}>
-        <Camera style={styles.camera} type={this.state.type}>
+        <Camera
+          style={styles.camera}
+          type={this.state.type}
+          ref={(ref) => {
+            this.camera = ref
+          }}>
           <View
             style={{
               width: this.dims.width - 16,
@@ -50,7 +61,7 @@ export default class Post extends React.Component {
                 }}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.round} />
+            <TouchableOpacity style={styles.round} onPress={this.snap}/>
             <IconButton
               style={styles.button}
               onPressAction={() => {
