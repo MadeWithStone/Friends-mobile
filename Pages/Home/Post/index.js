@@ -2,11 +2,17 @@ import React from "react"
 import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
+import * as ImagePicker from "expo-image-picker"
 import Ionicons from "@expo/vector-icons/Ionicons"
+import Feather from "@expo/vector-icons/Feather"
 import { IconButton } from "../../../Components"
+import { Button as Btn } from "react-native-elements"
 import config from "../../../config"
+import { createStackNavigator } from "@react-navigation/stack"
+import CreatePost from "./CreatePost"
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 
-export default class Post extends React.Component {
+class Post extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -21,14 +27,37 @@ export default class Post extends React.Component {
 
   async componentDidMount() {
     const { status } = await Camera.requestPermissionsAsync()
-    this.setState({ hasPermission: status === "granted" })
+    const {
+      pickerStatus,
+    } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    this.setState({
+      hasPermission: status === "granted",
+      pickerPermissions: pickerStatus === "granted",
+    })
   }
 
   snap = async () => {
     if (this.camera) {
-      let photo = await this.camera.takePictureAsync();
+      let photo = await this.camera.takePictureAsync()
+      this.setState({ image: photo.uri })
     }
-  };
+  }
+
+  pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    })
+
+    console.log(result)
+
+    if (!result.cancelled) {
+      this.setState({ image: result.uri })
+      this.props.navigation.navigate("CreatePost", { image: this.state.image })
+    }
+  }
 
   render() {
     return (
@@ -52,7 +81,7 @@ export default class Post extends React.Component {
             }}
           />
           <View style={styles.buttonContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={this.pickImage}>
               <Image
                 style={styles.library}
                 source={{
@@ -61,7 +90,7 @@ export default class Post extends React.Component {
                 }}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.round} onPress={this.snap}/>
+            <TouchableOpacity style={styles.round} onPress={this.snap} />
             <IconButton
               style={styles.button}
               onPressAction={() => {
@@ -128,3 +157,87 @@ const styles = StyleSheet.create({
   },
   finder: {},
 })
+
+const Stack = createStackNavigator()
+const PostPage = ({ navigation }) => {
+  return (
+    <Stack.Navigator
+      options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
+      <Stack.Screen
+        name="PostStack"
+        component={Post}
+        options={{
+          headerShown: false,
+          headerLeft: () => null,
+          headerRight: () => (
+            <Btn
+              icon={
+                <Feather
+                  name="user-plus"
+                  size={30}
+                  color={config.secondaryColor}
+                />
+              }
+              type="clear"
+              onPress={() => navigation.navigate("AddFriend")}
+            />
+          ),
+          title: "Friends",
+          headerStyle: {
+            backgroundColor: config.primaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.secondaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="CreatePost"
+        component={CreatePost}
+        options={{
+          headerLeft: () => (
+            <Btn
+              icon={
+                <FontAwesome5
+                  name="chevron-left"
+                  size={30}
+                  color={config.secondaryColor}
+                />
+              }
+              type="clear"
+              onPress={() => navigation.navigate( "PostStack")}
+            />
+          ),
+          headerRight: () => (
+            <Btn
+              icon={
+                <Feather
+                  name="user-plus"
+                  size={30}
+                  color={config.secondaryColor}
+                />
+              }
+              type="clear"
+              onPress={() => {}}
+            />
+          ),
+          title: "Create Post",
+          headerStyle: {
+            backgroundColor: config.primaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.secondaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+    </Stack.Navigator>
+  )
+}
+
+export default PostPage
