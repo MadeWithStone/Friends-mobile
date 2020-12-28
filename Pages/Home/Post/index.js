@@ -208,7 +208,7 @@ const PostPage = ({ navigation }) => {
                 />
               }
               type="clear"
-              onPress={() => navigation.navigate( "PostStack")}
+              onPress={() => navigation.navigate("PostStack")}
             />
           ),
           headerRight: () => (

@@ -2,7 +2,7 @@ import React from "react"
 import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { IconButton } from "../../../../Components"
 import config from "../../../../config"
@@ -10,9 +10,9 @@ import config from "../../../../config"
 export default class CreatePost extends React.Component {
   constructor(props) {
     super(props)
-    
+
     this.state = {
-        image: this.props.route.params.image,
+      image: this.props.route.params.image,
     }
     this.dims = {
       width: Dimensions.get("window").width,
@@ -20,13 +20,17 @@ export default class CreatePost extends React.Component {
     }
   }
 
-  async componentDidMount() {
-  }
+  async componentDidMount() {}
 
   render() {
     return (
       <View style={styles.container}>
-        <Image source={{uri: this.state.image}} style={{width: this.dims.width, height: this.dims.width}} height={this.dims.width} width={this.dims.width}/>
+        <Image
+          source={{ uri: this.state.image }}
+          style={{ width: this.dims.width, height: this.dims.width }}
+          height={this.dims.width}
+          width={this.dims.width}
+        />
       </View>
     )
   }
@@ -73,5 +77,3 @@ const styles = StyleSheet.create({
   },
   finder: {},
 })
-
-
