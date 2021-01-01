@@ -211,19 +211,6 @@ const PostPage = ({ navigation }) => {
               onPress={() => navigation.navigate("PostStack")}
             />
           ),
-          headerRight: () => (
-            <Btn
-              icon={
-                <Feather
-                  name="user-plus"
-                  size={30}
-                  color={config.secondaryColor}
-                />
-              }
-              type="clear"
-              onPress={() => {}}
-            />
-          ),
           title: "Create Post",
           headerStyle: {
             backgroundColor: config.primaryColor,

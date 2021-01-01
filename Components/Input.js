@@ -15,7 +15,22 @@ const Input = (props) => {
   )
 }
 
+const MultilineInput = (props) => {
+  return (
+    <TextInput
+      onChangeText={(text) => props.onChangeText(text)}
+      value={props.value}
+      style={{ ...styles.input, ...props.style }}
+      placeholder={props.placeholder}
+      secureTextEntry={props.secure}
+      keyboardType={props.type}
+      multiline
+    />
+  )
+}
+
 export default Input
+export { MultilineInput }
 
 const styles = StyleSheet.create({
   input: {
