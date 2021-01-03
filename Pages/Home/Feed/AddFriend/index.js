@@ -5,6 +5,11 @@ import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
 import { ScrollView } from "react-native-gesture-handler"
 import { Button, Input } from "../../../../Components"
+import User from "../../../../Data/User"
+import {
+  findUserWithFriendCode,
+  sendFriendRequest,
+} from "../../../../Firebase/UserFunctions"
 
 export default class AddFriend extends React.Component {
   constructor(props) {
@@ -12,17 +17,81 @@ export default class AddFriend extends React.Component {
     this.state = {
       friendCode: "",
       addBtnDis: true,
+      currentUserFC: "",
     }
+    this.user = new User()
+  }
+
+  componentDidMount() {
+    this.user.loadCurrentUser(() => {
+      this.setCurrentFC()
+    })
+  }
+
+  setCurrentFC = () => {
+    this.setState({ currentUserFC: this.user.data.friendCode })
   }
 
   onChangeText = (e, name) => {
-    this.setState({ [name]: e })
-    if (e.length >= 4) {
+    let d = e.toUpperCase()
+    if (d.length <= 7) {
+      this.setState({ [name]: d })
+    }
+    if (d.length == 7 && d != this.state.currentUserFC) {
       this.setState({ addBtnDis: false })
     } else {
       this.setState({ addBtnDis: true })
     }
   }
+
+  sendRequest = () => {
+    let take = this
+    if (this.state.friendCode.length == 7) {
+      //find user
+      console.log("finding user")
+      findUserWithFriendCode(this.state.friendCode)
+        .then((querySnapshot) => {
+          let count = 0
+          querySnapshot.forEach(function (doc) {
+            if (count == 0) {
+              // doc.data() is never undefined for query doc snapshots
+              console.log(doc.id, " => ", doc.data())
+              let userData = doc.data()
+              let friend = new User(userData)
+              let alreadyRequested = false
+              if (
+                friend.data.friendRequests != null &&
+                friend.data.friendRequests.length > 0
+              ) {
+                friend.data.friendRequests.forEach((request) => {
+                  if (request.userID === take.user.data.id) {
+                    alreadyRequested = true
+                  }
+                })
+              }
+              if (!alreadyRequested) {
+                sendFriendRequest(friend)
+                  .then((res) => {
+                    console.log("request sent")
+                    alert("Friend Request Sent")
+                  })
+                  .catch((err) => {
+                    console.warn(err)
+                  })
+              } else {
+                alert("Friend Already Requested")
+              }
+              count++
+            }
+          })
+        })
+        .catch((err) => {
+          console.warn(err)
+        })
+      //send request
+    }
+  }
+
   render() {
     return (
       <ScrollView
@@ -36,18 +105,25 @@ export default class AddFriend extends React.Component {
                   placeholder="Friend Code"
                   style={{ flex: 8, marginRight: 4 }}
                   onChangeText={(text) => this.onChangeText(text, "friendCode")}
+                  value={this.state.friendCode}
                 />
                 <Button
                   text="Add"
                   disabled={this.state.addBtnDis}
                   style={{ flex: 1 }}
+                  onPressAction={() => this.sendRequest()}
                 />
               </View>
               <Button text="Scan Friend Code" />
             </View>
-            <Text style={styles.codeText}>TestCode</Text>
+            <Text style={styles.codeText}>{this.state.currentUserFC}</Text>
             <QRCode
-              value={"TestCode"}
+              value={
+                this.state.currentUserFC != null &&
+                this.state.currentUserFC != ""
+                  ? this.state.currentUserFC
+                  : "0"
+              }
               size={300}
               backgroundColor="transparent"
               color={config.primaryColor}

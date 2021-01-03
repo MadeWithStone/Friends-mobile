@@ -21,105 +21,27 @@ import Feather from "@expo/vector-icons/Feather"
 import config from "../../../../config"
 import { Button as Btn } from "react-native-elements"
 import { ProgressBar, Colors } from "react-native-paper"
-import { uploadImage } from "../../../../Firebase/PostFunctions"
+import { uploadImage, createPostData } from "../../../../Firebase/PostFunctions"
+import { updateUserPosts } from "../../../../Firebase/UserFunctions"
 import uuid from "react-native-uuid"
+import User from "../../../../Data/User"
+import FeedPage from "../../Feed"
 let _this = null
-
-class CreatePost extends React.Component {
-  static navigationOptions = ({ navigate, navigation }) => ({
-    headerRight: (
-      <Btn
-        onPress={(navigation) => {
-          navigation.navigate("PostStack")
-        }}
-        icon={
-          <Feather name="plus-square" size={30} color={config.secondaryColor} />
-        }
-        type="clear"
-      />
-    ),
-  })
-
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      image: this.props.route.params.image,
-      maxChars: 140,
-      description: "",
-    }
-    this.dims = {
-      width: Dimensions.get("window").width,
-      height: Dimensions.get("window").height,
-    }
-  }
-
-  async componentDidMount() {
-    _this = this
-    /*this.props.navigation.setOptions({
-      headerRight: () => (
-        <Btn
-          onPress={(navigation) => navigation.navigate("PostStack")}
-          icon={
-            <Feather
-              name="plus-square"
-              size={30}
-              color={config.secondaryColor}
-            />
-          }
-          type="clear"
-          onPress={() => {}}
-        />
-      ),
-    })*/
-  }
-
-  post = () => {
-    alert("posting")
-    console.log("posting")
-  }
-
-  onChangeText = (text) => {
-    if (text.split("").length < this.state.maxChars) {
-      this.setState({ description: text })
-    }
-  }
-
-  render() {
-    return (
-      <KeyboardAwareScrollView style={styles.container}>
-        <Image
-          source={{ uri: this.state.image }}
-          style={{ width: this.dims.width, height: this.dims.width }}
-        />
-        <Text style={{ padding: 8 }}>
-          {this.state.maxChars - this.state.description.split("").length}
-        </Text>
-        <MultilineInput
-          placeholder={"Description"}
-          onChangeText={(text) => this.onChangeText(text)}
-          value={this.state.description}
-          style={{
-            paddingLeft: 8,
-            paddingRight: 8,
-            paddingBottom: 4,
-            borderBottomWidth: 0,
-          }}
-        />
-      </KeyboardAwareScrollView>
-    )
-  }
-}
 
 export default function HomeScreen({ navigation, route }) {
   const [posting, post] = useState(false)
   let [image, setImage] = useState(route.params.image)
   let [description, setDescription] = useState("")
+  let [progress, setProgress] = useState(0)
+  let [progressText, updateProgressText] = useState("")
+  let scroll = null
   let maxChars = 140
   let dims = {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   }
+  let user = new User()
+  user.loadCurrentUser()
 
   const onChangeText = (text) => {
     if (text.split("").length < maxChars) {
@@ -130,7 +52,9 @@ export default function HomeScreen({ navigation, route }) {
   const uploadPost = async () => {
     post(true)
     let postID = uuid.v1()
-
+    let imgUrl = ""
+    let descript = description
+    updateProgressText("Uploading Image")
     const uploadUri =
       Platform.OS === "ios"
         ? image.replace("file://", "")
@@ -141,21 +65,51 @@ export default function HomeScreen({ navigation, route }) {
     } catch (err) {
       console.error(err)
     }
-    console.warn("image path: " + uploadUri)
-    let task = uploadImage(uploadUri, postID) //wait for image to upload
-    task.on("state_changed", (snapshot) => {
-      console.log(
-        Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
-      )
-    })
-    try {
-      await task
-    } catch (e) {
-      console.error(e)
-    }
+    let task = uploadImage(
+      uploadUri,
+      postID,
+      function (snapshot) {
+        setProgress(
+          Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 0.5
+        )
+      },
+      async function (url) {
+        imgUrl = url
+        //wait for data to upload
+        setProgress(0.51)
+        updateProgressText("Uploading Post Data")
+        let date = new Date()
+        let postData = {
+          image: imgUrl,
+          date: date.toISOString(),
+          comments: [],
+        }
+        postData.description = description
+        let createPost = await createPostData(postData, postID)
+        setProgress(0.8)
+        updateProgressText("Sharing with Friends")
+        let postList = user.data.posts
 
-    //wait for data to upload
-    //send back to main screen
+        if (postList == null) {
+          postList = [postID]
+        } else {
+          postList.unshift(postID)
+        }
+        let updatePostsResult = await updateUserPosts(postList)
+        setProgress(1)
+        setTimeout(() => {
+          post(false)
+          navigation.popToTop()
+        }, 100)
+        //send back to main screen
+        console.log("url: " + url)
+      }
+    ) //wait for image to upload
+  }
+
+  const _scrollToInput = (reactNode) => {
+    // Add a 'scroll' ref to your ScrollView
+    scroll.props.scrollToFocusedInput(reactNode)
   }
 
   React.useLayoutEffect(() => {
@@ -177,18 +131,22 @@ export default function HomeScreen({ navigation, route }) {
   }, [navigation, post])
 
   return (
-    <KeyboardAwareScrollView style={styles.container}>
+    <KeyboardAwareScrollView
+      style={styles.container}
+      innerRef={(ref) => {
+        scroll = ref
+      }}>
       <Modal animationType="fade" transparent={true} visible={posting}>
         <View style={styles.modal}>
           <View style={styles.modalTitle}>
-            <Text style={styles.modalTitleText}>Posting</Text>
+            <Text style={styles.modalTitleText}>Posting...</Text>
             <ActivityIndicator animating={true} color={config.secondaryColor} />
           </View>
           <View>
-            <Text style={styles.statusText}>Uploading Image</Text>
+            <Text style={styles.statusText}>{progressText}</Text>
             <ProgressBar
               color={config.primaryColor}
-              progress={0.36}
+              progress={progress}
               style={{ marginLeft: 8, marginRight: 8, marginBottom: 16 }}
             />
           </View>
@@ -198,7 +156,7 @@ export default function HomeScreen({ navigation, route }) {
         source={{ uri: image }}
         style={{ width: dims.width, height: dims.width }}
       />
-      <Text style={{ padding: 8 }}>
+      <Text style={{ padding: 8, color: config.textColor }}>
         {maxChars - description.split("").length}
       </Text>
       <MultilineInput
@@ -210,6 +168,11 @@ export default function HomeScreen({ navigation, route }) {
           paddingRight: 8,
           paddingBottom: 4,
           borderBottomWidth: 0,
+          color: config.textColor,
+        }}
+        onFocus={(event) => {
+          // `bind` the function if you're using ES6 classes
+          this._scrollToInput(ReactNative.findNodeHandle(event.target))
         }}
       />
     </KeyboardAwareScrollView>
@@ -219,6 +182,10 @@ export default function HomeScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: config.secondaryColor,
+    width: 100 + "%",
+    height: 100 + "%",
+    margin: 0,
   },
   modal: {
     marginTop: 100,

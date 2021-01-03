@@ -16,7 +16,13 @@ export default class FeedObject extends React.Component {
     }
   }
 
+  componentDidMount() {
+    console.log("image: " + JSON.stringify(this.props.post))
+  }
+
   render() {
+    let date = new Date(this.props.post.date)
+    let user = this.props.user != null ? this.props.user : {}
     return (
       <View style={styles.mainView}>
         <View style={styles.topView}>
@@ -27,7 +33,9 @@ export default class FeedObject extends React.Component {
             }}
             style={styles.profileImg}
           />
-          <Text style={styles.profileName}>Jason</Text>
+          <Text style={styles.profileName}>
+            {user.firstName} {user.lastName}
+          </Text>
           <View style={styles.optionsBtn}>
             <IconButton
               icon={
@@ -42,18 +50,16 @@ export default class FeedObject extends React.Component {
         </View>
         <Image
           source={{
-            uri:
-              "https://www.nationalgeographic.com/content/dam/photography/photos/000/000/6.ngsversion.1467942028599.adapt.1900.1.jpg",
+            uri: this.props.post.image,
           }}
           style={{ width: this.dims.width, height: this.dims.width }}
         />
         <View style={styles.descriptionView}>
           <Text style={styles.description}>
-            <Text style={styles.descriptionStart}>12/24/2020</Text> - Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit. Fusce gravida
-            pellentesque felis eu blandit. Donec et ante auctor, consectetur
-            eros vel, facilisis orci. Fusce ut dolor quis eros vulputate
-            porttitor.
+            <Text style={styles.descriptionStart}>
+              {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
+            </Text>{" "}
+            - {this.props.post.description}
           </Text>
         </View>
       </View>

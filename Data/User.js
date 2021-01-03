@@ -30,9 +30,51 @@ export default class User {
     return firebase.auth().signInWithEmailAndPassword(email, password)
   }
 
-  async loadData() {
-    // fetch data from database
-    return firebase.firestore().collection("users").doc(this.auth.uid).get()
+  async setCurrentUser() {
+    console.log("current user data: " + this.data)
+    await SecureStore.setItemAsync("currentUser", JSON.stringify(this.data))
+    await SecureStore.setItemAsync("currentAuth", JSON.stringify(this.auth))
+  }
+
+  async loadCurrentUser(callback) {
+    let savedData = await SecureStore.getItemAsync("currentUser")
+    try {
+      savedData = JSON.parse(savedData)
+      this.userData = savedData
+      if (callback != null) {
+        callback()
+      }
+    } catch (error) {
+      console.log("error " + error)
+    }
+    let authData = await SecureStore.getItemAsync("currentAuth")
+    try {
+      authData = JSON.parse(authData)
+      this.authData = authData
+      if (callback != null) {
+        callback()
+      }
+    } catch (error) {
+      console.log("error " + error)
+    }
+  }
+
+  static generateFriendCode() {
+    let date = new Date()
+    let ms = date.getTime()
+    let code = []
+    for (let i = 0; i < 7; i++) {
+      code[i] = Math.round(ms % 100)
+      ms /= 100
+    }
+    let lookUP = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    lookUP = lookUP.split("")
+    for (let i = 0; i < code.length; i++) {
+      code[i] = lookUP[code[i] % 35]
+    }
+    code = code.join("")
+    console.log("new friend code: " + code)
+    return code
   }
 
   signOut() {

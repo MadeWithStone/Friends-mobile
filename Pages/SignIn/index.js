@@ -10,7 +10,7 @@ import {
 } from "../../Components"
 import config from "../../config"
 import User from "../../Data/User"
-import { signIn } from "../../Firebase/UserFunctions"
+import { signIn, loadData } from "../../Firebase/UserFunctions"
 
 import * as SecureStore from "expo-secure-store"
 
@@ -50,8 +50,9 @@ export default class SignIn extends React.Component {
             password: this.state.password,
           })
         )
-        user.loadData().then((data) => {
-          user.data = data
+        loadData(user.auth.uid).then((doc) => {
+          user.data = doc.data()
+          user.setCurrentUser()
           this.props.navigation.navigate("Home")
         })
       } else {

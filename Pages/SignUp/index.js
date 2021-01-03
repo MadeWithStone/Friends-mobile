@@ -41,7 +41,8 @@ export default class SignUp extends React.Component {
     const userData = {
       email: this.state.email,
       firstName: this.state.firstName,
-      lastName: this.state.firstName,
+      lastName: this.state.lastName,
+      friendCode: User.generateFriendCode(),
     }
     createEmailUser(userData.email, this.state.password)
       .then((resData) => {

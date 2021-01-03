@@ -11,6 +11,9 @@ import config from "../../../config"
 import { createStackNavigator } from "@react-navigation/stack"
 import CreatePost from "./CreatePost"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
+import * as ImageManipulator from "expo-image-manipulator"
+
+import Feed from "../Feed"
 
 class Post extends React.Component {
   constructor(props) {
@@ -39,7 +42,29 @@ class Post extends React.Component {
   snap = async () => {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync()
-      this.setState({ image: photo.uri })
+      let width = photo.width > photo.height ? photo.height : photo.width
+      let originY =
+        photo.width > photo.height ? 0 : photo.height / 2 - width / 2
+      let originX = photo.width > photo.height ? photo.width / 2 - width / 2 : 0
+      let options = {
+        originX: originX,
+        originY: originY,
+        width: width,
+        height: width,
+      }
+      try {
+        const manipResult = await ImageManipulator.manipulateAsync(
+          photo.uri,
+          [{ crop: options }],
+          { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+        )
+        this.setState({ image: manipResult.uri })
+        this.props.navigation.navigate("CreatePost", {
+          image: this.state.image,
+        })
+      } catch (err) {
+        console.log("err: " + err)
+      }
     }
   }
 
@@ -222,6 +247,11 @@ const PostPage = ({ navigation }) => {
             fontSize: 30,
           },
         }}
+      />
+      <Stack.Screen
+        name="Feed"
+        component={Feed}
+        options={{ title: "Friends" }}
       />
     </Stack.Navigator>
   )
