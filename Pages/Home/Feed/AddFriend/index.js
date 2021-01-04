@@ -39,7 +39,8 @@ export default class AddFriend extends React.Component {
   }
 
   handleCodeScanned = ({ type, data }) => {
-    this.setState({ showCamera: false, friendCode: data })
+    this.setState({ scan: false })
+    this.onChangeText(data, "friendCode")
   }
 
   onChangeText = (e, name) => {
