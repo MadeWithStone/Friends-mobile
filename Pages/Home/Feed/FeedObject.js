@@ -1,7 +1,7 @@
 import React from "react"
 import { Text, Image, Dimensions, View, StyleSheet } from "react-native"
 import { Icon } from "react-native-elements"
-import { IconButton } from "../../../Components"
+import { IconButton, ProfileImage } from "../../../Components"
 import Entypo from "@expo/vector-icons/Entypo"
 import { Button as Btn } from "react-native-elements"
 import config from "../../../config"
@@ -26,12 +26,9 @@ export default class FeedObject extends React.Component {
     return (
       <View style={styles.mainView}>
         <View style={styles.topView}>
-          <Image
-            source={{
-              uri:
-                "https://www.nationalgeographic.com/content/dam/photography/photos/000/000/6.ngsversion.1467942028599.adapt.1900.1.jpg",
-            }}
-            style={styles.profileImg}
+          <ProfileImage
+            image={user.profileImage}
+            name={user.firstName + " " + user.lastName}
           />
           <Text style={styles.profileName}>
             {user.firstName} {user.lastName}

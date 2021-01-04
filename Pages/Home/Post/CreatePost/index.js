@@ -27,7 +27,7 @@ import uuid from "react-native-uuid"
 import User from "../../../../Data/User"
 import FeedPage from "../../Feed"
 let _this = null
-
+let desc = ""
 export default function HomeScreen({ navigation, route }) {
   const [posting, post] = useState(false)
   let [image, setImage] = useState(route.params.image)
@@ -46,25 +46,18 @@ export default function HomeScreen({ navigation, route }) {
   const onChangeText = (text) => {
     if (text.split("").length < maxChars) {
       setDescription(text)
+      desc = text
     }
   }
 
   const uploadPost = async () => {
+    console.warn("description: " + desc)
     post(true)
     let postID = uuid.v1()
     let imgUrl = ""
-    let descript = description
     updateProgressText("Uploading Image")
     const uploadUri =
-      Platform.OS === "ios"
-        ? image.replace("file://", "")
-        : image.replace("file:", "")
-    try {
-      let file = new FileReader()
-      file.readAsDataURL(uploadUri)
-    } catch (err) {
-      console.error(err)
-    }
+      Platform.OS === "ios" ? image.replace("file://", "") : image
     let task = uploadImage(
       uploadUri,
       postID,
@@ -84,7 +77,7 @@ export default function HomeScreen({ navigation, route }) {
           date: date.toISOString(),
           comments: [],
         }
-        postData.description = description
+        postData.description = desc
         let createPost = await createPostData(postData, postID)
         setProgress(0.8)
         updateProgressText("Sharing with Friends")
@@ -116,7 +109,9 @@ export default function HomeScreen({ navigation, route }) {
     navigation.setOptions({
       headerRight: () => (
         <Btn
-          onPress={() => uploadPost()}
+          onPress={() => {
+            uploadPost()
+          }}
           icon={
             <Feather
               name="plus-square"
@@ -129,7 +124,7 @@ export default function HomeScreen({ navigation, route }) {
       ),
     })
   }, [navigation, post])
-
+  let d = description
   return (
     <KeyboardAwareScrollView
       style={styles.container}
@@ -157,12 +152,12 @@ export default function HomeScreen({ navigation, route }) {
         style={{ width: dims.width, height: dims.width }}
       />
       <Text style={{ padding: 8, color: config.textColor }}>
-        {maxChars - description.split("").length}
+        {maxChars - d.split("").length}
       </Text>
       <MultilineInput
         placeholder={"Description"}
         onChangeText={(text) => onChangeText(text)}
-        value={description}
+        value={d}
         style={{
           paddingLeft: 8,
           paddingRight: 8,
