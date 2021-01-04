@@ -4,7 +4,8 @@ import config from "../../../../config"
 import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
 import { ScrollView } from "react-native-gesture-handler"
-import { Button, Input } from "../../../../Components"
+import { BarCodeScanner } from "expo-barcode-scanner"
+import { Button, Input, CancelButton } from "../../../../Components"
 import User from "../../../../Data/User"
 import {
   findUserWithFriendCode,
@@ -18,6 +19,7 @@ export default class AddFriend extends React.Component {
       friendCode: "",
       addBtnDis: true,
       currentUserFC: "",
+      scan: false,
     }
     this.user = new User()
   }
@@ -30,6 +32,14 @@ export default class AddFriend extends React.Component {
 
   setCurrentFC = () => {
     this.setState({ currentUserFC: this.user.data.friendCode })
+  }
+
+  scanFriendCode = () => {
+    this.setState({ scan: true })
+  }
+
+  handleCodeScanned = ({ type, data }) => {
+    this.setState({ showCamera: false, friendCode: data })
   }
 
   onChangeText = (e, name) => {
@@ -114,7 +124,10 @@ export default class AddFriend extends React.Component {
                   onPressAction={() => this.sendRequest()}
                 />
               </View>
-              <Button text="Scan Friend Code" />
+              <Button
+                text="Scan Friend Code"
+                onPressAction={this.scanFriendCode}
+              />
             </View>
             <Text style={styles.codeText}>{this.state.currentUserFC}</Text>
             <QRCode
@@ -130,6 +143,17 @@ export default class AddFriend extends React.Component {
             />
           </View>
         </View>
+        {this.state.scan && (
+          <BarCodeScanner
+            onBarCodeScanned={this.handleCodeScanned}
+            style={StyleSheet.absoluteFill}>
+            <CancelButton
+              title={"Cancel"}
+              callback={() => this.setState({ scan: false })}
+              style={{ alignSelf: "flex-end", margin: 16 }}
+            />
+          </BarCodeScanner>
+        )}
       </ScrollView>
     )
   }

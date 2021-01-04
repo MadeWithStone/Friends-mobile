@@ -1,6 +1,9 @@
-import React from "react"
+import React, { Component } from "react"
 import { Text, StyleSheet, Image } from "react-native"
-import { TouchableWithoutFeedback } from "react-native-gesture-handler"
+import {
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+} from "react-native-gesture-handler"
 import { Button as Btn } from "react-native-elements"
 import config from "../config"
 
@@ -51,6 +54,24 @@ const IconButton = (props) => {
   )
 }
 
+class CancelButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity
+        style={{
+          backgroundColor: this.props.disabled ? "gray" : config.primaryColor,
+          ...styles.container,
+          ...this.props.style,
+        }}
+        onPress={!this.props.disabled ? this.props.callback : () => {}}>
+        <Text style={{ ...styles.text, ...this.props.textStyle }}>
+          {this.props.title}
+        </Text>
+      </TouchableOpacity>
+    )
+  }
+}
+
 const styles = StyleSheet.create({
   button: {
     fontSize: 20,
@@ -70,7 +91,19 @@ const styles = StyleSheet.create({
     color: config.primaryColor,
     fontSize: 17,
   },
+  container: {
+    marginLeft: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    padding: 8,
+    borderRadius: 10,
+  },
+  text: {
+    color: config.secondaryColor,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
 })
 
 export default Button
-export { TextButton, IconButton }
+export { TextButton, IconButton, CancelButton }
