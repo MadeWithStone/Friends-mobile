@@ -38,6 +38,9 @@ const NameView = (props) => {
       style={{
         ...styles.circleView,
         backgroundColor: stringToHslColor(props.name, 80, 80),
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
       }}>
       <Text style={styles.initialText}>{props.initials}</Text>
     </View>
@@ -79,10 +82,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   initialText: {
-    justifyContent: "center",
-    alignSelf: "center",
-    textAlignVertical: "center",
-    height: 100 + "%",
     color: config.secondaryColor,
     fontWeight: "bold",
     fontSize: 17,

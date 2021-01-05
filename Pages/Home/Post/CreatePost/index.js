@@ -10,8 +10,9 @@ import {
   Button,
   TouchableHighlight,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native"
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scrollview"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
 import * as ImagePicker from "expo-image-picker"
@@ -100,11 +101,6 @@ export default function HomeScreen({ navigation, route }) {
     ) //wait for image to upload
   }
 
-  const _scrollToInput = (reactNode) => {
-    // Add a 'scroll' ref to your ScrollView
-    scroll.props.scrollToFocusedInput(reactNode)
-  }
-
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -126,8 +122,9 @@ export default function HomeScreen({ navigation, route }) {
   }, [navigation, post])
   let d = description
   return (
-    <KeyboardAwareScrollView
+    <KeyboardAvoidingScrollView
       style={styles.container}
+      cont
       innerRef={(ref) => {
         scroll = ref
       }}>
@@ -147,30 +144,28 @@ export default function HomeScreen({ navigation, route }) {
           </View>
         </View>
       </Modal>
-      <Image
-        source={{ uri: image }}
-        style={{ width: dims.width, height: dims.width }}
-      />
-      <Text style={{ padding: 8, color: config.textColor }}>
-        {maxChars - d.split("").length}
-      </Text>
-      <MultilineInput
-        placeholder={"Description"}
-        onChangeText={(text) => onChangeText(text)}
-        value={d}
-        style={{
-          paddingLeft: 8,
-          paddingRight: 8,
-          paddingBottom: 4,
-          borderBottomWidth: 0,
-          color: config.textColor,
-        }}
-        onFocus={(event) => {
-          // `bind` the function if you're using ES6 classes
-          this._scrollToInput(ReactNative.findNodeHandle(event.target))
-        }}
-      />
-    </KeyboardAwareScrollView>
+      <View>
+        <Image
+          source={{ uri: image }}
+          style={{ width: dims.width, height: dims.width }}
+        />
+        <Text style={{ padding: 8, color: config.textColor }}>
+          {maxChars - d.split("").length}
+        </Text>
+        <MultilineInput
+          placeholder={"Description"}
+          onChangeText={(text) => onChangeText(text)}
+          value={d}
+          style={{
+            paddingLeft: 8,
+            paddingRight: 8,
+            paddingBottom: 4,
+            borderBottomWidth: 0,
+            color: config.textColor,
+          }}
+        />
+      </View>
+    </KeyboardAvoidingScrollView>
   )
 }
 
@@ -178,9 +173,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: config.secondaryColor,
-    width: 100 + "%",
-    height: 100 + "%",
-    margin: 0,
+    marginTop: 0,
+    paddingTop: 0,
   },
   modal: {
     marginTop: 100,

@@ -114,14 +114,14 @@ export default class AddFriend extends React.Component {
               <View style={styles.verifyView}>
                 <Input
                   placeholder="Friend Code"
-                  style={{ flex: 8, marginRight: 4 }}
+                  style={{ flex: 8, marginRight: 4, height: 40 }}
                   onChangeText={(text) => this.onChangeText(text, "friendCode")}
                   value={this.state.friendCode}
                 />
                 <Button
                   text="Add"
                   disabled={this.state.addBtnDis}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, height: 50 }}
                   onPressAction={() => this.sendRequest()}
                 />
               </View>
@@ -165,16 +165,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     display: "flex",
     justifyContent: "center",
-    marginTop: 20 + "%",
     marginBottom: "auto",
   },
   mainView: {
-    width: 100 + "%",
-    height: 100 + "%",
     backgroundColor: config.secondaryColor,
+    flex: 1,
   },
   scrollView: {
     justifyContent: "center",
+    flex: 1,
   },
   codeText: {
     textAlign: "center",
