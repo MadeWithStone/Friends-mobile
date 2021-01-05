@@ -29,6 +29,7 @@ export default class FeedObject extends React.Component {
           <ProfileImage
             image={user.profileImage}
             name={user.firstName + " " + user.lastName}
+            size={40}
           />
           <Text style={styles.profileName}>
             {user.firstName} {user.lastName}

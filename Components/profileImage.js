@@ -20,16 +20,38 @@ export default class ProfileImage extends Component {
     })
     let useImage = this.state.image != null && this.state.image.length > 0
     return (
-      <View style={styles.container}>
-        {useImage && <ImageView image={this.state.image} />}
-        {!useImage && <NameView initials={initials} name={name} />}
+      <View
+        style={{
+          ...styles.container,
+          width: this.props.size != null ? this.props.size : 40,
+          height: this.props.size != null ? this.props.size : 40,
+          borderRadius: this.props.size != null ? this.props.size / 2 : 20,
+        }}>
+        {useImage && (
+          <ImageView
+            image={this.state.image}
+            radius={this.props.size != null ? this.props.size / 2 : 20}
+          />
+        )}
+        {!useImage && (
+          <NameView
+            initials={initials}
+            name={name}
+            radius={this.props.size != null ? this.props.size / 2 : 20}
+          />
+        )}
       </View>
     )
   }
 }
 
 const ImageView = (props) => {
-  return <Image source={{ uri: props.image }} style={styles.circleView} />
+  return (
+    <Image
+      source={{ uri: props.image }}
+      style={{ ...styles.circleView, borderRadius: props.radius }}
+    />
+  )
 }
 
 const NameView = (props) => {
@@ -41,6 +63,7 @@ const NameView = (props) => {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
+        borderRadius: props.radius,
       }}>
       <Text style={styles.initialText}>{props.initials}</Text>
     </View>
@@ -72,14 +95,11 @@ const hslToHex = (h, s, l) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 45,
-    height: 45,
     marginRight: 8,
   },
   circleView: {
     width: 100 + "%",
     height: 100 + "%",
-    borderRadius: 25,
   },
   initialText: {
     color: config.secondaryColor,
