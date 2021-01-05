@@ -70,6 +70,7 @@ uriToBlob = (uri) => {
 const createPostData = (data, postID) => {
   data.userID = firebase.auth().currentUser.uid
   data.id = postID
+  console.log("description: " + data.description)
   const postsRef = firebase.firestore().collection("posts")
   return postsRef.doc(postID).set(data)
 }
