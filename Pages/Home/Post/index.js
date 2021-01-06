@@ -200,7 +200,7 @@ const PostPage = ({ navigation }) => {
                 <Feather
                   name="user-plus"
                   size={30}
-                  color={config.secondaryColor}
+                  color={config.primaryColor}
                 />
               }
               type="clear"
@@ -209,10 +209,10 @@ const PostPage = ({ navigation }) => {
           ),
           title: "Friends",
           headerStyle: {
-            backgroundColor: config.primaryColor,
+            backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },
           },
-          headerTintColor: config.secondaryColor,
+          headerTintColor: config.primaryColor,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 30,
@@ -229,7 +229,7 @@ const PostPage = ({ navigation }) => {
                 <FontAwesome5
                   name="chevron-left"
                   size={30}
-                  color={config.secondaryColor}
+                  color={config.primaryColor}
                 />
               }
               type="clear"
@@ -238,10 +238,10 @@ const PostPage = ({ navigation }) => {
           ),
           title: "Create Post",
           headerStyle: {
-            backgroundColor: config.primaryColor,
+            backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },
           },
-          headerTintColor: config.secondaryColor,
+          headerTintColor: config.primaryColor,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 30,

@@ -65,7 +65,9 @@ const NameView = (props) => {
         alignItems: "center",
         borderRadius: props.radius,
       }}>
-      <Text style={styles.initialText}>{props.initials}</Text>
+      <Text style={{ ...styles.initialText, fontSize: props.radius * 0.9 }}>
+        {props.initials}
+      </Text>
     </View>
   )
 }
@@ -105,6 +107,5 @@ const styles = StyleSheet.create({
     color: config.secondaryColor,
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 17,
   },
 })

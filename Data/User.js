@@ -37,26 +37,29 @@ export default class User {
   }
 
   async loadCurrentUser(callback) {
-    let savedData = await SecureStore.getItemAsync("currentUser")
-    try {
-      savedData = JSON.parse(savedData)
-      this.userData = savedData
-      if (callback != null) {
-        callback()
+    return new Promise(async (resolve, reject) => {
+      let savedData = await SecureStore.getItemAsync("currentUser")
+      try {
+        savedData = JSON.parse(savedData)
+        this.userData = savedData
+        if (callback != null) {
+          callback()
+        }
+      } catch (error) {
+        console.log("error " + error)
       }
-    } catch (error) {
-      console.log("error " + error)
-    }
-    let authData = await SecureStore.getItemAsync("currentAuth")
-    try {
-      authData = JSON.parse(authData)
-      this.authData = authData
-      if (callback != null) {
-        callback()
+      let authData = await SecureStore.getItemAsync("currentAuth")
+      try {
+        authData = JSON.parse(authData)
+        this.authData = authData
+        if (callback != null) {
+          callback()
+        }
+      } catch (error) {
+        console.log("error " + error)
       }
-    } catch (error) {
-      console.log("error " + error)
-    }
+      resolve(this)
+    })
   }
 
   static generateFriendCode() {

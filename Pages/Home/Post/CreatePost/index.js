@@ -109,11 +109,7 @@ export default function HomeScreen({ navigation, route }) {
             uploadPost()
           }}
           icon={
-            <Feather
-              name="plus-square"
-              size={30}
-              color={config.secondaryColor}
-            />
+            <Feather name="plus-square" size={30} color={config.primaryColor} />
           }
           type="clear"
         />

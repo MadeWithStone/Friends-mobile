@@ -18,6 +18,7 @@ export default class App extends React.Component {
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
+            gestureEnabled: false,
           }}>
           <Stack.Screen name="SignIn" component={SignIn} />
           <Stack.Screen name="SignUp" component={SignUp} />
