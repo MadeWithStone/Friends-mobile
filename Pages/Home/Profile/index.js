@@ -1,31 +1,73 @@
 import React, { Component } from "react"
-import { View, Text, StyleSheet } from "react-native"
+import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
 import { createStackNavigator } from "@react-navigation/stack"
 import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
 import config from "../../../config"
 import User from "../../../Data/User"
-import { ProfileImage } from "../../../Components"
+import {
+  Button,
+  ProfileImage,
+  SectionHeader,
+  TextButton,
+} from "../../../Components"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
+import { getUsers } from "../../../Firebase/UserFunctions"
+import { getPosts } from "../../../Firebase/PostFunctions"
 
 const Profile = ({ navigation, route }) => {
   let [user, setUser] = React.useState({})
+  let [friendRequests, setFriendRequests] = React.useState([])
+  let [usersList, setUsersList] = React.useState([])
+  let [posts, setPosts] = React.useState([])
+
   React.useEffect(() => {
     let u = new User()
+    console.log("running use effect")
     u.loadCurrentUser()
       .then((data) => {
         setUser(data)
         navigation.setOptions({
           title:
-            user.data != null
-              ? user.data.firstName + " " + user.data.lastName
+            data.data != null
+              ? data.data.firstName + " " + data.data.lastName
               : "Profile",
         })
+        getFriendRequests()
+        getUserPosts()
       })
       .catch((err) => {
         console.log("err: " + err)
       })
-  })
+  }, [])
+
+  getFriendRequests = () => {
+    let freReqs =
+      user.data.friendRequests != null ? user.data.friendRequests : []
+    let uList = []
+    freReqs.forEach((req) => uList.push(req.userID))
+    getUsers(uList).then((res) => {
+      console.log("getting users")
+      data = []
+      res.forEach((r) => {
+        data.push(r.data())
+      })
+      setUsersList(data)
+      setFriendRequests(freReqs)
+    })
+  }
+
+  getUserPosts = () => {
+    let postList = user.data.posts != null ? user.data.posts : []
+    console.warn("getting posts")
+    getPosts(postList).then((result) => {
+      let p = []
+      result.forEach((post) => {
+        p.push(post.data())
+      })
+      setPosts(p)
+    })
+  }
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -46,6 +88,10 @@ const Profile = ({ navigation, route }) => {
     <KeyboardAvoidingScrollView
       style={{ backgroundColor: config.secondaryColor }}>
       {user.data != null && <ProfileDataView user={user} />}
+      {friendRequests != null && friendRequests.length > 0 && (
+        <FriendRequestView friendRequests={friendRequests} users={usersList} />
+      )}
+      {posts != null && posts.length > 0 && <PostsView posts={posts} />}
     </KeyboardAvoidingScrollView>
   )
 }
@@ -62,6 +108,95 @@ const ProfileDataView = (props) => {
         {props.user.data.firstName + " " + props.user.data.lastName}
       </Text>
     </View>
+  )
+}
+
+const FriendRequestView = (props) => {
+  return (
+    <View>
+      <SectionHeader title={"Friend Requests"} />
+      <View style={{ paddingTop: 4 }}></View>
+      {props.users != null &&
+        props.friendRequests.map((req) => (
+          <FriendRequestObj
+            request={req}
+            user={props.users.find((x) => x.id === req.userID)}
+            key={req.userID}
+          />
+        ))}
+    </View>
+  )
+}
+
+const FriendRequestObj = (props) => {
+  return (
+    <View style={frStyles.requestOBJContainer}>
+      <Text style={{ fontSize: 17, color: config.textColor }}>
+        {props.user.firstName} {props.user.lastName}
+      </Text>
+      <View style={frStyles.buttonContainer}>
+        <Button
+          text={"Accept"}
+          style={{ marginRight: 8 }}
+          textStyle={{ fontSize: 17, fontWeight: "bold", padding: 6 }}
+        />
+        <TextButton
+          text={"Decline"}
+          textStyle={{ fontSize: 17, color: "gray", fontWeight: "bold" }}
+        />
+      </View>
+    </View>
+  ) //return a friend request object with callback for accept and decline
+}
+
+const frStyles = StyleSheet.create({
+  requestOBJContainer: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 4,
+    paddingBottom: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+})
+
+const PostsView = (props) => {
+  console.log("posts: " + JSON.stringify(props.posts))
+  return (
+    <View style={{ marginTop: 8 }}>
+      <SectionHeader title={"Posts"} />
+      <View
+        style={{
+          float: "left",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          marginTop: -1,
+        }}>
+        {props.posts.map((post, index) => (
+          <PostViewObj post={post} key={post.id} index={index} />
+        ))}
+      </View>
+    </View>
+  )
+}
+
+const PostViewObj = (props) => {
+  return (
+    <Image
+      source={{ uri: props.post.image }}
+      style={{
+        width: Dimensions.get("window").width / 3 - 0.7,
+        height: Dimensions.get("window").width / 3,
+        marginRight: props.index % 3 == 0 ? 1 : 0,
+        marginLeft: (props.index + 1) % 3 == 0 ? 1 : 0,
+        marginBottom: 1,
+      }}
+    />
   )
 }
 
