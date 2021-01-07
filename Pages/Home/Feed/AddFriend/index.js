@@ -1,5 +1,11 @@
 import React from "react"
-import { View, Text, StyleSheet } from "react-native"
+import {
+  View,
+  Text,
+  StyleSheet,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from "react-native"
 import config from "../../../../config"
 import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
@@ -13,6 +19,7 @@ import {
 } from "../../../../Firebase/UserFunctions"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { KeyboardAvoidingView } from "react-native"
+import { ceil } from "react-native-reanimated"
 
 export default class AddFriend extends React.Component {
   constructor(props) {
@@ -22,6 +29,7 @@ export default class AddFriend extends React.Component {
       addBtnDis: true,
       currentUserFC: "",
       scan: false,
+      showCode: true,
     }
     this.user = new User()
   }
@@ -107,79 +115,83 @@ export default class AddFriend extends React.Component {
 
   render() {
     return (
-      <KeyboardAvoidingScrollView
-        style={styles.mainView}
-        contentContainerStyle={styles.scrollView}>
-        <View>
-          <View style={styles.code}>
-            <View style={styles.addView}>
-              <View style={styles.verifyView}>
-                <Input
-                  placeholder="Friend Code"
-                  style={{ flex: 8, marginRight: 4, height: 40 }}
-                  onChangeText={(text) => this.onChangeText(text, "friendCode")}
-                  value={this.state.friendCode}
-                />
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <KeyboardAvoidingView
+          style={{ ...StyleSheet.absoluteFill, ...styles.contentView }}>
+          <View styles={styles.mainView}>
+            <View style={styles.code} onPress={() => Keyboard.dismiss()}>
+              <View style={styles.addView}>
+                <View style={styles.verifyView}>
+                  <Input
+                    placeholder="Friend Code"
+                    style={{ flex: 8, marginRight: 4, height: 40 }}
+                    onChangeText={(text) =>
+                      this.onChangeText(text, "friendCode")
+                    }
+                    value={this.state.friendCode}
+                    onFocus={() => this.setState({ showCode: false })}
+                    onEndEditing={() => this.setState({ showCode: true })}
+                  />
+                  <Button
+                    text="Add"
+                    disabled={this.state.addBtnDis}
+                    style={{ flex: 1, height: 50 }}
+                    onPressAction={() => this.sendRequest()}
+                  />
+                </View>
                 <Button
-                  text="Add"
-                  disabled={this.state.addBtnDis}
-                  style={{ flex: 1, height: 50 }}
-                  onPressAction={() => this.sendRequest()}
+                  text="Scan Friend Code"
+                  onPressAction={this.scanFriendCode}
                 />
               </View>
-              <Button
-                text="Scan Friend Code"
-                onPressAction={this.scanFriendCode}
-              />
+              {this.state.showCode && (
+                <View style={{ alignItems: "center" }}>
+                  <Text style={styles.codeText}>
+                    {this.state.currentUserFC}
+                  </Text>
+                  <QRCode
+                    value={
+                      this.state.currentUserFC != null &&
+                      this.state.currentUserFC != ""
+                        ? this.state.currentUserFC
+                        : "0"
+                    }
+                    size={300}
+                    backgroundColor="transparent"
+                    color={config.primaryColor}
+                  />
+                </View>
+              )}
             </View>
-            <Text style={styles.codeText}>{this.state.currentUserFC}</Text>
-            <QRCode
-              value={
-                this.state.currentUserFC != null &&
-                this.state.currentUserFC != ""
-                  ? this.state.currentUserFC
-                  : "0"
-              }
-              size={300}
-              backgroundColor="transparent"
-              color={config.primaryColor}
-            />
           </View>
-        </View>
-        {this.state.scan && (
-          <BarCodeScanner
-            onBarCodeScanned={this.handleCodeScanned}
-            style={StyleSheet.absoluteFill}>
-            <CancelButton
-              title={"Cancel"}
-              callback={() => this.setState({ scan: false })}
-              style={{ alignSelf: "flex-end", margin: 16 }}
-            />
-          </BarCodeScanner>
-        )}
-      </KeyboardAvoidingScrollView>
+          {this.state.scan && (
+            <BarCodeScanner
+              onBarCodeScanned={this.handleCodeScanned}
+              style={StyleSheet.absoluteFill}>
+              <CancelButton
+                title={"Cancel"}
+                callback={() => this.setState({ scan: false })}
+                style={{ alignSelf: "flex-end", margin: 16 }}
+              />
+            </BarCodeScanner>
+          )}
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  code: {
-    alignSelf: "center",
-    display: "flex",
-    justifyContent: "center",
-    marginBottom: "auto",
-  },
+  code: { margin: 16 },
   mainView: {
-    backgroundColor: config.secondaryColor,
-    flex: 1,
+    padding: 16,
   },
-  scrollView: {
+  contentView: {
+    backgroundColor: config.secondaryColor,
     justifyContent: "center",
-    flex: 1,
   },
   codeText: {
     textAlign: "center",
-    alignSelf: "center",
     width: 100 + "%",
     color: config.primaryColor,
     fontSize: 17,

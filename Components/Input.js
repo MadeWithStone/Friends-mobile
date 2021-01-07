@@ -11,6 +11,8 @@ const Input = (props) => {
       placeholder={props.placeholder}
       secureTextEntry={props.secure}
       keyboardType={props.type}
+      onFocus={props.onFocus != null ? props.onFocus : () => {}}
+      onEndEditing={props.onEndEditing != null ? props.onEndEditing : () => {}}
     />
   )
 }
