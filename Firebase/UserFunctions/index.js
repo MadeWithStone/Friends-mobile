@@ -24,6 +24,45 @@ const updateUserPosts = (postList) => {
   return doc.update({ posts: postList })
 }
 
+const acceptFriendRequest = async (userID, friendRequests, _friends) => {
+  let reqID = friendRequests.findIndex((x) => x.userID === userID)
+  console.log("reqID: " + reqID)
+  let request = friendRequests[reqID]
+  console.log("request: " + JSON.stringify(request))
+  friendRequests.splice(reqID, 1)
+  let date = new Date()
+  let friends = _friends != null ? _friends : []
+  friends.push({ userID: userID, date: date.toISOString() })
+  const usersRef = firebase.firestore().collection("users")
+  const doc = usersRef.doc(firebase.auth().currentUser.uid)
+  let updatePromises = []
+  updatePromises.push(
+    doc.update({
+      friends: friends,
+      friendRequests: friendRequests,
+    })
+  )
+  let friendData = await loadData(request.userID)
+  let friendFriends =
+    friendData.data().friends != null ? friendData.data().friends : []
+  friendFriends.push({
+    userID: firebase.auth().currentUser.uid,
+    date: date.toISOString(),
+  })
+  const friend = usersRef.doc(request.userID)
+
+  updatePromises.push(friend.update({ friends: friendFriends }))
+  return Promise.all(updatePromises)
+}
+
+const declineFriendRequest = (userID, friendRequests) => {
+  let reqID = friendRequests.findIndex((x) => x.userID === userID)
+  friendRequests.splice(reqID, 1)
+  const usersRef = firebase.firestore().collection("users")
+  const doc = usersRef.doc(firebase.auth().currentUser.uid)
+  return doc.update({ friendRequests: friendRequests })
+}
+
 const loadData = async (uid) => {
   // fetch data from database
   return firebase.firestore().collection("users").doc(uid).get()
@@ -72,4 +111,6 @@ export {
   updateUser,
   sendFriendRequest,
   findUserWithFriendCode,
+  acceptFriendRequest,
+  declineFriendRequest,
 }

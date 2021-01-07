@@ -11,6 +11,8 @@ import {
   findUserWithFriendCode,
   sendFriendRequest,
 } from "../../../../Firebase/UserFunctions"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
+import { KeyboardAvoidingView } from "react-native"
 
 export default class AddFriend extends React.Component {
   constructor(props) {
@@ -105,7 +107,7 @@ export default class AddFriend extends React.Component {
 
   render() {
     return (
-      <ScrollView
+      <KeyboardAvoidingScrollView
         style={styles.mainView}
         contentContainerStyle={styles.scrollView}>
         <View>
@@ -155,7 +157,7 @@ export default class AddFriend extends React.Component {
             />
           </BarCodeScanner>
         )}
-      </ScrollView>
+      </KeyboardAvoidingScrollView>
     )
   }
 }

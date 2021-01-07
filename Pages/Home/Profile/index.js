@@ -12,7 +12,11 @@ import {
   TextButton,
 } from "../../../Components"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
-import { getUsers } from "../../../Firebase/UserFunctions"
+import {
+  acceptFriendRequest,
+  declineFriendRequest,
+  getUsers,
+} from "../../../Firebase/UserFunctions"
 import { getPosts } from "../../../Firebase/PostFunctions"
 
 const Profile = ({ navigation, route }) => {
@@ -69,6 +73,26 @@ const Profile = ({ navigation, route }) => {
     })
   }
 
+  friendRequestCallback = (accept, req) => {
+    if (accept) {
+      acceptFriendRequest(req.userID, friendRequests, user.data.friends)
+        .then(() => {
+          // complete
+        })
+        .catch((err) => {
+          console.warn(err)
+        })
+    } else {
+      declineFriendRequest(req.userID, friendRequests)
+        .then(() => {
+          // complete
+        })
+        .catch((err) => {
+          console.warn(err)
+        })
+    }
+  }
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title:
@@ -91,7 +115,11 @@ const Profile = ({ navigation, route }) => {
       style={{ backgroundColor: config.secondaryColor }}>
       {user.data != null && <ProfileDataView user={user} />}
       {friendRequests != null && friendRequests.length > 0 && (
-        <FriendRequestView friendRequests={friendRequests} users={usersList} />
+        <FriendRequestView
+          friendRequests={friendRequests}
+          users={usersList}
+          callback={friendRequestCallback}
+        />
       )}
       {posts != null && posts.length > 0 && <PostsView posts={posts} />}
     </KeyboardAvoidingScrollView>
@@ -124,6 +152,7 @@ const FriendRequestView = (props) => {
             request={req}
             user={props.users.find((x) => x.id === req.userID)}
             key={req.userID}
+            callback={props.callback}
           />
         ))}
     </View>
@@ -141,10 +170,12 @@ const FriendRequestObj = (props) => {
           text={"Accept"}
           style={{ marginRight: 8 }}
           textStyle={{ fontSize: 17, fontWeight: "bold", padding: 6 }}
+          onPressAction={() => props.callback(true, props.request)}
         />
         <TextButton
           text={"Decline"}
           textStyle={{ fontSize: 17, color: "gray", fontWeight: "bold" }}
+          onPressAction={() => props.callback(false, props.request)}
         />
       </View>
     </View>
