@@ -86,6 +86,8 @@ const Profile = ({ navigation, route }) => {
   }, [navigation])
   return (
     <KeyboardAvoidingScrollView
+      scrollEventThrottle={32}
+      showsVerticalScrollIndicator={false}
       style={{ backgroundColor: config.secondaryColor }}>
       {user.data != null && <ProfileDataView user={user} />}
       {friendRequests != null && friendRequests.length > 0 && (

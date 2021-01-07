@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   round: {
     width: 70,
     height: 70,
-    backgroundColor: "#ffffff",
+    backgroundColor: config.primaryColor,
     borderRadius: 35,
   },
   library: {
