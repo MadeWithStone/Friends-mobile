@@ -102,7 +102,9 @@ class Feed extends React.Component {
         let u = []
         result.forEach((user) => {
           u.push(user.data())
-          pList.push(user.data().posts[0], user.data().posts[1])
+          for (let i = 0; i < 2 && i < user.data().posts.length; i++) {
+            pList.push(user.data().posts[i])
+          }
         })
         console.log("got users: " + JSON.stringify(pList))
         this.setState({ users: u, postList: pList })

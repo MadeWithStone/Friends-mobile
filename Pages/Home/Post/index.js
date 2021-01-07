@@ -42,29 +42,42 @@ class Post extends React.Component {
   snap = async () => {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync()
+      this.compressImage(photo)
+    }
+  }
+
+  compressImage = async (photo) => {
+    let options = {
+      originX: 0,
+      originY: 0,
+      width: photo.width,
+      height: photo.height,
+    }
+    if (photo.width !== photo.height) {
       let width = photo.width > photo.height ? photo.height : photo.width
       let originY =
         photo.width > photo.height ? 0 : photo.height / 2 - width / 2
       let originX = photo.width > photo.height ? photo.width / 2 - width / 2 : 0
-      let options = {
+      options = {
         originX: originX,
         originY: originY,
         width: width,
         height: width,
       }
-      try {
-        const manipResult = await ImageManipulator.manipulateAsync(
-          photo.uri,
-          [{ crop: options }],
-          { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
-        )
-        this.setState({ image: manipResult.uri })
-        this.props.navigation.navigate("CreatePost", {
-          image: this.state.image,
-        })
-      } catch (err) {
-        console.log("err: " + err)
-      }
+    }
+
+    try {
+      const manipResult = await ImageManipulator.manipulateAsync(
+        photo.uri,
+        [{ crop: options }],
+        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+      )
+      this.setState({ image: manipResult.uri })
+      this.props.navigation.navigate("CreatePost", {
+        image: this.state.image,
+      })
+    } catch (err) {
+      console.log("err: " + err)
     }
   }
 
@@ -79,8 +92,7 @@ class Post extends React.Component {
     console.log(result)
 
     if (!result.cancelled) {
-      this.setState({ image: result.uri })
-      this.props.navigation.navigate("CreatePost", { image: this.state.image })
+      this.compressImage(result)
     }
   }
 

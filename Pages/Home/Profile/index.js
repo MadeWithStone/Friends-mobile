@@ -18,6 +18,7 @@ import {
   getUsers,
 } from "../../../Firebase/UserFunctions"
 import { getPosts } from "../../../Firebase/PostFunctions"
+import EditProfile from "./EditProfile"
 
 const Profile = ({ navigation, route }) => {
   let [user, setUser] = React.useState({})
@@ -36,6 +37,17 @@ const Profile = ({ navigation, route }) => {
             data.data != null
               ? data.data.firstName + " " + data.data.lastName
               : "Profile",
+          headerLeft: () => (
+            <Btn
+              onPress={() => {
+                navigation.navigate("EditProfile", { user: data })
+              }}
+              icon={
+                <Feather name="edit" size={30} color={config.primaryColor} />
+              }
+              type="clear"
+            />
+          ),
         })
         getFriendRequests()
         getUserPosts()
@@ -101,7 +113,9 @@ const Profile = ({ navigation, route }) => {
           : "Profile",
       headerLeft: () => (
         <Btn
-          onPress={() => {}}
+          onPress={() => {
+            navigation.navigate("EditProfile", { user: user })
+          }}
           icon={<Feather name="edit" size={30} color={config.primaryColor} />}
           type="clear"
         />
@@ -274,6 +288,22 @@ const ProfilePage = ({ navigation }) => {
             />
           ),
           title: "Profile",
+          headerStyle: {
+            backgroundColor: config.secondaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.primaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{
+          title: "Edit Profile",
           headerStyle: {
             backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },

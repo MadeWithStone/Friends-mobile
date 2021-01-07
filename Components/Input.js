@@ -13,6 +13,7 @@ const Input = (props) => {
       keyboardType={props.type}
       onFocus={props.onFocus != null ? props.onFocus : () => {}}
       onEndEditing={props.onEndEditing != null ? props.onEndEditing : () => {}}
+      placeholderTextColor={props.placeholderColor}
     />
   )
 }
@@ -27,6 +28,7 @@ const MultilineInput = (props) => {
       secureTextEntry={props.secure}
       keyboardType={props.type}
       multiline
+      placeholderTextColor={props.placeholderColor}
     />
   )
 }
