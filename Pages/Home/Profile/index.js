@@ -221,6 +221,7 @@ const PostsView = (props) => {
 const PostViewObj = (props) => {
   return (
     <Image
+      key={props.post.id}
       source={{ uri: props.post.image }}
       style={{
         width: Dimensions.get("window").width / 3 - 0.7,
@@ -228,6 +229,9 @@ const PostViewObj = (props) => {
         marginRight: props.index % 3 == 0 ? 1 : 0,
         marginLeft: (props.index + 1) % 3 == 0 ? 1 : 0,
         marginBottom: 1,
+        opacity: props.index > 1 ? 0.4 : 1,
+        borderColor: config.primaryColor,
+        borderWidth: props.index <= 1 ? 1 : 0,
       }}
     />
   )

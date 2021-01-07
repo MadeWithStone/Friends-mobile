@@ -31,6 +31,7 @@ import AddFriend from "./AddFriend"
 import User from "../../../Data/User"
 import { getUsers } from "../../../Firebase/UserFunctions"
 import { loadData } from "../../../Firebase/UserFunctions"
+import { DatePickerIOS } from "react-native"
 
 class Feed extends React.Component {
   constructor(props) {
@@ -70,6 +71,7 @@ class Feed extends React.Component {
     for (let i = 0; i < 2 && i < this.user.data.posts.length; i++) {
       postList.push(this.user.data.posts[i])
     }
+    console.log("postList: " + JSON.stringify(this.state.postList))
     getPosts(postList).then((result) => {
       let p = []
       result.forEach((post) => {
@@ -78,23 +80,31 @@ class Feed extends React.Component {
       console.log("posts: " + JSON.stringify(p))
       let _users = this.state.users
       _users.push(this.user.data)
+      p.sort((a, b) => {
+        let dA = new Date(a.date)
+        let dB = new Date(b.date)
+        return dA <= dB
+      })
       this.setState({ posts: p, users: _users, refreshing: false })
     })
   }
 
   downloadUsers = async () => {
     this.setState({ refreshing: true })
-    let userList = this.user.data.friends
+    let userList = []
+    this.user.data.friends.forEach((user) => userList.push(user.userID))
     if (userList == null) {
       this.downloadPosts()
     } else {
       let pList = this.state.postList
+      console.log("getting users")
       getUsers(userList).then((result) => {
         let u = []
         result.forEach((user) => {
           u.push(user.data())
           pList.push(user.data().posts[0], user.data().posts[1])
         })
+        console.log("got users: " + JSON.stringify(pList))
         this.setState({ users: u, postList: pList })
         this.downloadPosts()
       })
