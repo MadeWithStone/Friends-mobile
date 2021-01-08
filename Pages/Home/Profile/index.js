@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
 import { createStackNavigator } from "@react-navigation/stack"
 import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5"
 import config from "../../../config"
 import User from "../../../Data/User"
 import {
@@ -19,6 +20,7 @@ import {
 } from "../../../Firebase/UserFunctions"
 import { getPosts } from "../../../Firebase/PostFunctions"
 import EditProfile from "./EditProfile"
+import Settings from "./Settings"
 
 const Profile = ({ navigation, route }) => {
   let [user, setUser] = React.useState({})
@@ -284,7 +286,7 @@ const ProfilePage = ({ navigation }) => {
                 />
               }
               type="clear"
-              onPress={() => navigation.navigate("AddFriend")}
+              onPress={() => navigation.navigate("Settings")}
             />
           ),
           title: "Profile",
@@ -304,6 +306,37 @@ const ProfilePage = ({ navigation }) => {
         component={EditProfile}
         options={{
           title: "Edit Profile",
+          headerStyle: {
+            backgroundColor: config.secondaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.primaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={Settings}
+        options={{
+          headerLeft: () => (
+            <Btn
+              onPress={() => {
+                navigation.goBack()
+              }}
+              icon={
+                <FontAwesome5
+                  name="chevron-left"
+                  size={30}
+                  color={config.primaryColor}
+                />
+              }
+              type="clear"
+            />
+          ),
+          title: "Settings",
           headerStyle: {
             backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },

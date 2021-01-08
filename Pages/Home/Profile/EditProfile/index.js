@@ -28,6 +28,8 @@ import { ScreenStackHeaderConfig } from "react-native-screens"
 import * as ImageManipulator from "expo-image-manipulator"
 import * as ImagePicker from "expo-image-picker"
 import { Camera } from "expo-camera"
+import { updateUser } from "../../../../Firebase/UserFunctions"
+import { uploadImage } from "../../../../Firebase/PostFunctions"
 
 const EditProfile = ({ navigation, route }) => {
   let [user, setUser] = useState(null)
@@ -84,7 +86,7 @@ const EditProfile = ({ navigation, route }) => {
       headerRight: () => (
         <Btn
           onPress={() => {
-            navigation.goBack()
+            saveEdits()
           }}
           icon={<Feather name="check" size={30} color={config.primaryColor} />}
           type="clear"
@@ -128,7 +130,7 @@ const EditProfile = ({ navigation, route }) => {
       const manipResult = await ImageManipulator.manipulateAsync(
         photo.uri,
         [{ crop: options }],
-        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+        { compress: 0.05, format: ImageManipulator.SaveFormat.JPEG }
       )
       let uri = manipResult.uri
       setImage(uri)
@@ -150,6 +152,50 @@ const EditProfile = ({ navigation, route }) => {
     if (!result.cancelled) {
       compressImage(result)
     }
+  }
+  const saveEdits = async () => {
+    if (user != null) {
+      let imgURL = ""
+      if (image != null && image.length > 0) {
+        imgURL = await uploadUserImg()
+      }
+      let newData = {
+        firstName: firstName,
+        lastName: lastName,
+        profileImage: imgURL,
+      }
+      updateUser(newData, user.data.id).then(() => {
+        navigation.goBack()
+      })
+    }
+  }
+  const uploadUserImg = async () => {
+    let imgUrl = ""
+    console.log("uploading image")
+    //updateProgressText("Uploading Image")
+    const uploadUri =
+      Platform.OS === "ios" ? image.replace("file://", "") : image
+    return new Promise((resolve, reject) => {
+      uploadImage(
+        uploadUri,
+        user.data.id,
+        function (snapshot) {
+          /*setProgress(
+            Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 0.5
+          )*/
+          console.log(
+            Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
+          )
+        },
+        async function (url) {
+          imgUrl = url
+          resolve(imgUrl)
+          //wait for data to upload
+          //setProgress(0.51)
+          //updateProgressText("Uploading Post Data")
+        }
+      )
+    }) //wait for image to upload
   }
   return (
     <KeyboardAvoidingScrollView
