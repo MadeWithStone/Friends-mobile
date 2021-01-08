@@ -7,6 +7,7 @@ import {
   Button as B,
   TouchableOpacity,
   Dimensions,
+  TouchableWithoutFeedback,
 } from "react-native"
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5"
 import Feather from "react-native-vector-icons/Feather"
@@ -35,13 +36,13 @@ const EditProfile = ({ navigation, route }) => {
   let [firstName, setFirstName] = useState("")
   let [lastName, setLastName] = useState("")
   let [showChooser, setShowChooser] = useState(false)
-  let [showCamera, setShowCamera] = useState(true)
-  let camType = Camera.Constants.Type.back
+  let [showCamera, setShowCamera] = useState(false)
+  let [camType, setCamType] = useState(Camera.Constants.Type.back)
   let dims = {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   }
-  let camera
+  let camera = {}
   React.useEffect(() => {
     let u = new User()
     console.log("running use effect")
@@ -85,9 +86,13 @@ const EditProfile = ({ navigation, route }) => {
     })
   }, [navigation])
   const snap = async () => {
-    if (camera) {
-      let photo = await camera.takePictureAsync()
-      this.compressImage(photo)
+    try {
+      if (camera) {
+        let photo = await camera.takePictureAsync()
+        compressImage(photo)
+      }
+    } catch (err) {
+      console.warn(err)
     }
   }
 
@@ -118,9 +123,6 @@ const EditProfile = ({ navigation, route }) => {
         { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
       )
       setNewImage(manipResult.uri)
-      this.props.navigation.navigate("CreatePost", {
-        image: newImage,
-      })
     } catch (err) {
       console.log("err: " + err)
     }
@@ -185,53 +187,50 @@ const EditProfile = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
-      {showCamera && (
-        <Modal>
-          <Camera
-            style={styles.camera}
-            type={camType}
-            ref={(ref) => {
-              camera = ref
-            }}>
-            <View
-              style={{
-                width: dims.width - 16,
-                height: dims.width - 16,
-                borderColor: config.primaryColor,
-                borderWidth: 2,
-                marginTop: 50 + "%",
-                marginBottom: "auto",
-                margin: 8,
-                borderRadius: 5,
+      <Modal visible={showCamera}>
+        <Camera
+          style={styles.camera}
+          type={camType}
+          ref={(ref) => {
+            camera = ref
+          }}>
+          <View
+            style={{
+              width: dims.width - 16,
+              height: dims.width - 16,
+              borderColor: config.primaryColor,
+              borderWidth: 2,
+              marginTop: dims.height / 2 - dims.width / 2 - 32,
+              marginBottom: "auto",
+              margin: 8,
+              borderRadius: 5,
+            }}
+          />
+          <View style={styles.roundButtonContainer}>
+            <TouchableOpacity onPress={() => setShowCamera(false)}>
+              <Text style={styles.cancelBtn}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.round} onPress={() => snap()} />
+            <IconButton
+              style={styles.button}
+              onPressAction={() => {
+                setCamType((type) =>
+                  type === Camera.Constants.Type.back
+                    ? Camera.Constants.Type.front
+                    : Camera.Constants.Type.back
+                )
               }}
+              icon={
+                <Ionicons
+                  name="camera-reverse-outline"
+                  size={45}
+                  color={config.primaryColor}
+                />
+              }
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={snap}>
-                <Text style={styles.cancelBtn}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.round} onPress={snap} />
-              <IconButton
-                style={styles.button}
-                onPressAction={() => {
-                  this.setState({
-                    type:
-                      this.state.type === Camera.Constants.Type.back
-                        ? Camera.Constants.Type.front
-                        : Camera.Constants.Type.back,
-                  })
-                }}
-                icon={
-                  <Ionicons
-                    name="camera-reverse-outline"
-                    size={45}
-                    color={config.primaryColor}
-                  />
-                }
-              />
-            </View>
-          </Camera>
-        </Modal>
-      )}
+          </View>
+        </Camera>
+      </Modal>
       {user != null && (
         <View style={{}}>
           <View
@@ -248,15 +247,19 @@ const EditProfile = ({ navigation, route }) => {
               name={user.data.firstName + " " + user.data.lastName}
               style={{ alignSelf: "center" }}
             />
-            <TextButton
-              text="Change Profile Image"
-              textStyle={{
-                marginTop: 8,
-                textAlign: "center",
-                fontWeight: "bold",
-              }}
-              onPressAction={() => setShowChooser(true)}
-            />
+
+            <TouchableOpacity
+              onPress={() => {
+                console.warn("setting show chooser")
+                try {
+                  setShowChooser(true)
+                } catch (err) {
+                  console.warn(err)
+                }
+                console.log(showChooser)
+              }}>
+              <Text style={{ ...styles.textButton }}>Choose Profile Image</Text>
+            </TouchableOpacity>
           </View>
           <View
             style={{
@@ -271,14 +274,14 @@ const EditProfile = ({ navigation, route }) => {
               style={{ width: 100 + "%" }}
               placeholderColor={config.primaryColor}
               value={firstName}
-              onChangeTexts={(d) => setFirstName(d)}
+              onChangeText={(d) => setFirstName(d)}
             />
             <Input
               placeholder="Last Name"
               style={{ width: 100 + "%" }}
               placeholderColor={config.primaryColor}
               value={lastName}
-              onChangeTexts={(d) => setLastName(d)}
+              onChangeText={(d) => setLastName(d)}
             />
           </View>
         </View>
@@ -303,7 +306,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  buttonContainer: {
+  roundButtonContainer: {
     flex: 1,
     backgroundColor: "transparent",
     flexDirection: "row",
@@ -325,6 +328,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center",
     alignItems: "center",
+  },
+  textButton: {
+    color: config.primaryColor,
+    fontSize: 17,
   },
 })
 
