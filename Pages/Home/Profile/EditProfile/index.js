@@ -219,11 +219,16 @@ const EditProfile = ({ navigation, route }) => {
                   ...styles.buttonContainer,
                   borderRadius: 0,
                   borderbottomColor: config.secondaryColor,
+
+                  backgroundColor: config.primaryColor,
                   borderBottomWidth: StyleSheet.hairlineWidth,
                   borderTopLeftRadius: 10,
                   borderTopRightRadius: 10,
                 }}>
-                <Text style={{ ...styles.button }}>Take Photo</Text>
+                <Text
+                  style={{ ...styles.button, color: config.secondaryColor }}>
+                  Take Photo
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={1}
@@ -232,18 +237,29 @@ const EditProfile = ({ navigation, route }) => {
                 }}
                 style={{
                   ...styles.buttonContainer,
+
+                  backgroundColor: config.primaryColor,
                   borderRadius: 0,
                   borderBottomLeftRadius: 10,
                   borderBottomRightRadius: 10,
                 }}>
-                <Text style={{ ...styles.button }}>Pick From Library</Text>
+                <Text
+                  style={{ ...styles.button, color: config.secondaryColor }}>
+                  Pick From Library
+                </Text>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
               activeOpacity={1}
               onPress={() => setShowChooser(false)}
-              style={{ ...styles.buttonContainer, margin: 8 }}>
-              <Text style={{ ...styles.button }}>Cancel</Text>
+              style={{
+                ...styles.buttonContainer,
+                backgroundColor: config.primaryColor,
+                margin: 8,
+              }}>
+              <Text style={{ ...styles.button, color: config.secondaryColor }}>
+                Cancel
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -356,11 +372,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     padding: 8,
     textAlign: "center",
-    color: config.secondaryColor,
   },
   buttonContainer: {
     borderRadius: 10,
-    backgroundColor: config.primaryColor,
   },
   camera: {
     flex: 1,

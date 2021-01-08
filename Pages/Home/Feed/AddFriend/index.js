@@ -58,7 +58,7 @@ export default class AddFriend extends React.Component {
     if (d.length <= 7) {
       this.setState({ [name]: d })
     }
-    if (d.length == 7 && d != this.state.currentUserFC) {
+    if (d.length == 7 && d != this.state.currentUserFC.toUpperCase()) {
       this.setState({ addBtnDis: false })
     } else {
       this.setState({ addBtnDis: true })
@@ -117,7 +117,11 @@ export default class AddFriend extends React.Component {
     return (
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <KeyboardAvoidingView
-          style={{ ...StyleSheet.absoluteFill, ...styles.contentView }}>
+          style={{
+            ...StyleSheet.absoluteFill,
+            ...styles.contentView,
+            backgroundColor: config.secondaryColor,
+          }}>
           <View styles={styles.mainView}>
             <View style={styles.code} onPress={() => Keyboard.dismiss()}>
               <View style={styles.addView}>
@@ -146,7 +150,8 @@ export default class AddFriend extends React.Component {
               </View>
               {this.state.showCode && (
                 <View style={{ alignItems: "center" }}>
-                  <Text style={styles.codeText}>
+                  <Text
+                    style={{ ...styles.codeText, color: config.primaryColor }}>
                     {this.state.currentUserFC}
                   </Text>
                   <QRCode
@@ -187,13 +192,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   contentView: {
-    backgroundColor: config.secondaryColor,
     justifyContent: "center",
   },
   codeText: {
     textAlign: "center",
     width: 100 + "%",
-    color: config.primaryColor,
     fontSize: 17,
     marginBottom: 4,
     fontWeight: "bold",

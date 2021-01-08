@@ -24,14 +24,15 @@ export default class FeedObject extends React.Component {
     let date = new Date(this.props.post.date)
     let user = this.props.user != null ? this.props.user : {}
     return (
-      <View style={styles.mainView}>
+      <View
+        style={{ ...styles.mainView, backroundColor: config.secondaryColor }}>
         <View style={styles.topView}>
           <ProfileImage
             image={user.profileImage}
             name={user.firstName + " " + user.lastName}
             size={40}
           />
-          <Text style={styles.profileName}>
+          <Text style={{ ...styles.profileName, color: config.textColor }}>
             {user.firstName} {user.lastName}
           </Text>
           <View style={styles.optionsBtn}>
@@ -53,7 +54,7 @@ export default class FeedObject extends React.Component {
           style={{ width: this.dims.width, height: this.dims.width }}
         />
         <View style={styles.descriptionView}>
-          <Text style={styles.description}>
+          <Text style={{ ...styles.description, color: config.textColor }}>
             <Text style={styles.descriptionStart}>
               {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
             </Text>{" "}
@@ -69,7 +70,6 @@ const styles = StyleSheet.create({
   mainView: {
     borderBottomColor: "#707070",
     borderBottomWidth: StyleSheet.hairlineWidth,
-    backgroundColor: config.secondaryColor,
   },
   topView: {
     margin: 8,
@@ -87,8 +87,6 @@ const styles = StyleSheet.create({
     //color: config.primaryColor,
     fontSize: 17,
     fontWeight: "bold",
-
-    color: config.textColor,
   },
   optionsBtn: {
     display: "flex",
@@ -102,8 +100,6 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 15,
-
-    color: config.textColor,
   },
   descriptionStart: {
     fontWeight: "bold",

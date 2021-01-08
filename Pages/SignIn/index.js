@@ -69,7 +69,10 @@ export default class SignIn extends React.Component {
       <View style={{ width: 100 + "%", height: 100 + "%" }}>
         <KeyboardAvoidingView
           behavior={Platform.OS == "ios" ? "padding" : "height"}
-          style={styles.mainContainer}>
+          style={{
+            ...styles.mainContainer,
+            backgroundColor: config.secondaryColor,
+          }}>
           <DismissKeyboardView style={styles.bodyContainer}>
             <View>
               <H1 text="Friends" />
@@ -95,9 +98,15 @@ export default class SignIn extends React.Component {
             </View>
           </DismissKeyboardView>
         </KeyboardAvoidingView>
-        <View style={styles.footerContainer}>
+        <View
+          style={{
+            ...styles.footerContainer,
+            backgroundColor: config.secondaryColor,
+          }}>
           <View style={styles.signUpContainer}>
-            <Text style={styles.text}>Don't have an account?</Text>
+            <Text style={{ ...styles.text, color: config.textColor }}>
+              Don't have an account?
+            </Text>
             <TextButton
               text="Sign Up"
               onPressAction={() => this.props.navigation.navigate("SignUp")}
@@ -115,7 +124,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: config.secondaryColor,
   },
   bodyContainer: {
     width: 100 + "%",
@@ -130,13 +138,11 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 17,
     marginRight: 4,
-    color: config.textColor,
   },
   signUpContainer: { flex: 1, flexDirection: "row" },
   footerContainer: {
     flex: 0.1,
     justifyContent: "flex-end",
     alignItems: "center",
-    backgroundColor: config.secondaryColor,
   },
 })

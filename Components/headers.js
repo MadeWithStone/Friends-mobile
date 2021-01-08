@@ -4,8 +4,14 @@ import config from "../config"
 
 const SectionHeader = (props) => {
   return (
-    <View style={styles.sectionHeaderContainer}>
-      <Text style={styles.sectionHeaderText}>{props.title}</Text>
+    <View
+      style={{
+        ...styles.sectionHeaderContainer,
+        borderBottomColor: config.primaryColor,
+      }}>
+      <Text style={{ ...styles.sectionHeaderText, color: config.primaryColor }}>
+        {props.title}
+      </Text>
     </View>
   )
 }
@@ -14,11 +20,9 @@ const styles = StyleSheet.create({
   sectionHeaderContainer: {
     width: 100 + "%",
     paddingBottom: 2,
-    borderBottomColor: config.primaryColor,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   sectionHeaderText: {
-    color: config.primaryColor,
     textAlign: "center",
     fontSize: 19,
   },

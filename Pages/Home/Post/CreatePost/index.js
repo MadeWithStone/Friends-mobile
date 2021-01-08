@@ -119,19 +119,34 @@ export default function HomeScreen({ navigation, route }) {
   let d = description
   return (
     <KeyboardAvoidingScrollView
-      style={styles.container}
+      style={{ ...styles.container, backgroundColor: config.secondaryColor }}
+      showsVerticalScrollIndicator={false}
+      scrollEventThrottle={32}
       cont
       innerRef={(ref) => {
         scroll = ref
       }}>
       <Modal animationType="fade" transparent={true} visible={posting}>
-        <View style={styles.modal}>
-          <View style={styles.modalTitle}>
-            <Text style={styles.modalTitleText}>Posting...</Text>
+        <View
+          style={{ ...styles.modal, backgroundColor: config.secondaryColor }}>
+          <View
+            style={{
+              ...styles.modalTitle,
+              backgroundColor: config.primaryColor,
+            }}>
+            <Text
+              style={{
+                ...styles.modalTitleText,
+                color: config.secondaryColor,
+              }}>
+              Posting...
+            </Text>
             <ActivityIndicator animating={true} color={config.secondaryColor} />
           </View>
           <View>
-            <Text style={styles.statusText}>{progressText}</Text>
+            <Text style={{ ...styles.statusText, color: config.textColor }}>
+              {progressText}
+            </Text>
             <ProgressBar
               color={config.primaryColor}
               progress={progress}
@@ -157,7 +172,6 @@ export default function HomeScreen({ navigation, route }) {
             paddingRight: 8,
             paddingBottom: 4,
             borderBottomWidth: 0,
-            color: config.textColor,
           }}
         />
       </View>
@@ -168,7 +182,6 @@ export default function HomeScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: config.secondaryColor,
     marginTop: 0,
     paddingTop: 0,
   },
@@ -177,11 +190,9 @@ const styles = StyleSheet.create({
     marginBottom: 100,
     marginLeft: 50,
     marginRight: 50,
-    backgroundColor: config.secondaryColor,
     borderRadius: 15,
   },
   modalTitle: {
-    backgroundColor: config.primaryColor,
     padding: 16,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
@@ -189,7 +200,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   modalTitleText: {
-    color: config.secondaryColor,
     fontSize: 17,
     textAlign: "center",
     paddingRight: 4,
@@ -197,7 +207,6 @@ const styles = StyleSheet.create({
   statusText: {
     padding: 16,
     textAlign: "center",
-    color: config.textColor,
   },
   camera: {
     flex: 1,

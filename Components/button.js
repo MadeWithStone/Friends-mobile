@@ -20,10 +20,15 @@ const Button = (props) => {
             : () => {}
           : () => {}
       }
-      style={{ ...btnContStyle, ...props.style }}>
+      style={{
+        ...btnContStyle,
+        backgroundColor: !props.disabled ? config.primaryColor : "gray",
+        ...props.style,
+      }}>
       <Text
         style={{
           ...styles.button,
+          color: config.secondaryColor,
           ...props.textStyle,
         }}>
         {props.text}
@@ -36,7 +41,12 @@ const TextButton = (props) => {
   return (
     <TouchableWithoutFeedback
       onPress={props.onPressAction ? props.onPressAction : () => {}}>
-      <Text style={{ ...styles.textButton, ...props.textStyle }}>
+      <Text
+        style={{
+          ...styles.textButton,
+          color: config.primaryColor,
+          ...props.textStyle,
+        }}>
         {props.text}
       </Text>
     </TouchableWithoutFeedback>
@@ -64,7 +74,12 @@ class CancelButton extends Component {
           ...this.props.style,
         }}
         onPress={!this.props.disabled ? this.props.callback : () => {}}>
-        <Text style={{ ...styles.text, ...this.props.textStyle }}>
+        <Text
+          style={{
+            ...styles.text,
+            color: config.primaryColor,
+            ...this.props.textStyle,
+          }}>
           {this.props.title}
         </Text>
       </TouchableOpacity>
@@ -77,18 +92,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     padding: 8,
     textAlign: "center",
-    color: config.secondaryColor,
   },
   buttonContainer: {
     borderRadius: 10,
-    backgroundColor: config.primaryColor,
   },
   buttonContainerDisabled: {
     borderRadius: 10,
     backgroundColor: "#707070",
   },
   textButton: {
-    color: config.primaryColor,
     fontSize: 17,
   },
   container: {
@@ -99,7 +111,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   text: {
-    color: config.secondaryColor,
     textAlign: "center",
     fontWeight: "bold",
   },

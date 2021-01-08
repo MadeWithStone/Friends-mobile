@@ -14,6 +14,10 @@ const signIn = async (email, password) => {
   return firebase.auth().signInWithEmailAndPassword(email, password)
 }
 
+const signOut = () => {
+  return firebase.auth().signOut()
+}
+
 const verifyEmail = () => {
   firebase.auth().currentUser.sendEmailVerification()
 }
@@ -113,4 +117,5 @@ export {
   findUserWithFriendCode,
   acceptFriendRequest,
   declineFriendRequest,
+  signOut,
 }

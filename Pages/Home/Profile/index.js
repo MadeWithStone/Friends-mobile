@@ -150,7 +150,7 @@ const ProfileDataView = (props) => {
         size={100}
         name={props.user.data.firstName + " " + props.user.data.lastName}
       />
-      <Text style={dvStyles.text}>
+      <Text style={{ ...dvStyles.text, color: config.textColor }}>
         {props.user.data.firstName + " " + props.user.data.lastName}
       </Text>
     </View>

@@ -7,7 +7,12 @@ const Input = (props) => {
     <TextInput
       onChangeText={(text) => props.onChangeText(text)}
       value={props.value}
-      style={{ ...styles.input, ...props.style }}
+      style={{
+        ...styles.input,
+        color: config.primaryColor,
+        borderBottomColor: config.primaryColor,
+        ...props.style,
+      }}
       placeholder={props.placeholder}
       secureTextEntry={props.secure}
       keyboardType={props.type}
@@ -23,7 +28,12 @@ const MultilineInput = (props) => {
     <TextInput
       onChangeText={(text) => props.onChangeText(text)}
       value={props.value}
-      style={{ ...styles.input, ...props.style }}
+      style={{
+        ...styles.input,
+        color: config.primaryColor,
+        borderBottomColor: config.primaryColor,
+        ...props.style,
+      }}
       placeholder={props.placeholder}
       secureTextEntry={props.secure}
       keyboardType={props.type}
@@ -38,9 +48,7 @@ export { MultilineInput }
 
 const styles = StyleSheet.create({
   input: {
-    borderBottomColor: config.primaryColor,
     borderBottomWidth: 2,
-    color: config.primaryColor,
     paddingBottom: 2,
     paddingLeft: 2,
     paddingRight: 2,

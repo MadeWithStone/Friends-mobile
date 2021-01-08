@@ -1,5 +1,8 @@
 //import functions for getting cloud data
-import { createEmailUser } from "../Firebase/UserFunctions"
+import {
+  createEmailUser,
+  signOut as signOutFunc,
+} from "../Firebase/UserFunctions"
 import { firebase } from "../Firebase/config"
 
 import * as SecureStore from "expo-secure-store"
@@ -28,6 +31,21 @@ export default class User {
 
   async signIn(email, password) {
     return firebase.auth().signInWithEmailAndPassword(email, password)
+  }
+
+  static signOut() {
+    return new Promise(async (resolve, reject) => {
+      await SecureStore.deleteItemAsync("currentUser")
+      this.data = null
+      console.log("deleted userdata")
+      await SecureStore.deleteItemAsync("currentAuth")
+      this.auth = null
+      console.log("deleted authdata")
+      await SecureStore.deleteItemAsync("credentials")
+      await signOutFunc()
+      console.log("signed out")
+      resolve()
+    })
   }
 
   async setCurrentUser() {

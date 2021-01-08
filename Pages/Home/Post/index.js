@@ -128,7 +128,10 @@ class Post extends React.Component {
                 }}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.round} onPress={this.snap} />
+            <TouchableOpacity
+              style={{ ...styles.round, backgroundColor: config.primaryColor }}
+              onPress={this.snap}
+            />
             <IconButton
               style={styles.button}
               onPressAction={() => {
@@ -186,7 +189,6 @@ const styles = StyleSheet.create({
   round: {
     width: 70,
     height: 70,
-    backgroundColor: config.primaryColor,
     borderRadius: 35,
   },
   library: {

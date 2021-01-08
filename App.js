@@ -8,26 +8,52 @@ import { SignIn } from "./Pages"
 import config from "./config"
 import SignUp from "./Pages/SignUp"
 import Home from "./Pages/Home"
+import Load from "./Load"
 
 const Stack = createStackNavigator()
 
 export default class App extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  async componentDidMount() {}
   render() {
+    console.log("loader page loaded")
     return (
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
             gestureEnabled: false,
-          }}>
-          <Stack.Screen name="SignIn" component={SignIn} />
-          <Stack.Screen name="SignUp" component={SignUp} />
-          <Stack.Screen name="Home" component={Home} />
+          }}
+          initialRouteName="Loader">
+          <Stack.Screen name="Loader" component={Loader} />
+          <Stack.Screen name="Load" component={Load} />
         </Stack.Navigator>
-        <StatusBar backgroundColor={config.primaryColor} />
       </NavigationContainer>
     )
   }
+}
+
+const Loader = ({ navigation, route }) => {
+  React.useEffect(() => {
+    console.log("running use effect")
+    config
+      .init()
+      .then(() => {
+        console.log("loading app")
+        //navigation.push(<Stack.Screen name="Load" component={Load} />)
+        navigation.navigate("Load")
+      })
+      .catch((err) => {
+        console.warn(err)
+      })
+  }, [])
+  return (
+    <View>
+      <Text>Hello World</Text>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
