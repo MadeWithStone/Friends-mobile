@@ -42,6 +42,7 @@ class Post extends React.Component {
   snap = async () => {
     if (this.camera) {
       let photo = await this.camera.takePictureAsync()
+      console.log("image: " + photo.uri)
       this.compressImage(photo)
     }
   }

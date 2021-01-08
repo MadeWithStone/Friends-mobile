@@ -1,14 +1,10 @@
-import React, { Component } from "react"
+import React, { PureComponent } from "react"
 import { StyleSheet, View, Text, Image } from "react-native"
 import config from "../config"
 
-export default class ProfileImage extends Component {
+export default class ProfileImage extends PureComponent {
   constructor(props) {
     super(props)
-    this.state = {
-      image: this.props.image,
-      name: this.props.name,
-    }
   }
 
   render() {
@@ -18,7 +14,7 @@ export default class ProfileImage extends Component {
     words.forEach((word) => {
       initials += word.charAt(0)
     })
-    let useImage = this.state.image != null && this.state.image.length > 0
+    let useImage = this.props.image != null && this.props.image.length > 0
     return (
       <View
         style={{
@@ -26,11 +22,13 @@ export default class ProfileImage extends Component {
           width: this.props.size != null ? this.props.size : 40,
           height: this.props.size != null ? this.props.size : 40,
           borderRadius: this.props.size != null ? this.props.size / 2 : 20,
-        }}>
+        }}
+        key={this.props.image + this.props.name}>
         {useImage && (
           <ImageView
-            image={this.state.image}
+            image={this.props.image}
             radius={this.props.size != null ? this.props.size / 2 : 20}
+            key={this.props.image + this.props.name}
           />
         )}
         {!useImage && (
@@ -38,6 +36,7 @@ export default class ProfileImage extends Component {
             initials={initials}
             name={name}
             radius={this.props.size != null ? this.props.size / 2 : 20}
+            key={this.props.image + this.props.name}
           />
         )}
       </View>
@@ -64,7 +63,8 @@ const NameView = (props) => {
         justifyContent: "center",
         alignItems: "center",
         borderRadius: props.radius,
-      }}>
+      }}
+      key={props.image + props.name}>
       <Text style={{ ...styles.initialText, fontSize: props.radius * 0.9 }}>
         {props.initials}
       </Text>

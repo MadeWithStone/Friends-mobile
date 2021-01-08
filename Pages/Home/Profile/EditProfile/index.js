@@ -30,9 +30,9 @@ import * as ImagePicker from "expo-image-picker"
 import { Camera } from "expo-camera"
 
 const EditProfile = ({ navigation, route }) => {
-  console.log("props: " + JSON.stringify(route))
   let [user, setUser] = useState(null)
   let [image, setImage] = useState("")
+  let [_img, setImg] = useState("")
   let [firstName, setFirstName] = useState("")
   let [lastName, setLastName] = useState("")
   let [showChooser, setShowChooser] = useState(false)
@@ -43,13 +43,17 @@ const EditProfile = ({ navigation, route }) => {
     height: Dimensions.get("window").height,
   }
   let camera = {}
+
+  const updateImage = (img) => {
+    setImage(img)
+  }
   React.useEffect(() => {
     let u = new User()
     console.log("running use effect")
     u.loadCurrentUser()
       .then((data) => {
         setUser(data)
-        setImage(data.data.image)
+        setImage(data.data.profileImage)
         setFirstName(data.data.firstName)
         setLastName(data.data.lastName)
       })
@@ -57,6 +61,9 @@ const EditProfile = ({ navigation, route }) => {
         console.log("err: " + err)
       })
   }, [])
+  React.useEffect(() => {
+    console.log("updated image: " + image)
+  }, [image])
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -89,6 +96,7 @@ const EditProfile = ({ navigation, route }) => {
     try {
       if (camera) {
         let photo = await camera.takePictureAsync()
+        setShowCamera(false)
         compressImage(photo)
       }
     } catch (err) {
@@ -122,7 +130,8 @@ const EditProfile = ({ navigation, route }) => {
         [{ crop: options }],
         { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
       )
-      setNewImage(manipResult.uri)
+      let uri = manipResult.uri
+      setImage(uri)
     } catch (err) {
       console.log("err: " + err)
     }
@@ -137,9 +146,9 @@ const EditProfile = ({ navigation, route }) => {
     })
 
     console.log(result)
-
+    setShowChooser(false)
     if (!result.cancelled) {
-      this.compressImage(result)
+      compressImage(result)
     }
   }
   return (
@@ -147,7 +156,7 @@ const EditProfile = ({ navigation, route }) => {
       containerStyle={{ backgroundColor: config.secondaryColor }}>
       <Modal visible={showChooser} animationType="fade" transparent={true}>
         <View style={{ justifyContent: "flex-end", height: 100 + "%" }}>
-          <View>
+          <View style={{ marginBottom: 100 }}>
             <View
               style={{
                 margin: 8,
@@ -155,7 +164,11 @@ const EditProfile = ({ navigation, route }) => {
               }}>
               <TouchableOpacity
                 activeOpacity={1}
-                onPress={() => setShowCamera(true)}
+                onPress={() => {
+                  setShowChooser(false)
+                  setShowCamera(true)
+                  console.log("camera opening")
+                }}
                 style={{
                   ...styles.buttonContainer,
                   borderRadius: 0,
@@ -168,7 +181,9 @@ const EditProfile = ({ navigation, route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={1}
-                onPress={() => setShowChooser(false)}
+                onPress={() => {
+                  pickImage()
+                }}
                 style={{
                   ...styles.buttonContainer,
                   borderRadius: 0,
@@ -187,7 +202,7 @@ const EditProfile = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
-      <Modal visible={showCamera}>
+      <Modal visible={showCamera} transparent={false}>
         <Camera
           style={styles.camera}
           type={camType}
@@ -200,10 +215,10 @@ const EditProfile = ({ navigation, route }) => {
               height: dims.width - 16,
               borderColor: config.primaryColor,
               borderWidth: 2,
-              marginTop: dims.height / 2 - dims.width / 2 - 32,
+              marginTop: dims.height / 2 - dims.width / 2 - 16 + 35,
               marginBottom: "auto",
               margin: 8,
-              borderRadius: 5,
+              borderRadius: (dims.width - 16) / 2,
             }}
           />
           <View style={styles.roundButtonContainer}>
@@ -278,7 +293,7 @@ const EditProfile = ({ navigation, route }) => {
             />
             <Input
               placeholder="Last Name"
-              style={{ width: 100 + "%" }}
+              style={{ width: 100 + "%", marginTop: 8 }}
               placeholderColor={config.primaryColor}
               value={lastName}
               onChangeText={(d) => setLastName(d)}
