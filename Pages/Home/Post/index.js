@@ -12,42 +12,46 @@ import { createStackNavigator } from "@react-navigation/stack"
 import CreatePost from "./CreatePost"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import * as ImageManipulator from "expo-image-manipulator"
+import { useIsFocused } from "@react-navigation/native"
 
 import Feed from "../Feed"
 
-class Post extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      hasPermission: false,
-      type: Camera.Constants.Type.back,
-    }
-    this.dims = {
-      width: Dimensions.get("window").width,
-      height: Dimensions.get("window").height,
-    }
+const Post = (props) => {
+  const [hasPermission, setHasPermission] = React.useState(false)
+  const [type, setType] = React.useState(Camera.Constants.Type.back)
+  const [image, setImage] = React.useState("")
+  const focused = useIsFocused()
+  let camera
+  let dims = {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
   }
 
-  async componentDidMount() {
+  React.useEffect(() => {
+    if (focused && hasPermission == false) {
+      setUpPermisions()
+    }
+  }, [focused])
+
+  const setUpPermisions = async () => {
     const { status } = await Camera.requestPermissionsAsync()
     const {
       pickerStatus,
     } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    this.setState({
-      hasPermission: status === "granted",
-      pickerPermissions: pickerStatus === "granted",
-    })
+
+    setHasPermission(status === "granted")
+    setPickerPermissions(pickerStatus === "granted")
   }
 
-  snap = async () => {
-    if (this.camera) {
-      let photo = await this.camera.takePictureAsync()
+  const snap = async () => {
+    if (camera) {
+      let photo = await camera.takePictureAsync()
       console.log("image: " + photo.uri)
-      this.compressImage(photo)
+      compressImage(photo)
     }
   }
 
-  compressImage = async (photo) => {
+  const compressImage = async (photo) => {
     let options = {
       originX: 0,
       originY: 0,
@@ -73,16 +77,16 @@ class Post extends React.Component {
         [{ crop: options }],
         { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
       )
-      this.setState({ image: manipResult.uri })
-      this.props.navigation.navigate("CreatePost", {
-        image: this.state.image,
+      setImage(manipResult.uri)
+      props.navigation.navigate("CreatePost", {
+        image: image,
       })
     } catch (err) {
       console.log("err: " + err)
     }
   }
 
-  pickImage = async () => {
+  const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -93,23 +97,23 @@ class Post extends React.Component {
     console.log(result)
 
     if (!result.cancelled) {
-      this.compressImage(result)
+      compressImage(result)
     }
   }
 
-  render() {
-    return (
-      <View style={styles.container}>
+  return (
+    <View style={styles.container}>
+      {focused && (
         <Camera
           style={styles.camera}
-          type={this.state.type}
+          type={type}
           ref={(ref) => {
-            this.camera = ref
+            camera = ref
           }}>
           <View
             style={{
-              width: this.dims.width - 16,
-              height: this.dims.width - 16,
+              width: dims.width - 16,
+              height: dims.width - 16,
               borderColor: config.primaryColor,
               borderWidth: 2,
               marginTop: 50 + "%",
@@ -119,7 +123,7 @@ class Post extends React.Component {
             }}
           />
           <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={this.pickImage}>
+            <TouchableOpacity onPress={pickImage}>
               <Image
                 style={styles.library}
                 source={{
@@ -130,16 +134,15 @@ class Post extends React.Component {
             </TouchableOpacity>
             <TouchableOpacity
               style={{ ...styles.round, backgroundColor: config.primaryColor }}
-              onPress={this.snap}
+              onPress={snap}
             />
             <IconButton
               style={styles.button}
               onPressAction={() => {
-                this.setState({
-                  type:
-                    this.state.type === Camera.Constants.Type.back
-                      ? Camera.Constants.Type.front
-                      : Camera.Constants.Type.back,
+                setType((t) => {
+                  return t === Camera.Constants.Type.back
+                    ? Camera.Constants.Type.front
+                    : Camera.Constants.Type.back
                 })
               }}
               icon={
@@ -152,9 +155,9 @@ class Post extends React.Component {
             />
           </View>
         </Camera>
-      </View>
-    )
-  }
+      )}
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({

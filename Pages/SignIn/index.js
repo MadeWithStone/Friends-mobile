@@ -20,6 +20,8 @@ export default class SignIn extends React.Component {
     this.state = {
       email: "",
       password: "",
+      loading: false,
+      title: "Friends",
     }
   }
 
@@ -36,6 +38,30 @@ export default class SignIn extends React.Component {
 
   onChangeText = (field, val) => {
     this.setState({ [field]: val })
+  }
+
+  load = async (loading) => {
+    if (loading) {
+      this.setState({ loading: true, title: "F" }, async () => {
+        let t = "Friends"
+        while (this.state.loading) {
+          for (let i = 1; i < 8; i++) {
+            let promises = []
+            promises.push(
+              new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  let current = (this.state.title += t.substring(i, i + 1))
+                  this.setState({ title: current })
+                  resolve()
+                }, 170)
+              })
+            )
+            await Promise.all(promises)
+          }
+          this.setState({ title: "F" })
+        }
+      })
+    }
   }
 
   signIn = () => {
@@ -63,8 +89,7 @@ export default class SignIn extends React.Component {
 
   render() {
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    let disabled =
-      this.state.password.length <= 8 || !reg.test(this.state.email)
+    let disabled = this.state.password.length < 8 || !reg.test(this.state.email)
     return (
       <View style={{ width: 100 + "%", height: 100 + "%" }}>
         <KeyboardAvoidingView
@@ -75,7 +100,7 @@ export default class SignIn extends React.Component {
           }}>
           <DismissKeyboardView style={styles.bodyContainer}>
             <View>
-              <H1 text="Friends" />
+              <H1 text={this.state.title} />
               <Input
                 style={styles.input}
                 value={this.state.email}

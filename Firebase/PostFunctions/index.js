@@ -83,7 +83,7 @@ const getPost = (postID) => {
 const getPosts = async (postList) => {
   let postPromises = []
   postList.forEach((post) => {
-    console.log("adding promise")
+    console.log("adding getPost promise")
     postPromises.push(getPost(post))
   })
   return Promise.all(postPromises)

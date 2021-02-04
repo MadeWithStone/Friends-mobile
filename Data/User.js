@@ -2,6 +2,7 @@
 import {
   createEmailUser,
   signOut as signOutFunc,
+  loadData,
 } from "../Firebase/UserFunctions"
 import { firebase } from "../Firebase/config"
 
@@ -77,6 +78,20 @@ export default class User {
         console.log("error " + error)
       }
       resolve(this)
+    })
+  }
+
+  async getUpdatedData() {
+    return new Promise((resolve, reject) => {
+      loadData(this.auth.uid)
+        .then((doc) => {
+          this.data = doc.data()
+          this.setCurrentUser()
+          resolve()
+        })
+        .catch((err) => {
+          reject(err)
+        })
     })
   }
 

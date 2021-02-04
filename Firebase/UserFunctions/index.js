@@ -73,12 +73,17 @@ const loadData = async (uid) => {
 }
 
 const getUsers = async (userList) => {
-  let userPromises = []
-  userList.forEach((user) => {
-    console.log("adding promise")
-    userPromises.push(loadData(user))
+  return new Promise(async (resolve, reject) => {
+    let userPromises = []
+    userList.forEach((user) => {
+      console.log("adding getUser promise")
+      userPromises.push(loadData(user))
+    })
+    console.log("awaiting promises")
+    let res = await Promise.all(userPromises)
+    console.log("got users in getUsers")
+    resolve(res)
   })
-  return Promise.all(userPromises)
 }
 
 const findUserWithFriendCode = async (code) => {

@@ -13,6 +13,7 @@ import config from "../../../../config"
 import { set } from "react-native-reanimated"
 import { Button } from "../../../../Components"
 import User from "../../../../Data/User"
+import { Button as Btn } from "react-native-elements"
 
 const Settings = ({ navigation, route }) => {
   let dims = {
@@ -40,6 +41,26 @@ const Settings = ({ navigation, route }) => {
       }
     })
   }, [])
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <Btn
+          onPress={() => {
+            navigation.goBack()
+          }}
+          icon={
+            <FontAwesome5
+              name="chevron-left"
+              size={30}
+              color={config.primaryColor}
+            />
+          }
+          type="clear"
+        />
+      ),
+    })
+  }, [navigation])
 
   const setColorPallet = (colors, idx) => {
     setSel(idx)

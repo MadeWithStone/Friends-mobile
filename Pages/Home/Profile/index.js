@@ -1,5 +1,12 @@
 import React, { Component } from "react"
-import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  RefreshControl,
+} from "react-native"
 import { createStackNavigator } from "@react-navigation/stack"
 import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
@@ -27,6 +34,7 @@ const Profile = ({ navigation, route }) => {
   let [friendRequests, setFriendRequests] = React.useState([])
   let [usersList, setUsersList] = React.useState([])
   let [posts, setPosts] = React.useState([])
+  let [refreshing, setRefreshing] = React.useState(false)
 
   React.useEffect(() => {
     let u = new User()
@@ -65,7 +73,7 @@ const Profile = ({ navigation, route }) => {
     let uList = []
     freReqs.forEach((req) => uList.push(req.userID))
     getUsers(uList).then((res) => {
-      console.log("getting users")
+      //console.log("getting users")
       data = []
       res.forEach((r) => {
         data.push(r.data())
@@ -77,7 +85,7 @@ const Profile = ({ navigation, route }) => {
 
   getUserPosts = () => {
     let postList = user.data.posts != null ? user.data.posts : []
-    console.warn("getting posts")
+    //console.warn("getting posts")
     getPosts(postList).then((result) => {
       let p = []
       result.forEach((post) => {
@@ -107,6 +115,8 @@ const Profile = ({ navigation, route }) => {
     }
   }
 
+  const _onRefresh = () => {}
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title:
@@ -128,7 +138,10 @@ const Profile = ({ navigation, route }) => {
     <KeyboardAvoidingScrollView
       scrollEventThrottle={32}
       showsVerticalScrollIndicator={false}
-      style={{ backgroundColor: config.secondaryColor }}>
+      style={{ backgroundColor: config.secondaryColor }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
+      }>
       {user.data != null && <ProfileDataView user={user} />}
       {friendRequests != null && friendRequests.length > 0 && (
         <FriendRequestView
@@ -215,7 +228,7 @@ const frStyles = StyleSheet.create({
 })
 
 const PostsView = (props) => {
-  console.log("posts: " + JSON.stringify(props.posts))
+  //console.log("posts: " + JSON.stringify(props.posts))
   return (
     <View style={{ marginTop: 8 }}>
       <SectionHeader title={"Posts"} />

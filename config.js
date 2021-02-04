@@ -8,9 +8,9 @@ import * as SecureStore from "expo-secure-store"
 }*/
 
 export default class config {
-  static _primaryColor = "#000"
-  static _secondaryColor = "#202020"
-  static _textColor = "red"
+  static _primaryColor = "#b16cd9"
+  static _secondaryColor = "#fff"
+  static _textColor = "#515151"
   static _icon = 22
   static _iconFocused = 24
   constructor(primaryColor, secondaryColor, textColor, icon, iconFocused) {
@@ -57,22 +57,24 @@ export default class config {
       let savedData = await SecureStore.getItemAsync("config")
       try {
         console.log("loaded data: " + savedData)
-        savedData = JSON.parse(savedData)
-        let data = savedData
-        console.log("loaded data: " + savedData)
-        this._primaryColor =
-          data.primaryColor != null ? data.primaryColor : this._primaryColor
-        this._secondaryColor =
-          data.secondaryColor != null
-            ? data.secondaryColor
-            : this._secondaryColor
-        this._textColor =
-          data.textColor != null ? data.textColor : this._textColor
-        this._icon = data.icon != null ? data.icon : this._icon
-        this._iconFocused =
-          data.iconFocused != null ? data.iconFocused : this._iconFocused
+        if (savedData != null) {
+          savedData = JSON.parse(savedData)
+          let data = savedData
+          console.log("loaded data: " + savedData)
+          this._primaryColor =
+            data.primaryColor != null ? data.primaryColor : this._primaryColor
+          this._secondaryColor =
+            data.secondaryColor != null
+              ? data.secondaryColor
+              : this._secondaryColor
+          this._textColor =
+            data.textColor != null ? data.textColor : this._textColor
+          this._icon = data.icon != null ? data.icon : this._icon
+          this._iconFocused =
+            data.iconFocused != null ? data.iconFocused : this._iconFocused
 
-        console.log("set all data")
+          console.log("set all data")
+        }
         resolve()
       } catch (error) {
         console.log("error " + error)

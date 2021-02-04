@@ -68,7 +68,7 @@ export default class SignUp extends React.Component {
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     let disabled =
       this.state.confirmPassword !== this.state.password ||
-      this.state.password.length <= 8 ||
+      this.state.password.length < 8 ||
       this.state.firstName.length <= 1 ||
       !reg.test(this.state.email)
     return (
