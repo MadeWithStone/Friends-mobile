@@ -22,6 +22,7 @@ export default class SignIn extends React.Component {
       password: "",
       loading: false,
       title: "Friends",
+      spinning: false,
     }
   }
 
@@ -65,6 +66,7 @@ export default class SignIn extends React.Component {
   }
 
   signIn = () => {
+    this.setState({ spinning: true })
     let user = new User()
     signIn(this.state.email, this.state.password).then(async (d) => {
       user.auth = d.user
@@ -79,6 +81,7 @@ export default class SignIn extends React.Component {
         loadData(user.auth.uid).then((doc) => {
           user.data = doc.data()
           user.setCurrentUser()
+          this.setState({ spinning: true })
           this.props.navigation.navigate("Home")
         })
       } else {
@@ -101,24 +104,29 @@ export default class SignIn extends React.Component {
           <DismissKeyboardView style={styles.bodyContainer}>
             <View>
               <H1 text={this.state.title} />
-              <Input
-                style={styles.input}
-                value={this.state.email}
-                onChangeText={(text) => this.onChangeText("email", text)}
-                placeholder="Email"
-                type="email-address"
-              />
-              <Input
-                style={styles.input}
-                value={this.state.password}
-                onChangeText={(text) => this.onChangeText("password", text)}
-                placeholder="Pasword"
-                secure
-              />
+              {!this.state.spinning && (
+                <View>
+                  <Input
+                    style={styles.input}
+                    value={this.state.email}
+                    onChangeText={(text) => this.onChangeText("email", text)}
+                    placeholder="Email"
+                    type="email-address"
+                  />
+                  <Input
+                    style={styles.input}
+                    value={this.state.password}
+                    onChangeText={(text) => this.onChangeText("password", text)}
+                    placeholder="Pasword"
+                    secure
+                  />
+                </View>
+              )}
               <Button
                 text="Sign In"
                 onPressAction={() => this.signIn()}
                 disabled={disabled}
+                spinning={this.state.spinning}
               />
             </View>
           </DismissKeyboardView>

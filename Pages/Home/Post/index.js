@@ -18,6 +18,7 @@ import Feed from "../Feed"
 
 const Post = (props) => {
   const [hasPermission, setHasPermission] = React.useState(false)
+  const [pickerPermission, setPickerPermission] = React.useState(false)
   const [type, setType] = React.useState(Camera.Constants.Type.back)
   const [image, setImage] = React.useState("")
   const focused = useIsFocused()
@@ -40,7 +41,7 @@ const Post = (props) => {
     } = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
     setHasPermission(status === "granted")
-    setPickerPermissions(pickerStatus === "granted")
+    setPickerPermission(pickerStatus === "granted")
   }
 
   const snap = async () => {
@@ -79,7 +80,7 @@ const Post = (props) => {
       )
       setImage(manipResult.uri)
       props.navigation.navigate("CreatePost", {
-        image: image,
+        image: manipResult.uri,
       })
     } catch (err) {
       console.log("err: " + err)
@@ -87,17 +88,19 @@ const Post = (props) => {
   }
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    })
+    if (pickerPermission) {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      })
 
-    console.log(result)
+      console.log(result)
 
-    if (!result.cancelled) {
-      compressImage(result)
+      if (!result.cancelled) {
+        compressImage(result)
+      }
     }
   }
 

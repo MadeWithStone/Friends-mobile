@@ -35,10 +35,11 @@ import { loadData } from "../../../Firebase/UserFunctions"
 import { DatePickerIOS } from "react-native"
 import { set } from "react-native-reanimated"
 
+postList = []
+users = []
+
 const Feed = (props) => {
   const [posts, setPosts] = React.useState([])
-  const [postList, setPostList] = React.useState([])
-  const [users, setUsers] = React.useState([])
   const [refreshing, setRefreshing] = React.useState(false)
   let focused = useIsFocused()
 
@@ -47,11 +48,7 @@ const Feed = (props) => {
   let refInterval
 
   React.useEffect(() => {
-    console.warn("running refresh")
-    if (focused) {
-      getData()
-    }
-    //autoRefresh()
+    autoRefresh()
   }, [focused])
 
   const autoRefresh = () => {
@@ -59,7 +56,7 @@ const Feed = (props) => {
     if (focused) {
       getData()
       if (!refInterval) {
-        //refInterval = setInterval(() => updateData(), 30000)
+        refInterval = setInterval(() => updateData(), 10000)
       }
     } else {
       if (refInterval) {
@@ -75,31 +72,28 @@ const Feed = (props) => {
       user.getUpdatedData().then(() => {
         console.log("### done getData")
         //setPosts([])
-        setPostList([])
-        setUsers([])
+        //postList = []
+        users = []
         downloadUsers()
       })
     })
   }
 
   const updateData = () => {
-    user.getUpdatedData().then(() => {
-      //setPosts([])
-      setPostList([])
-      downloadPosts()
+    user.loadCurrentUser().then(() => {
+      console.log("### done loading user")
+      user.getUpdatedData().then(() => {
+        console.log("### done getData")
+        //setPosts([])
+        //setPostList([])
+        downloadUsers()
+      })
     })
   }
 
-  const downloadPosts = async () => {
-    console.log("### downloading posts")
-
-    let pList = postList
-    console.log("postList: " + JSON.stringify(postList))
-
-    console.log("### removing dups")
-
-    if (postList.length > 0) {
-      getPosts(postList).then((result) => {
+  const downloadPosts = async (pList) => {
+    if (pList.length > 0) {
+      getPosts(pList).then((result) => {
         let p = posts
         result.forEach((post) => {
           p.push(post.data())
@@ -112,8 +106,9 @@ const Feed = (props) => {
           let dB = new Date(b.date)
           return dA <= dB
         })
+        p = p.filter((item, index) => p.indexOf(item) === index)
         setPosts(p)
-        setUsers(_users)
+        users = _users
         setRefreshing(false)
       })
     } else {
@@ -123,29 +118,31 @@ const Feed = (props) => {
 
   const removeDups = (pList) => {
     return new Promise((resolve, reject) => {
+      console.log("postList in remove dups: " + JSON.stringify(postList))
       let arr = pList
       console.log("### removing dups")
       let len = postList.length
-      for (let i = 0; i < len; i++) {
+      let i = 0
+      while (i < len) {
         if (postList.indexOf(pList[i]) != -1) {
           arr.splice(i, 1)
+        } else {
+          i++
         }
       }
+      console.log("postList in remove dups: " + JSON.stringify(postList))
       console.log("post list in remove dups: " + JSON.stringify(arr))
       resolve(arr)
     })
   }
 
   const downloadUsers = async () => {
-    console.log("### downloading Users")
-    setRefreshing(true)
     let userList = []
     user.data.friends.forEach((user) => userList.push(user.userID))
     if (userList == null) {
       //downloadPosts()
     } else {
-      let pList = postList
-      console.log("### getting users: " + JSON.stringify(userList))
+      let pList = [...postList]
       getUsers(userList).then(async (result) => {
         let u = []
         result.forEach((user) => {
@@ -154,21 +151,23 @@ const Feed = (props) => {
             pList.push(user.data().posts[i])
           }
         })
-        console.log("### got users: " + JSON.stringify(pList))
         for (let i = 0; i < 2 && i < user.data.posts.length; i++) {
           pList.push(user.data.posts[i])
         }
-        let arr = pList.filter((item, index) => pList.indexOf(item) === index) //removeDups(pList)
-        arr = await removeDups(arr)
-        setUsers(u)
-        setPostList(arr)
+        let arr1 = pList.filter((item, index) => pList.indexOf(item) === index) //removeDups(pList)
+
+        arr = await removeDups(Object.assign(arr1))
+        postList = [...arr1, ...postList]
+        users = u
         //setRefreshing(false)
-        downloadPosts()
+
+        downloadPosts(arr)
       })
     }
   }
 
   const _onRefresh = () => {
+    setRefreshing(true)
     updateData()
   }
 
@@ -185,15 +184,17 @@ const Feed = (props) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
         }>
-        {posts.map((post) => {
-          return (
-            <FeedObject
-              post={post}
-              user={users.find((x) => x.id == post.userID)}
-              key={post.date}
-            />
-          )
-        })}
+        {posts
+          .filter((item, index) => posts.indexOf(item) === index)
+          .map((post) => {
+            return (
+              <FeedObject
+                post={post}
+                user={users.find((x) => x.id == post.userID)}
+                key={post.date}
+              />
+            )
+          })}
       </ScrollView>
 
       <StatusBar style="light" />

@@ -6,6 +6,7 @@ import {
 } from "react-native-gesture-handler"
 import { Button as Btn } from "react-native-elements"
 import config from "../config"
+import { ActivityIndicator } from "react-native-paper"
 
 const Button = (props) => {
   let btnContStyle = props.disabled
@@ -25,14 +26,24 @@ const Button = (props) => {
         backgroundColor: !props.disabled ? config.primaryColor : "gray",
         ...props.style,
       }}>
-      <Text
-        style={{
-          ...styles.button,
-          color: config.secondaryColor,
-          ...props.textStyle,
-        }}>
-        {props.text}
-      </Text>
+      {!props.spinning && (
+        <Text
+          style={{
+            ...styles.button,
+            color: config.secondaryColor,
+            ...props.textStyle,
+          }}>
+          {props.text}
+        </Text>
+      )}
+
+      {props.spinning && (
+        <ActivityIndicator
+          style={{ ...styles.activityIndicator }}
+          size="small"
+          color={config.secondaryColor}
+        />
+      )}
     </TouchableWithoutFeedback>
   )
 }
@@ -77,7 +88,7 @@ class CancelButton extends Component {
         <Text
           style={{
             ...styles.text,
-            color: config.primaryColor,
+            color: config.secondaryColor,
             ...this.props.textStyle,
           }}>
           {this.props.title}
@@ -113,6 +124,9 @@ const styles = StyleSheet.create({
   text: {
     textAlign: "center",
     fontWeight: "bold",
+  },
+  activityIndicator: {
+    padding: 8,
   },
 })
 

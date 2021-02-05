@@ -150,10 +150,6 @@ export default class AddFriend extends React.Component {
               </View>
               {this.state.showCode && (
                 <View style={{ alignItems: "center" }}>
-                  <Text
-                    style={{ ...styles.codeText, color: config.primaryColor }}>
-                    {this.state.currentUserFC}
-                  </Text>
                   <QRCode
                     value={
                       this.state.currentUserFC != null &&
@@ -165,6 +161,10 @@ export default class AddFriend extends React.Component {
                     backgroundColor="transparent"
                     color={config.primaryColor}
                   />
+                  <Text
+                    style={{ ...styles.codeText, color: config.primaryColor }}>
+                    {this.state.currentUserFC}
+                  </Text>
                 </View>
               )}
             </View>
@@ -176,7 +176,10 @@ export default class AddFriend extends React.Component {
               <CancelButton
                 title={"Cancel"}
                 callback={() => this.setState({ scan: false })}
-                style={{ alignSelf: "flex-end", margin: 16 }}
+                style={{
+                  alignSelf: "flex-end",
+                  margin: 16,
+                }}
               />
             </BarCodeScanner>
           )}
