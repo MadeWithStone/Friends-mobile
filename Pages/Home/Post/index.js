@@ -101,6 +101,8 @@ const Post = (props) => {
       if (!result.cancelled) {
         compressImage(result)
       }
+    } else {
+      alert("Enable camera roll permisions for Friends")
     }
   }
 

@@ -56,7 +56,7 @@ const Feed = (props) => {
     if (focused) {
       getData()
       if (!refInterval) {
-        refInterval = setInterval(() => updateData(), 10000)
+        refInterval = setInterval(() => updateData(), 20000)
       }
     } else {
       if (refInterval) {
@@ -80,15 +80,17 @@ const Feed = (props) => {
   }
 
   const updateData = () => {
-    user.loadCurrentUser().then(() => {
-      console.log("### done loading user")
-      user.getUpdatedData().then(() => {
-        console.log("### done getData")
-        //setPosts([])
-        //setPostList([])
-        downloadUsers()
+    if (focused) {
+      user.loadCurrentUser().then(() => {
+        console.log("### done loading user")
+        user.getUpdatedData().then(() => {
+          console.log("### done getData")
+          //setPosts([])
+          //setPostList([])
+          downloadUsers()
+        })
       })
-    })
+    }
   }
 
   const downloadPosts = async (pList) => {
@@ -106,9 +108,15 @@ const Feed = (props) => {
           let dB = new Date(b.date)
           return dA <= dB
         })
-        p = p.filter((item, index) => p.indexOf(item) === index)
+        let cuttOff = new Date()
+        cuttOff.setDate(cuttOff.getDate() - 1)
+        p = p.filter((item, index) => {
+          let d = new Date(item.date)
+          return p.indexOf(item) === index && d >= cuttOff
+        })
         setPosts(p)
         users = _users
+        cleanOldPosts()
         setRefreshing(false)
       })
     } else {
@@ -164,6 +172,34 @@ const Feed = (props) => {
         downloadPosts(arr)
       })
     }
+  }
+
+  const cleanOldPosts = () => {
+    let p = posts
+    let dict = []
+    let people = []
+    p.sort((a, b) => {
+      let dB = new Date(a.date)
+      let dA = new Date(b.date)
+      return dA <= dB
+    })
+    for (let i = posts.length - 1; i >= 0; i--) {
+      let idx = people.indexOf(p[i].userID)
+      if (idx == -1) {
+        people.push(p[i].userID)
+        dict.push(1)
+      } else {
+        if (dict[idx] >= 2) {
+          p.splice(i, 1)
+        } else dict[idx]++
+      }
+    }
+    p.sort((a, b) => {
+      let dA = new Date(a.date)
+      let dB = new Date(b.date)
+      return dA <= dB
+    })
+    setPosts(p)
   }
 
   const _onRefresh = () => {

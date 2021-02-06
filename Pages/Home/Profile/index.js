@@ -28,44 +28,37 @@ import {
 import { getPosts } from "../../../Firebase/PostFunctions"
 import EditProfile from "./EditProfile"
 import Settings from "./Settings"
+import { useIsFocused } from "@react-navigation/native"
 
+let user = new User()
+let pList = []
 const Profile = ({ navigation, route }) => {
-  let [user, setUser] = React.useState({})
   let [friendRequests, setFriendRequests] = React.useState([])
   let [usersList, setUsersList] = React.useState([])
   let [posts, setPosts] = React.useState([])
   let [refreshing, setRefreshing] = React.useState(false)
 
+  let focused = useIsFocused()
+  let refreshInterval
+
   React.useEffect(() => {
-    let u = new User()
     console.log("running use effect")
-    u.loadCurrentUser()
-      .then((data) => {
-        setUser(data)
-        navigation.setOptions({
-          title:
-            data.data != null
-              ? data.data.firstName + " " + data.data.lastName
-              : "Profile",
-          headerLeft: () => (
-            <Btn
-              onPress={() => {
-                navigation.navigate("EditProfile", { user: data })
-              }}
-              icon={
-                <Feather name="edit" size={30} color={config.primaryColor} />
-              }
-              type="clear"
-            />
-          ),
-        })
-        getFriendRequests()
-        getUserPosts()
-      })
-      .catch((err) => {
-        console.log("err: " + err)
-      })
   }, [])
+
+  React.useEffect(() => {
+    setUpInterval()
+  }, [focused])
+
+  const setUpInterval = () => {
+    if (focused) {
+      updateData()
+      refreshInterval = setInterval(() => updateData(), 60000) // every 60 seconds
+    } else {
+      try {
+        clearInterval(refreshInterval)
+      } catch (err) {}
+    }
+  }
 
   getFriendRequests = () => {
     let freReqs =
@@ -80,19 +73,51 @@ const Profile = ({ navigation, route }) => {
       })
       setUsersList(data)
       setFriendRequests(freReqs)
+
+      setRefreshing(false)
     })
   }
 
   getUserPosts = () => {
     let postList = user.data.posts != null ? user.data.posts : []
     //console.warn("getting posts")
-    getPosts(postList).then((result) => {
-      let p = []
-      result.forEach((post) => {
-        p.push(post.data())
+    let equal = arraysEqual(postList, pList)
+    console.log(
+      "postList: " +
+        JSON.stringify(postList) +
+        "; \npList: " +
+        JSON.stringify(pList) +
+        "; Equal: " +
+        equal
+    )
+    if (!equal) {
+      pList = postList
+      getPosts(postList).then((result) => {
+        let p = []
+        result.forEach((post) => {
+          p.push(post.data())
+        })
+        setPosts(p)
+
+        setRefreshing(false)
       })
-      setPosts(p)
-    })
+    }
+  }
+
+  function arraysEqual(a, b) {
+    if (a === b) return true
+    if (a == null || b == null) return false
+    if (a.length !== b.length) return false
+
+    // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    // Please note that calling sort on an array will modify that array.
+    // you might want to clone your array first.
+
+    for (var i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false
+    }
+    return true
   }
 
   friendRequestCallback = (accept, req) => {
@@ -100,6 +125,8 @@ const Profile = ({ navigation, route }) => {
       acceptFriendRequest(req.userID, friendRequests, user.data.friends)
         .then(() => {
           // complete
+          alert("Added " + req.firstName + " as a friend")
+          updateData()
         })
         .catch((err) => {
           console.warn(err)
@@ -108,6 +135,7 @@ const Profile = ({ navigation, route }) => {
       declineFriendRequest(req.userID, friendRequests)
         .then(() => {
           // complete
+          updateData()
         })
         .catch((err) => {
           console.warn(err)
@@ -115,7 +143,49 @@ const Profile = ({ navigation, route }) => {
     }
   }
 
-  const _onRefresh = () => {}
+  const updateData = () => {
+    if (focused) {
+      user
+        .loadCurrentUser()
+        .then((data) => {
+          user.data = data
+          user.getUpdatedData().then(() => {
+            console.log("### done getData")
+            navigation.setOptions({
+              title:
+                user.data != null
+                  ? user.data.firstName + " " + user.data.lastName
+                  : "Profile",
+              headerLeft: () => (
+                <Btn
+                  onPress={() => {
+                    navigation.navigate("EditProfile", { user: user.data })
+                  }}
+                  icon={
+                    <Feather
+                      name="edit"
+                      size={30}
+                      color={config.primaryColor}
+                    />
+                  }
+                  type="clear"
+                />
+              ),
+            })
+            getFriendRequests()
+            getUserPosts()
+          })
+        })
+        .catch((err) => {
+          console.log("err: " + err)
+        })
+    }
+  }
+
+  const _onRefresh = () => {
+    setRefreshing(true)
+    updateData()
+  }
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
