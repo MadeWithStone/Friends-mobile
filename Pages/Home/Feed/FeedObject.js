@@ -5,6 +5,7 @@ import { IconButton, ProfileImage } from "../../../Components"
 import Entypo from "@expo/vector-icons/Entypo"
 import { Button as Btn } from "react-native-elements"
 import config from "../../../config"
+import { TouchableWithoutFeedback } from "react-native"
 
 export default class FeedObject extends React.Component {
   constructor(props) {
@@ -47,12 +48,14 @@ export default class FeedObject extends React.Component {
             />
           </View>
         </View>
-        <Image
-          source={{
-            uri: this.props.post.image,
-          }}
-          style={{ width: this.dims.width, height: this.dims.width }}
-        />
+        <TouchableWithoutFeedback onPress={this.props.onImagePress}>
+          <Image
+            source={{
+              uri: this.props.post.image,
+            }}
+            style={{ width: this.dims.width, height: this.dims.width }}
+          />
+        </TouchableWithoutFeedback>
         <View style={styles.descriptionView}>
           <Text style={{ ...styles.description, color: config.textColor }}>
             <Text style={styles.descriptionStart}>
