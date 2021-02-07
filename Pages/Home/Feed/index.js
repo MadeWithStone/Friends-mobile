@@ -34,11 +34,12 @@ import { getUsers } from "../../../Firebase/UserFunctions"
 import { loadData } from "../../../Firebase/UserFunctions"
 import { DatePickerIOS } from "react-native"
 import { set } from "react-native-reanimated"
+import PostView from "./PostView"
 
 postList = []
 users = []
 
-const Feed = (props) => {
+const Feed = ({ route, navigation }) => {
   const [posts, setPosts] = React.useState([])
   const [refreshing, setRefreshing] = React.useState(false)
   let focused = useIsFocused()
@@ -228,6 +229,12 @@ const Feed = (props) => {
                 post={post}
                 user={users.find((x) => x.id == post.userID)}
                 key={post.date}
+                onImagePress={() => {
+                  navigation.navigate("Post", {
+                    post: post,
+                    user: users.find((x) => x.id == post.userID),
+                  })
+                }}
               />
             )
           })}
@@ -304,6 +311,35 @@ const FeedPage = ({ navigation }) => {
             />
           ),
           title: "Add Friend",
+          headerStyle: {
+            backgroundColor: config.secondaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.primaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Post"
+        component={PostView}
+        options={{
+          headerLeft: () => (
+            <Btn
+              icon={
+                <FontAwesome5
+                  name="chevron-left"
+                  size={30}
+                  color={config.primaryColor}
+                />
+              }
+              type="clear"
+              onPress={() => navigation.navigate("FeedMain")}
+            />
+          ),
+          title: "Post",
           headerStyle: {
             backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },
