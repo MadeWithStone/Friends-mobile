@@ -1,12 +1,24 @@
 import React from "react"
 import { Text, Image, Dimensions, View, StyleSheet } from "react-native"
 import { Icon } from "react-native-elements"
-import { IconButton, ProfileImage } from "../../../../Components"
+import { IconButton, ProfileImage, Input } from "../../../../Components"
 import Entypo from "@expo/vector-icons/Entypo"
+import MaterialIcons from "@expo/vector-icons/MaterialIcons"
 import { Button as Btn } from "react-native-elements"
 import config from "../../../../config"
-import { KeyboardAvoidingView } from "react-native"
+import {
+  KeyboardAvoidingView,
+  TextInput,
+  Platform,
+  TouchableWithoutFeedback,
+  Button,
+  Keyboard,
+} from "react-native"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { ScrollView } from "react-native-gesture-handler"
+import { KeyboardAccessoryView } from "@flyerhq/react-native-keyboard-accessory-view"
+import { GestureResponderHandlers } from "react-native"
+import { SafeAreaView } from "react-native"
 
 const PostView = ({ route, navigation }) => {
   let params = route.params
@@ -42,28 +54,49 @@ const PostView = ({ route, navigation }) => {
       ),
     })
   }, [navigation])
+
   let date = new Date(params.post.date)
+  const renderScrollable = (panHandlers) => (
+    // Can be anything scrollable
+    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <View>
+        <Image
+          source={{
+            uri: params.post.image,
+          }}
+          style={{ width: dims.width, height: dims.width }}
+        />
+        <View style={styles.descriptionView}>
+          <Text style={{ ...styles.description, color: config.textColor }}>
+            <Text style={styles.descriptionStart}>
+              {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
+            </Text>{" "}
+            - {params.post.description}
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
+  )
   return (
-    <View>
-      <KeyboardAvoidingView>
-        <ScrollView>
-          <Image
-            source={{
-              uri: params.post.image,
-            }}
-            style={{ width: dims.width, height: dims.width }}
+    <SafeAreaView style={{ flex: 1 }}>
+      <KeyboardAccessoryView
+        renderScrollable={renderScrollable}
+        spaceBetweenKeyboardAndAccessoryView={-75}
+        contentOffsetKeyboardOpened={-40}
+        contentOffsetKeyboardClosed={30}
+        contentContainerStyle={{ margin: 0 }}
+        style={{ backgroundColor: config.secondaryColor }}>
+        <View style={styles.inputView}>
+          <Input style={styles.input} onChangeText={() => {}} />
+          <MaterialIcons
+            name="arrow-upward"
+            size={30}
+            color={config.primaryColor}
+            placeHolder={"Comment"}
           />
-          <View style={styles.descriptionView}>
-            <Text style={{ ...styles.description, color: config.textColor }}>
-              <Text style={styles.descriptionStart}>
-                {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
-              </Text>{" "}
-              - {params.post.description}
-            </Text>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+        </View>
+      </KeyboardAccessoryView>
+    </SafeAreaView>
   )
 }
 
@@ -104,6 +137,44 @@ const styles = StyleSheet.create({
   },
   descriptionStart: {
     fontWeight: "bold",
+  },
+  inputView: {
+    display: "flex",
+    flexDirection: "row",
+    padding: 8,
+    width: "100%",
+    justifyContent: "flex-end",
+    marginBottom: 0,
+  },
+  input: {
+    flexGrow: 1,
+    marginRight: 8,
+  },
+  container: {
+    justifyContent: "flex-end",
+    flexGrow: 1,
+    margin: 16,
+    backgroundColor: "red",
+  },
+  inner: {
+    paddingBottom: 12,
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  header: {
+    fontSize: 36,
+    marginBottom: 48,
+  },
+  textInput: {
+    height: 40,
+    borderColor: "#000000",
+    borderBottomWidth: 1,
+    marginBottom: 36,
+  },
+  scrollView: {
+    flexShrink: 1,
+    flexGrow: 1,
+    height: "100%",
   },
 })
 
