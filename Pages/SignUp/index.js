@@ -61,7 +61,8 @@ export default class SignUp extends React.Component {
         })
       })
       .catch((err) => {
-        //alert(err)
+        alert(err)
+        this.setState({ spinning: false })
       })
   }
 

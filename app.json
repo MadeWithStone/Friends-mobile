@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Friends-mobile",
+    "name": "Friends",
     "slug": "Friends-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,9 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kidcrews.friends",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {

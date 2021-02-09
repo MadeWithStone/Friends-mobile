@@ -67,29 +67,34 @@ export default class SignIn extends React.Component {
 
   signIn = () => {
     this.setState({ spinning: true })
-    signIn(this.state.email, this.state.password).then(async (d) => {
-      User.auth = d.user
-      if (User.auth.emailVerified) {
-        await SecureStore.setItemAsync(
-          "credentials",
-          JSON.stringify({
-            email: this.state.email,
-            password: this.state.password,
-          })
-        )
-        loadData(User.auth.uid).then((doc) => {
-          User.data = doc.data()
-          User.setCurrentUser()
-          this.props.navigation.navigate("Home")
-          setTimeout(
-            () => this.setState({ spinning: false, email: "", password: "" }),
-            500
+    signIn(this.state.email, this.state.password)
+      .then(async (d) => {
+        User.auth = d.user
+        if (User.auth.emailVerified) {
+          await SecureStore.setItemAsync(
+            "credentials",
+            JSON.stringify({
+              email: this.state.email,
+              password: this.state.password,
+            })
           )
-        })
-      } else {
-        alert("You Must Verify Your Email")
-      }
-    })
+          loadData(User.auth.uid).then((doc) => {
+            User.data = doc.data()
+            User.setCurrentUser()
+            this.props.navigation.navigate("Home")
+            setTimeout(
+              () => this.setState({ spinning: false, email: "", password: "" }),
+              500
+            )
+          })
+        } else {
+          alert("You Must Verify Your Email")
+        }
+      })
+      .catch((err) => {
+        alert(err)
+        this.setState({ spinning: false })
+      })
   }
 
   render() {
