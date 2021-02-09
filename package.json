@@ -27,6 +27,7 @@
     "expo-progress": "0.0.2",
     "expo-secure-store": "~9.3.0",
     "expo-status-bar": "~1.0.3",
+    "fastlane": "^0.1.0",
     "firebase": "8.2.1",
     "patch-package": "^6.2.2",
     "react": "16.13.1",
