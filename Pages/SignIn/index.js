@@ -67,10 +67,9 @@ export default class SignIn extends React.Component {
 
   signIn = () => {
     this.setState({ spinning: true })
-    let user = new User()
     signIn(this.state.email, this.state.password).then(async (d) => {
-      user.auth = d.user
-      if (user.auth.emailVerified) {
+      User.auth = d.user
+      if (User.auth.emailVerified) {
         await SecureStore.setItemAsync(
           "credentials",
           JSON.stringify({
@@ -78,9 +77,9 @@ export default class SignIn extends React.Component {
             password: this.state.password,
           })
         )
-        loadData(user.auth.uid).then((doc) => {
-          user.data = doc.data()
-          user.setCurrentUser()
+        loadData(User.auth.uid).then((doc) => {
+          User.data = doc.data()
+          User.setCurrentUser()
           this.setState({ spinning: true })
           this.props.navigation.navigate("Home")
         })

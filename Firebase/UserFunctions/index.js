@@ -86,6 +86,11 @@ const getUsers = async (userList) => {
   })
 }
 
+const userReference = (id) => {
+  const usersRef = firebase.firestore().collection("users")
+  return usersRef.doc(id)
+}
+
 const findUserWithFriendCode = async (code) => {
   let usersRef = firebase.firestore().collection("users")
   return usersRef.where("friendCode", "==", code).get()
@@ -123,4 +128,5 @@ export {
   acceptFriendRequest,
   declineFriendRequest,
   signOut,
+  userReference,
 }

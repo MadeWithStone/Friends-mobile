@@ -66,6 +66,7 @@ const Settings = ({ navigation, route }) => {
     setSel(idx)
     config.configData = colors
     config.save()
+    navigation.goBack()
   }
   const signOutUser = () => {
     console.log("signing out")

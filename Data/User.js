@@ -13,24 +13,24 @@ export default class User {
     this.userData = userData
   }
 
-  set data(data) {
+  static set data(data) {
     this.userData = data
   }
 
-  get data() {
+  static get data() {
     return this.userData
   }
 
-  set auth(auth) {
+  static set auth(auth) {
     console.log("setting auth")
     this.authData = auth
   }
 
-  get auth() {
+  static get auth() {
     return this.authData
   }
 
-  async signIn(email, password) {
+  static async signIn(email, password) {
     return firebase.auth().signInWithEmailAndPassword(email, password)
   }
 
@@ -49,13 +49,13 @@ export default class User {
     })
   }
 
-  async setCurrentUser() {
+  static async setCurrentUser() {
     console.log("current user data: " + this.data)
     await SecureStore.setItemAsync("currentUser", JSON.stringify(this.data))
     await SecureStore.setItemAsync("currentAuth", JSON.stringify(this.auth))
   }
 
-  async loadCurrentUser(callback) {
+  static async loadCurrentUser(callback) {
     return new Promise(async (resolve, reject) => {
       let savedData = await SecureStore.getItemAsync("currentUser")
       try {
@@ -81,7 +81,7 @@ export default class User {
     })
   }
 
-  async getUpdatedData() {
+  static async getUpdatedData() {
     return new Promise((resolve, reject) => {
       loadData(this.auth.uid)
         .then((doc) => {
@@ -113,7 +113,7 @@ export default class User {
     return code
   }
 
-  signOut() {
+  static signOut() {
     // sign out user and delete local data
   }
 }

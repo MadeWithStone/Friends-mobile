@@ -1,7 +1,13 @@
 import React from "react"
 import { Text, Image, Dimensions, View, StyleSheet } from "react-native"
 import { Icon } from "react-native-elements"
-import { IconButton, ProfileImage, Input } from "../../../../Components"
+import {
+  IconButton,
+  ProfileImage,
+  Input,
+  MultilineInput,
+  CachedImage,
+} from "../../../../Components"
 import Entypo from "@expo/vector-icons/Entypo"
 import MaterialIcons from "@expo/vector-icons/MaterialIcons"
 import { Button as Btn } from "react-native-elements"
@@ -19,6 +25,15 @@ import { ScrollView } from "react-native-gesture-handler"
 import { KeyboardAccessoryView } from "@flyerhq/react-native-keyboard-accessory-view"
 import { GestureResponderHandlers } from "react-native"
 import { SafeAreaView } from "react-native"
+import KeyboardListener from "react-native-keyboard-listener"
+import { useIsFocused, useScrollToTop } from "@react-navigation/native"
+import {
+  addComment,
+  getCommentUsers,
+  getPost,
+  postReference,
+} from "../../../../Firebase/PostFunctions"
+import User from "../../../../Data/User"
 
 const PostView = ({ route, navigation }) => {
   let params = route.params
@@ -27,6 +42,16 @@ const PostView = ({ route, navigation }) => {
     height: Dimensions.get("window").height,
   }
 
+  let scrollview = React.useRef()
+
+  const [keyboardOpen, setKeyboardOpen] = React.useState(false)
+  const [comments, setComments] = React.useState([])
+  const [commentInput, setCommentInput] = React.useState("")
+  const [users, setUsers] = React.useState([])
+
+  let focused = useIsFocused()
+  let listener
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
@@ -34,6 +59,7 @@ const PostView = ({ route, navigation }) => {
           <ProfileImage
             image={params.user.profileImage}
             name={params.user.firstName + " " + params.user.lastName}
+            id={params.user.id}
             size={40}
           />
           <Text style={{ ...styles.profileName }}>
@@ -55,15 +81,72 @@ const PostView = ({ route, navigation }) => {
     })
   }, [navigation])
 
+  React.useEffect(() => {
+    if (keyboardOpen) {
+      scrollview.current.scrollToEnd({ animated: true })
+    }
+  }, [keyboardOpen])
+
+  React.useEffect(() => {
+    scrollview.current.scrollToEnd({ animated: true })
+  }, [comments])
+
+  React.useEffect(() => {
+    setComments(params.post.comments)
+    getPost(params.post.id).then((post) => {
+      params.post = post.data()
+      setComments(params.post.comments)
+    })
+    listener = postReference(params.post.id).onSnapshot((doc) => {
+      params.post = doc.data()
+      setComments(params.post.comments)
+    })
+  }, [])
+
+  React.useEffect(() => {
+    if (listener && !focused) {
+      listener()
+    }
+  }, [focused])
+
+  React.useEffect(() => {
+    getCommentUsers(comments).then((u) => {
+      setUsers(u)
+    })
+  }, [comments])
+
+  const inputChange = (data) => {
+    if (data.substring(data.length - 1) !== "\n") {
+      setCommentInput(data)
+    }
+  }
+
+  const newComment = () => {
+    let newComments = [...comments]
+    newComments.push({
+      userID: User.data.id,
+      comment: commentInput,
+      date: new Date().toISOString(),
+    })
+    setCommentInput("")
+    addComment(newComments, params.post.id)
+  }
+
   let date = new Date(params.post.date)
   const renderScrollable = (panHandlers) => (
     // Can be anything scrollable
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.scrollView}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ backgroundColor: config.secondaryColor }}
+      keyboardDismissMode="on-drag"
+      ref={scrollview}>
       <View>
-        <Image
+        <CachedImage
           source={{
             uri: params.post.image,
           }}
+          cacheKey={params.post.id}
           style={{ width: dims.width, height: dims.width }}
         />
         <View style={styles.descriptionView}>
@@ -73,6 +156,17 @@ const PostView = ({ route, navigation }) => {
             </Text>{" "}
             - {params.post.description}
           </Text>
+          {users.length > 0 &&
+            comments.map((obj) => {
+              console.log("user: " + JSON.stringify(users[0]))
+              return (
+                <CommentObj
+                  comment={obj}
+                  user={users.find((x) => x.id == obj.userID)}
+                  key={obj.date}
+                />
+              )
+            })}
         </View>
       </View>
     </ScrollView>
@@ -87,16 +181,58 @@ const PostView = ({ route, navigation }) => {
         contentContainerStyle={{ margin: 0 }}
         style={{ backgroundColor: config.secondaryColor }}>
         <View style={styles.inputView}>
-          <Input style={styles.input} onChangeText={() => {}} />
+          <MultilineInput
+            style={styles.input}
+            onChangeText={inputChange}
+            placeholder="Comment"
+            value={commentInput}
+            submitAction={() => newComment()}
+          />
           <MaterialIcons
             name="arrow-upward"
             size={30}
             color={config.primaryColor}
             placeHolder={"Comment"}
+            onPress={() => newComment()}
           />
         </View>
       </KeyboardAccessoryView>
+      <KeyboardListener
+        onWillShow={() => {
+          setKeyboardOpen(true)
+        }}
+        onWillHide={() => {
+          setKeyboardOpen(false)
+        }}
+      />
     </SafeAreaView>
+  )
+}
+
+const CommentObj = (props) => {
+  let user = props.user
+  let comment = props.comment
+  let date = new Date(comment.date)
+  return (
+    <View style={styles.tView}>
+      <ProfileImage
+        image={user.profileImage}
+        name={user.firstName + " " + user.lastName}
+        id={user.id}
+        size={30}
+      />
+      <Text style={styles.textView}>
+        <Text
+          style={{
+            ...styles.pName,
+            color: config.textColor,
+            paddingRight: 8,
+          }}>
+          {user.firstName} {user.lastName}
+        </Text>
+        {" " + comment.comment}
+      </Text>
+    </View>
   )
 }
 
@@ -105,22 +241,12 @@ const styles = StyleSheet.create({
     borderBottomColor: "#707070",
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+
   topView: {
     marginBottom: 8,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-  },
-  profileImg: {
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    marginRight: 4,
-  },
-  profileName: {
-    color: config.primaryColor,
-    fontSize: 30,
-    fontWeight: "bold",
   },
   optionsBtn: {
     display: "flex",
@@ -149,6 +275,7 @@ const styles = StyleSheet.create({
   input: {
     flexGrow: 1,
     marginRight: 8,
+    flexShrink: 1,
   },
   container: {
     justifyContent: "flex-end",
@@ -175,6 +302,45 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     height: "100%",
+    backgroundColor: config.secondaryColor,
+  },
+  tView: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 16,
+  },
+  textView: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 17,
+    flexGrow: 1,
+    flexShrink: 1,
+    color: config.textColor,
+  },
+  img: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  profileImg: {
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    marginRight: 4,
+  },
+  profileName: {
+    color: config.primaryColor,
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  pName: {
+    //color: config.primaryColor,
+    fontSize: 17,
+    fontWeight: "bold",
+    marginRight: 8,
   },
 })
 

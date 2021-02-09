@@ -39,6 +39,7 @@ const MultilineInput = (props) => {
       keyboardType={props.type}
       multiline
       placeholderTextColor={props.placeholderColor}
+      onSubmitEditing={props.submitAction ? props.submitAction : () => {}}
     />
   )
 }

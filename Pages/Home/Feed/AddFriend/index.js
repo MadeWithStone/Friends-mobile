@@ -31,17 +31,14 @@ export default class AddFriend extends React.Component {
       scan: false,
       showCode: true,
     }
-    this.user = new User()
   }
 
   componentDidMount() {
-    this.user.loadCurrentUser(() => {
-      this.setCurrentFC()
-    })
+    this.setCurrentFC()
   }
 
   setCurrentFC = () => {
-    this.setState({ currentUserFC: this.user.data.friendCode })
+    this.setState({ currentUserFC: User.data.friendCode })
   }
 
   scanFriendCode = () => {
@@ -78,7 +75,7 @@ export default class AddFriend extends React.Component {
               // doc.data() is never undefined for query doc snapshots
               console.log(doc.id, " => ", doc.data())
               let userData = doc.data()
-              let friend = new User(userData)
+              let friend = { data: userData }
               let alreadyRequested = false
               if (
                 friend.data.friendRequests != null &&

@@ -32,7 +32,6 @@ import { updateUser } from "../../../../Firebase/UserFunctions"
 import { uploadImage } from "../../../../Firebase/PostFunctions"
 
 const EditProfile = ({ navigation, route }) => {
-  let [user, setUser] = useState(null)
   let [image, setImage] = useState("")
   let [_img, setImg] = useState("")
   let [firstName, setFirstName] = useState("")
@@ -40,6 +39,7 @@ const EditProfile = ({ navigation, route }) => {
   let [showChooser, setShowChooser] = useState(false)
   let [showCamera, setShowCamera] = useState(false)
   let [camType, setCamType] = useState(Camera.Constants.Type.back)
+  let [saveData, setSaveData] = useState(false)
   let dims = {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
@@ -50,18 +50,9 @@ const EditProfile = ({ navigation, route }) => {
     setImage(img)
   }
   React.useEffect(() => {
-    let u = new User()
-    console.log("running use effect")
-    u.loadCurrentUser()
-      .then((data) => {
-        setUser(data)
-        setImage(data.data.profileImage)
-        setFirstName(data.data.firstName)
-        setLastName(data.data.lastName)
-      })
-      .catch((err) => {
-        console.log("err: " + err)
-      })
+    setImage(User.data.profileImage)
+    setFirstName(User.data.firstName)
+    setLastName(User.data.lastName)
   }, [])
   React.useEffect(() => {
     console.log("updated image: " + image)
@@ -86,14 +77,20 @@ const EditProfile = ({ navigation, route }) => {
       headerRight: () => (
         <Btn
           onPress={() => {
-            saveEdits()
+            setSaveData(true)
           }}
           icon={<Feather name="check" size={30} color={config.primaryColor} />}
           type="clear"
         />
       ),
     })
-  }, [navigation])
+  }, [navigation, firstName, lastName, image])
+
+  React.useEffect(() => {
+    if (saveData) {
+      saveEdits()
+    }
+  }, [saveData])
   const snap = async () => {
     try {
       if (camera) {
@@ -154,17 +151,22 @@ const EditProfile = ({ navigation, route }) => {
     }
   }
   const saveEdits = async () => {
-    if (user != null) {
-      let imgURL = ""
-      if (image != null && image.length > 0) {
+    console.log("firstname: " + firstName)
+    if (User.data != null) {
+      let imgURL = User.data.profileImage
+      if (image != null && image.length > 0 && image != imgURL) {
         imgURL = await uploadUserImg()
       }
+      setImage(imgURL)
+      console.log("firstname: " + firstName)
       let newData = {
-        firstName: firstName,
-        lastName: lastName,
-        profileImage: imgURL,
+        firstName: firstName.valueOf(),
+        lastName: lastName.valueOf(),
+        profileImage: imgURL.valueOf(),
       }
-      updateUser(newData, user.data.id).then(() => {
+
+      console.log("new data: " + JSON.stringify(newData))
+      updateUser(newData, User.data.id).then(() => {
         navigation.goBack()
       })
     }
@@ -178,7 +180,7 @@ const EditProfile = ({ navigation, route }) => {
     return new Promise((resolve, reject) => {
       uploadImage(
         uploadUri,
-        user.data.id,
+        User.data.id,
         function (snapshot) {
           /*setProgress(
             Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 0.5
@@ -308,7 +310,7 @@ const EditProfile = ({ navigation, route }) => {
           </View>
         </Camera>
       </Modal>
-      {user != null && (
+      {User != null && (
         <View style={{}}>
           <View
             style={{
@@ -321,8 +323,10 @@ const EditProfile = ({ navigation, route }) => {
             <ProfileImage
               image={image}
               size={120}
-              name={user.data.firstName + " " + user.data.lastName}
+              name={User.data.firstName + " " + User.data.lastName}
               style={{ alignSelf: "center" }}
+              id={image}
+              noCache
             />
 
             <TouchableOpacity
@@ -351,7 +355,11 @@ const EditProfile = ({ navigation, route }) => {
               style={{ width: 100 + "%" }}
               placeholderColor={config.primaryColor}
               value={firstName}
-              onChangeText={(d) => setFirstName(d)}
+              onChangeText={(d) => {
+                setFirstName(d)
+
+                console.log("updating first name" + firstName)
+              }}
             />
             <Input
               placeholder="Last Name"

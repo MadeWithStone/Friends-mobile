@@ -1,6 +1,7 @@
 import React, { PureComponent } from "react"
 import { StyleSheet, View, Text, Image } from "react-native"
 import config from "../config"
+import CachedImage from "./CachedImage"
 
 export default class ProfileImage extends PureComponent {
   constructor(props) {
@@ -24,9 +25,18 @@ export default class ProfileImage extends PureComponent {
           borderRadius: this.props.size != null ? this.props.size / 2 : 20,
         }}
         key={this.props.image + this.props.name}>
-        {useImage && (
+        {useImage && !this.props.noCache && (
+          <CachedImageView
+            image={this.props.image}
+            id={this.props.id}
+            radius={this.props.size != null ? this.props.size / 2 : 20}
+            key={this.props.image + this.props.name}
+          />
+        )}
+        {useImage && this.props.noCache && (
           <ImageView
             image={this.props.image}
+            id={this.props.id}
             radius={this.props.size != null ? this.props.size / 2 : 20}
             key={this.props.image + this.props.name}
           />
@@ -44,10 +54,24 @@ export default class ProfileImage extends PureComponent {
   }
 }
 
+const CachedImageView = (props) => {
+  console.log("image: " + props.image)
+  console.log("key: " + props.id)
+  return (
+    <CachedImage
+      source={{ uri: props.image ? props.image : "" }}
+      cacheKey={props.id ? props.id + props.image : ""}
+      style={{ ...styles.circleView, borderRadius: props.radius }}
+    />
+  )
+}
+
 const ImageView = (props) => {
+  console.log("image: " + props.image)
+  console.log("key: " + props.id)
   return (
     <Image
-      source={{ uri: props.image }}
+      source={{ uri: props.image ? props.image : "" }}
       style={{ ...styles.circleView, borderRadius: props.radius }}
     />
   )

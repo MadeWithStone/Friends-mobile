@@ -4,6 +4,7 @@ import Button, { TextButton, IconButton, CancelButton } from "./button"
 import DismissKeyboardView from "./DismissKeyboard"
 import ProfileImage from "./profileImage"
 import { SectionHeader } from "./headers"
+import CachedImage from "./CachedImage"
 
 export { Input, MultilineInput }
 export { H1 }
@@ -11,3 +12,4 @@ export { Button, TextButton, IconButton, CancelButton }
 export { DismissKeyboardView }
 export { ProfileImage }
 export { SectionHeader }
+export { CachedImage }

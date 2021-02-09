@@ -36,19 +36,19 @@ export default class App extends React.Component {
 }
 
 const Loader = ({ navigation, route }) => {
+  config
+    .init()
+    .then(() => {
+      console.log("loading app")
+      //navigation.push(<Stack.Screen name="Load" component={Load} />)
+      navigation.navigate("Load")
+    })
+    .catch((err) => {
+      console.warn(err)
+    })
   React.useEffect(() => {
     console.log("running use effect")
-    config
-      .init()
-      .then(() => {
-        console.log("loading app")
-        //navigation.push(<Stack.Screen name="Load" component={Load} />)
-        navigation.navigate("Load")
-      })
-      .catch((err) => {
-        console.warn(err)
-      })
-  }, [])
+  }, [navigation])
   return (
     <View>
       <Text>Hello World</Text>

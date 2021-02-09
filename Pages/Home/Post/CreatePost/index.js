@@ -41,8 +41,6 @@ export default function HomeScreen({ navigation, route }) {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   }
-  let user = new User()
-  user.loadCurrentUser()
 
   const onChangeText = (text) => {
     if (text.split("").length < maxChars) {
@@ -82,7 +80,7 @@ export default function HomeScreen({ navigation, route }) {
         let createPost = await createPostData(postData, postID)
         setProgress(0.8)
         updateProgressText("Sharing with Friends")
-        let postList = user.data.posts
+        let postList = User.data.posts
 
         if (postList == null) {
           postList = [postID]

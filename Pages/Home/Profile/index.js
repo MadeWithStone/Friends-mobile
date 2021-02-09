@@ -18,19 +18,20 @@ import {
   ProfileImage,
   SectionHeader,
   TextButton,
+  CachedImage,
 } from "../../../Components"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import {
   acceptFriendRequest,
   declineFriendRequest,
   getUsers,
+  userReference,
 } from "../../../Firebase/UserFunctions"
 import { getPosts } from "../../../Firebase/PostFunctions"
 import EditProfile from "./EditProfile"
 import Settings from "./Settings"
 import { useIsFocused } from "@react-navigation/native"
 
-let user = new User()
 let pList = []
 const Profile = ({ navigation, route }) => {
   let [friendRequests, setFriendRequests] = React.useState([])
@@ -39,30 +40,29 @@ const Profile = ({ navigation, route }) => {
   let [refreshing, setRefreshing] = React.useState(false)
 
   let focused = useIsFocused()
-  let refreshInterval
+  let listener
 
   React.useEffect(() => {
     console.log("running use effect")
   }, [])
 
   React.useEffect(() => {
-    setUpInterval()
-  }, [focused])
-
-  const setUpInterval = () => {
     if (focused) {
       updateData()
-      refreshInterval = setInterval(() => updateData(), 60000) // every 60 seconds
-    } else {
-      try {
-        clearInterval(refreshInterval)
-      } catch (err) {}
+      listener = userReference(User.data.id).onSnapshot((doc) => {
+        console.log("snap data: " + JSON.stringify(doc.data()))
+        User.data = doc.data()
+        getFriendRequests()
+        getUserPosts()
+      })
+    } else if (listener) {
+      listener()
     }
-  }
+  }, [focused])
 
   getFriendRequests = () => {
     let freReqs =
-      user.data.friendRequests != null ? user.data.friendRequests : []
+      User.data.friendRequests != null ? User.data.friendRequests : []
     let uList = []
     freReqs.forEach((req) => uList.push(req.userID))
     getUsers(uList).then((res) => {
@@ -79,7 +79,7 @@ const Profile = ({ navigation, route }) => {
   }
 
   getUserPosts = () => {
-    let postList = user.data.posts != null ? user.data.posts : []
+    let postList = User.data.posts != null ? User.data.posts : []
     //console.warn("getting posts")
     let equal = arraysEqual(postList, pList)
     console.log(
@@ -122,7 +122,7 @@ const Profile = ({ navigation, route }) => {
 
   friendRequestCallback = (accept, req) => {
     if (accept) {
-      acceptFriendRequest(req.userID, friendRequests, user.data.friends)
+      acceptFriendRequest(req.userID, friendRequests, User.data.friends)
         .then(() => {
           // complete
           alert("Added " + req.firstName + " as a friend")
@@ -145,21 +145,20 @@ const Profile = ({ navigation, route }) => {
 
   const updateData = () => {
     if (focused) {
-      user
-        .loadCurrentUser()
+      User.loadCurrentUser()
         .then((data) => {
-          user.data = data
-          user.getUpdatedData().then(() => {
+          User.data = data
+          User.getUpdatedData().then(() => {
             console.log("### done getData")
             navigation.setOptions({
               title:
-                user.data != null
-                  ? user.data.firstName + " " + user.data.lastName
+                User.data != null
+                  ? User.data.firstName + " " + User.data.lastName
                   : "Profile",
               headerLeft: () => (
                 <Btn
                   onPress={() => {
-                    navigation.navigate("EditProfile", { user: user.data })
+                    navigation.navigate("EditProfile", { user: User.data })
                   }}
                   icon={
                     <Feather
@@ -190,13 +189,15 @@ const Profile = ({ navigation, route }) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title:
-        user.data != null
-          ? user.data.firstName + " " + user.data.lastName
+        User.data != null
+          ? User.data.firstName + " " + User.data.lastName
           : "Profile",
       headerLeft: () => (
         <Btn
           onPress={() => {
-            navigation.navigate("EditProfile", { user: user })
+            navigation.navigate("EditProfile", {
+              user: { data: User.data, auth: User.auth },
+            })
           }}
           icon={<Feather name="edit" size={30} color={config.primaryColor} />}
           type="clear"
@@ -212,7 +213,9 @@ const Profile = ({ navigation, route }) => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
       }>
-      {user.data != null && <ProfileDataView user={user} />}
+      {User.data != null && (
+        <ProfileDataView user={{ data: User.data, auth: User.auth }} />
+      )}
       {friendRequests != null && friendRequests.length > 0 && (
         <FriendRequestView
           friendRequests={friendRequests}
@@ -232,6 +235,7 @@ const ProfileDataView = (props) => {
         image={props.user.data.profileImage}
         size={100}
         name={props.user.data.firstName + " " + props.user.data.lastName}
+        id={props.user.data.id}
       />
       <Text style={{ ...dvStyles.text, color: config.textColor }}>
         {props.user.data.firstName + " " + props.user.data.lastName}
@@ -319,9 +323,10 @@ const PostsView = (props) => {
 
 const PostViewObj = (props) => {
   return (
-    <Image
+    <CachedImage
       key={props.post.id}
       source={{ uri: props.post.image }}
+      cacheKey={props.post.id}
       style={{
         width: Dimensions.get("window").width / 3 - 0.7,
         height: Dimensions.get("window").width / 3,

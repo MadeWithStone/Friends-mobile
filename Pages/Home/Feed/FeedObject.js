@@ -1,7 +1,7 @@
 import React from "react"
 import { Text, Image, Dimensions, View, StyleSheet } from "react-native"
 import { Icon } from "react-native-elements"
-import { IconButton, ProfileImage } from "../../../Components"
+import { IconButton, ProfileImage, CachedImage } from "../../../Components"
 import Entypo from "@expo/vector-icons/Entypo"
 import { Button as Btn } from "react-native-elements"
 import config from "../../../config"
@@ -32,6 +32,7 @@ export default class FeedObject extends React.Component {
             image={user.profileImage}
             name={user.firstName + " " + user.lastName}
             size={40}
+            id={user.id}
           />
           <Text style={{ ...styles.profileName, color: config.textColor }}>
             {user.firstName} {user.lastName}
@@ -45,14 +46,16 @@ export default class FeedObject extends React.Component {
                   color={config.primaryColor}
                 />
               }
+              onPressAction={() => this.props.menuAction(this.props.post.id)}
             />
           </View>
         </View>
         <TouchableWithoutFeedback onPress={this.props.onImagePress}>
-          <Image
+          <CachedImage
             source={{
               uri: this.props.post.image,
             }}
+            cacheKey={this.props.post.id}
             style={{ width: this.dims.width, height: this.dims.width }}
           />
         </TouchableWithoutFeedback>

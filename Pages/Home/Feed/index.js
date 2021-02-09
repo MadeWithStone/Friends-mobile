@@ -5,6 +5,8 @@ import {
   View,
   KeyboardAvoidingView,
   RefreshControl,
+  Modal,
+  TouchableOpacity,
 } from "react-native"
 import { Button as Btn } from "react-native-elements"
 import { createStackNavigator } from "@react-navigation/stack"
@@ -25,7 +27,11 @@ import config from "../../../config"
 import Feather from "@expo/vector-icons/Feather"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import FeedObject from "./FeedObject"
-import { getPosts } from "../../../Firebase/PostFunctions"
+import {
+  getPost,
+  getPosts,
+  updateReports,
+} from "../../../Firebase/PostFunctions"
 
 import { StatusBar } from "expo-status-bar"
 import AddFriend from "./AddFriend"
@@ -42,35 +48,49 @@ users = []
 const Feed = ({ route, navigation }) => {
   const [posts, setPosts] = React.useState([])
   const [refreshing, setRefreshing] = React.useState(false)
+  const [showChooser, setShowChooser] = React.useState(false)
+  const [currentPost, setCurrentPost] = React.useState(0)
   let focused = useIsFocused()
 
-  let user = new User()
-
-  let refInterval
+  let refInterval = 0
 
   React.useEffect(() => {
     autoRefresh()
   }, [focused])
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: config.secondaryColor,
+        shadowOffset: { height: 0, width: 0 },
+      },
+      headerTintColor: config.primaryColor,
+      headerTitleStyle: {
+        fontWeight: "bold",
+        fontSize: 30,
+      },
+    })
+  }, [navigation, focused])
 
   const autoRefresh = () => {
     console.log("focused: " + focused)
     if (focused) {
       getData()
       if (!refInterval) {
-        refInterval = setInterval(() => updateData(), 20000)
+        console.log("starting interval")
+        refInterval = setInterval(() => updateData(), 40000)
       }
     } else {
-      if (refInterval) {
-        clearInterval(refInterval)
-      }
+      console.log("clearing interval")
+      clearInterval(refInterval)
     }
   }
 
   const getData = () => {
     console.log("### running getData")
-    user.loadCurrentUser().then(() => {
+    User.loadCurrentUser().then(() => {
       console.log("### done loading user")
-      user.getUpdatedData().then(() => {
+      User.getUpdatedData().then(() => {
         console.log("### done getData")
         //setPosts([])
         //postList = []
@@ -82,9 +102,9 @@ const Feed = ({ route, navigation }) => {
 
   const updateData = () => {
     if (focused) {
-      user.loadCurrentUser().then(() => {
+      User.loadCurrentUser().then(() => {
         console.log("### done loading user")
-        user.getUpdatedData().then(() => {
+        User.getUpdatedData().then(() => {
           console.log("### done getData")
           //setPosts([])
           //setPostList([])
@@ -103,7 +123,7 @@ const Feed = ({ route, navigation }) => {
         })
         console.log("### posts: " + JSON.stringify(p))
         let _users = users
-        _users.push(user.data)
+        _users.push(User.data)
         p.sort((a, b) => {
           let dA = new Date(a.date)
           let dB = new Date(b.date)
@@ -147,7 +167,7 @@ const Feed = ({ route, navigation }) => {
 
   const downloadUsers = async () => {
     let userList = []
-    user.data.friends.forEach((user) => userList.push(user.userID))
+    User.data.friends.forEach((user) => userList.push(user.userID))
     if (userList == null) {
       //downloadPosts()
     } else {
@@ -160,8 +180,8 @@ const Feed = ({ route, navigation }) => {
             pList.push(user.data().posts[i])
           }
         })
-        for (let i = 0; i < 2 && i < user.data.posts.length; i++) {
-          pList.push(user.data.posts[i])
+        for (let i = 0; i < 2 && i < User.data.posts.length; i++) {
+          pList.push(User.data.posts[i])
         }
         let arr1 = pList.filter((item, index) => pList.indexOf(item) === index) //removeDups(pList)
 
@@ -184,15 +204,23 @@ const Feed = ({ route, navigation }) => {
       let dA = new Date(b.date)
       return dA <= dB
     })
-    for (let i = posts.length - 1; i >= 0; i--) {
-      let idx = people.indexOf(p[i].userID)
-      if (idx == -1) {
-        people.push(p[i].userID)
-        dict.push(1)
+    for (let i = p.length - 1; i >= 0; i--) {
+      console.log("reports json: " + JSON.stringify(p[i].reports))
+      if (p[i].reports != null) {
+        console.log("reports: " + p[i].reports.length)
+      }
+      if (p[i].reports != null && p[i].reports.length >= 5) {
+        p.splice(i, 1)
       } else {
-        if (dict[idx] >= 2) {
-          p.splice(i, 1)
-        } else dict[idx]++
+        let idx = people.indexOf(p[i].userID)
+        if (idx == -1) {
+          people.push(p[i].userID)
+          dict.push(1)
+        } else {
+          if (dict[idx] >= 2) {
+            p.splice(i, 1)
+          } else dict[idx]++
+        }
       }
     }
     p.sort((a, b) => {
@@ -206,6 +234,38 @@ const Feed = ({ route, navigation }) => {
   const _onRefresh = () => {
     setRefreshing(true)
     updateData()
+  }
+
+  const menu = (id) => {
+    setCurrentPost(id)
+    setShowChooser(true)
+  }
+
+  const reportPost = (type) => {
+    let reports = posts.find((x) => x.id == currentPost)
+    reports = reports.reports ? reports.reports : []
+    if (reports.findIndex((x) => x.userID === User.data.id) == -1) {
+      reports.push({
+        userID: User.data.id,
+        report: type,
+        date: new Date().toISOString(),
+      })
+      updateReports(currentPost, reports).then(() => {
+        getPost(currentPost).then((post) => {
+          setPosts((pPosts) => {
+            let prevPosts = [...pPosts]
+            let idx = prevPosts.findIndex((x) => x.id === currentPost)
+            prevPosts[idx] = post.data()
+            return prevPosts
+          })
+
+          cleanOldPosts()
+          setShowChooser(false)
+        })
+      })
+    } else {
+      setShowChooser(false)
+    }
   }
 
   return (
@@ -229,10 +289,12 @@ const Feed = ({ route, navigation }) => {
                 post={post}
                 user={users.find((x) => x.id == post.userID)}
                 key={post.date}
+                menuAction={() => menu(post.id)}
                 onImagePress={() => {
                   navigation.navigate("Post", {
                     post: post,
                     user: users.find((x) => x.id == post.userID),
+                    currentUser: User.data,
                   })
                 }}
               />
@@ -240,8 +302,79 @@ const Feed = ({ route, navigation }) => {
           })}
       </ScrollView>
 
+      <OptionsModal
+        showChooser={showChooser}
+        setShowChooser={setShowChooser}
+        reportAction={reportPost}
+      />
       <StatusBar style="light" />
     </View>
+  )
+}
+
+const OptionsModal = (props) => {
+  const reportOptions = [
+    "Report for Sexually Explicit Content",
+    "Report for Copyright Infringement",
+    "Report for Violation of Terms of Service",
+    "Report for Violation of Privacy Policy",
+  ]
+  return (
+    <Modal visible={props.showChooser} animationType="fade" transparent={true}>
+      <View style={{ justifyContent: "flex-end", height: 100 + "%" }}>
+        <View style={{ marginBottom: 100 }}>
+          <View
+            style={{
+              margin: 8,
+              borderRadius: 15,
+            }}>
+            {reportOptions.map((option, index) => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  onPress={() => {
+                    props.reportAction(index)
+                  }}
+                  style={{
+                    ...styles.buttonContainer,
+                    borderRadius: 0,
+                    borderbottomColor: config.secondaryColor,
+
+                    backgroundColor: config.primaryColor,
+                    borderBottomWidth:
+                      index != reportOptions.length - 1
+                        ? StyleSheet.hairlineWidth
+                        : 0,
+                    borderBottomLeftRadius:
+                      index == reportOptions.length - 1 ? 10 : 0,
+                    borderBottomRightRadius:
+                      index == reportOptions.length - 1 ? 10 : 0,
+                    borderTopLeftRadius: index == 0 ? 10 : 0,
+                    borderTopRightRadius: index == 0 ? 10 : 0,
+                  }}>
+                  <Text
+                    style={{ ...styles.button, color: config.secondaryColor }}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => props.setShowChooser(false)}
+            style={{
+              ...styles.buttonContainer,
+              backgroundColor: config.primaryColor,
+              margin: 8,
+            }}>
+            <Text style={{ ...styles.button, color: config.secondaryColor }}>
+              Cancel
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
   )
 }
 
@@ -357,4 +490,13 @@ const FeedPage = ({ navigation }) => {
 
 export default FeedPage
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  button: {
+    fontSize: 20,
+    padding: 8,
+    textAlign: "center",
+  },
+  buttonContainer: {
+    borderRadius: 10,
+  },
+})
