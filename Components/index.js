@@ -5,6 +5,7 @@ import DismissKeyboardView from "./DismissKeyboard"
 import ProfileImage from "./profileImage"
 import { SectionHeader } from "./headers"
 import CachedImage from "./CachedImage"
+import { LogoHorizontal } from "./logo"
 
 export { Input, MultilineInput }
 export { H1 }
@@ -13,3 +14,4 @@ export { DismissKeyboardView }
 export { ProfileImage }
 export { SectionHeader }
 export { CachedImage }
+export { LogoHorizontal }

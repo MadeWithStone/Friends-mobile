@@ -14,6 +14,8 @@ import { set } from "react-native-reanimated"
 import { Button } from "../../../../Components"
 import User from "../../../../Data/User"
 import { Button as Btn } from "react-native-elements"
+import * as SecureStore from "expo-secure-store"
+import { signOut } from "../../../../Firebase/UserFunctions"
 
 const Settings = ({ navigation, route }) => {
   let dims = {
@@ -68,9 +70,17 @@ const Settings = ({ navigation, route }) => {
     config.save()
     navigation.goBack()
   }
-  const signOutUser = () => {
+  const signOutUser = async () => {
     console.log("signing out")
-    User.signOut().then(() => navigation.popToTop())
+    User.data = null
+    console.log("deleted userdata")
+    await SecureStore.deleteItemAsync("currentAuth")
+    User.auth = null
+    console.log("deleted authdata")
+    await SecureStore.deleteItemAsync("credentials")
+    await signOut()
+    console.log("signed out")
+    navigation.navigate("SignIn")
   }
 
   return (

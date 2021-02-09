@@ -21,6 +21,7 @@ import {
   TextButton,
   DismissKeyboardView,
   IconButton,
+  LogoHorizontal,
 } from "../../../Components"
 import { useIsFocused } from "@react-navigation/native"
 import config from "../../../config"
@@ -60,6 +61,7 @@ const Feed = ({ route, navigation }) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: () => <LogoHorizontal title={"Friends"} />,
       headerStyle: {
         backgroundColor: config.secondaryColor,
         shadowOffset: { height: 0, width: 0 },
@@ -331,6 +333,7 @@ const OptionsModal = (props) => {
             {reportOptions.map((option, index) => {
               return (
                 <TouchableOpacity
+                  key={option}
                   activeOpacity={1}
                   onPress={() => {
                     props.reportAction(index)
@@ -377,6 +380,8 @@ const OptionsModal = (props) => {
     </Modal>
   )
 }
+
+export { OptionsModal }
 
 const Stack = createStackNavigator()
 const FeedPage = ({ navigation }) => {

@@ -80,8 +80,11 @@ export default class SignIn extends React.Component {
         loadData(User.auth.uid).then((doc) => {
           User.data = doc.data()
           User.setCurrentUser()
-          this.setState({ spinning: true })
           this.props.navigation.navigate("Home")
+          setTimeout(
+            () => this.setState({ spinning: false, email: "", password: "" }),
+            500
+          )
         })
       } else {
         alert("You Must Verify Your Email")

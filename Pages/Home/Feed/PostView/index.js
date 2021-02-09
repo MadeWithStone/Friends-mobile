@@ -32,8 +32,10 @@ import {
   getCommentUsers,
   getPost,
   postReference,
+  updateReports,
 } from "../../../../Firebase/PostFunctions"
 import User from "../../../../Data/User"
+import { OptionsModal } from "../index"
 
 const PostView = ({ route, navigation }) => {
   let params = route.params
@@ -48,6 +50,7 @@ const PostView = ({ route, navigation }) => {
   const [comments, setComments] = React.useState([])
   const [commentInput, setCommentInput] = React.useState("")
   const [users, setUsers] = React.useState([])
+  const [showChooser, setShowChooser] = React.useState(false)
 
   let focused = useIsFocused()
   let listener
@@ -57,7 +60,7 @@ const PostView = ({ route, navigation }) => {
       headerTitle: () => (
         <View style={styles.topView}>
           <ProfileImage
-            image={params.user.profileImage}
+            image={params.user.profileImage ? params.user.profileImage : ""}
             name={params.user.firstName + " " + params.user.lastName}
             id={params.user.id}
             size={40}
@@ -69,6 +72,7 @@ const PostView = ({ route, navigation }) => {
       ),
       headerRight: () => (
         <IconButton
+          onPressAction={() => setShowChooser(true)}
           icon={
             <Entypo
               name="dots-three-vertical"
@@ -132,6 +136,23 @@ const PostView = ({ route, navigation }) => {
     addComment(newComments, params.post.id)
   }
 
+  const reportPost = (type) => {
+    let reports = params.post.reports
+    reports = reports ? reports : []
+    if (reports.findIndex((x) => x.userID === User.data.id) == -1) {
+      reports.push({
+        userID: User.data.id,
+        report: type,
+        date: new Date().toISOString(),
+      })
+      updateReports(params.post.id, reports).then(() => {
+        setShowChooser(false)
+      })
+    } else {
+      setShowChooser(false)
+    }
+  }
+
   let date = new Date(params.post.date)
   const renderScrollable = (panHandlers) => (
     // Can be anything scrollable
@@ -169,6 +190,11 @@ const PostView = ({ route, navigation }) => {
             })}
         </View>
       </View>
+      <OptionsModal
+        showChooser={showChooser}
+        setShowChooser={setShowChooser}
+        reportAction={reportPost}
+      />
     </ScrollView>
   )
   return (

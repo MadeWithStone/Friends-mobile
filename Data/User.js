@@ -36,7 +36,6 @@ export default class User {
 
   static signOut() {
     return new Promise(async (resolve, reject) => {
-      await SecureStore.deleteItemAsync("currentUser")
       this.data = null
       console.log("deleted userdata")
       await SecureStore.deleteItemAsync("currentAuth")
