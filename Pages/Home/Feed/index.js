@@ -203,6 +203,7 @@ const Feed = ({ route, navigation }) => {
             if (User.data.posts.findIndex((x) => x === post) === -1) {
               newUser = true
             }
+            3
           })
         }
         let reset = arr1.length < postList.length || newUser

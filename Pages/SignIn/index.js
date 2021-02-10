@@ -12,6 +12,7 @@ import {
 import config from "../../config"
 import User from "../../Data/User"
 import { signIn, loadData } from "../../Firebase/UserFunctions"
+import { CommonActions } from "@react-navigation/native"
 
 import * as SecureStore from "expo-secure-store"
 
@@ -82,7 +83,13 @@ export default class SignIn extends React.Component {
           loadData(User.auth.uid).then((doc) => {
             User.data = doc.data()
             User.setCurrentUser()
-            this.props.navigation.navigate("Home")
+            this.props.navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: "Home" }],
+              })
+            )
+
             setTimeout(
               () =>
                 this.setState({
