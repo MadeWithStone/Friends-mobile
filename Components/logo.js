@@ -1,6 +1,8 @@
 import React from "react"
 import { View, Text, StyleSheet, Image } from "react-native"
 import config from "../config"
+import Feather from "@expo/vector-icons/Feather"
+import Svg, { Path, Circle } from "react-native-svg"
 
 const LogoHorizontal = (props) => {
   return (
@@ -8,15 +10,44 @@ const LogoHorizontal = (props) => {
       style={{
         ...styles.sectionHeaderContainer,
         borderBottomColor: config.primaryColor,
+        justifyContent: props.split ? "space-between" : "center",
       }}>
-      <Text style={{ ...styles.sectionHeaderText, color: config.primaryColor }}>
+      <Text
+        style={{
+          ...styles.sectionHeaderText,
+          color: config.primaryColor,
+          fontSize: props.size ? props.size : 30,
+        }}>
         {props.title}
       </Text>
-      <Image
-        source={require("../assets/Friends-splash.png")}
-        style={styles.image}
-      />
+      <View style={styles.image}>
+        <Logo
+          size={props.size ? props.size : 30}
+          color={config.secondaryColor}
+        />
+      </View>
     </View>
+  )
+}
+
+const Logo = (props) => {
+  return (
+    <Svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={props.size}
+      height={props.size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={props.color}
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="prefix__feather prefix__feather-users"
+      {...props}>
+      <Path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-3 4v2" />
+      <Circle cx={9} cy={7} r={4} />
+      <Path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+    </Svg>
   )
 }
 
@@ -33,11 +64,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   image: {
-    width: 40,
-    height: 40,
     marginLeft: 8,
     borderRadius: 10,
+    backgroundColor: config.primaryColor,
+    padding: 6,
   },
 })
 
-export { LogoHorizontal }
+export { LogoHorizontal, Logo }

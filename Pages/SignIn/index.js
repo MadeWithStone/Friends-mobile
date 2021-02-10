@@ -7,6 +7,7 @@ import {
   Button,
   TextButton,
   DismissKeyboardView,
+  LogoHorizontal,
 } from "../../Components"
 import config from "../../config"
 import User from "../../Data/User"
@@ -66,7 +67,7 @@ export default class SignIn extends React.Component {
   }
 
   signIn = () => {
-    this.setState({ spinning: true })
+    this.setState({ spinning: true, loading: true })
     signIn(this.state.email, this.state.password)
       .then(async (d) => {
         User.auth = d.user
@@ -83,7 +84,13 @@ export default class SignIn extends React.Component {
             User.setCurrentUser()
             this.props.navigation.navigate("Home")
             setTimeout(
-              () => this.setState({ spinning: false, email: "", password: "" }),
+              () =>
+                this.setState({
+                  spinning: false,
+                  loading: false,
+                  email: "",
+                  password: "",
+                }),
               500
             )
           })
@@ -93,7 +100,7 @@ export default class SignIn extends React.Component {
       })
       .catch((err) => {
         alert(err)
-        this.setState({ spinning: false })
+        this.setState({ spinning: false, loading: false })
       })
   }
 
@@ -110,7 +117,14 @@ export default class SignIn extends React.Component {
           }}>
           <DismissKeyboardView style={styles.bodyContainer}>
             <View>
-              <H1 text={this.state.title} />
+              <View>
+                <LogoHorizontal
+                  size={63}
+                  color={config.primaryColor}
+                  title={this.state.title}
+                  split
+                />
+              </View>
               {!this.state.spinning && (
                 <View>
                   <Input

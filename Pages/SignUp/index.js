@@ -7,6 +7,7 @@ import {
   Button,
   TextButton,
   DismissKeyboardView,
+  LogoHorizontal,
 } from "../../Components"
 import config from "../../config"
 
@@ -29,6 +30,7 @@ export default class SignUp extends React.Component {
       firstName: "",
       lastName: "",
       spinning: false,
+      title: "Friends",
     }
   }
 
@@ -98,7 +100,12 @@ export default class SignUp extends React.Component {
           }}>
           <DismissKeyboardView style={styles.bodyContainer}>
             <View>
-              <H1 text="Friends" />
+              <LogoHorizontal
+                size={63}
+                color={config.primaryColor}
+                title={this.state.title}
+                split
+              />
               {!this.state.spinning && (
                 <View>
                   <Input

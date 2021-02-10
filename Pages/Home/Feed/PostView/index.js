@@ -19,6 +19,7 @@ import {
   TouchableWithoutFeedback,
   Button,
   Keyboard,
+  InputAccessoryView,
 } from "react-native"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { ScrollView } from "react-native-gesture-handler"
@@ -155,8 +156,8 @@ const PostView = ({ route, navigation }) => {
     <ScrollView
       style={styles.scrollView}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ backgroundColor: "red" }}
-      keyboardDismissMode="on-drag"
+      contentContainerStyle={{ backgroundColor: config.secondaryColor }}
+      scrollEventThrottle={64}
       ref={scrollview}>
       <View>
         <CachedImage
@@ -199,9 +200,12 @@ const PostView = ({ route, navigation }) => {
         renderScrollable={renderScrollable}
         spaceBetweenKeyboardAndAccessoryView={-75}
         contentOffsetKeyboardOpened={-40}
-        contentOffsetKeyboardClosed={35}
-        contentContainerStyle={{ margin: 0, backgroundColor: "red" }}
-        style={{ backgroundColor: "blue" }}>
+        contentOffsetKeyboardClosed={0}
+        contentContainerStyle={{
+          marginBottom: 0,
+          backgroundColor: config.secondaryColor,
+        }}
+        style={{ backgroundColor: config.secondaryColor }}>
         <View style={styles.inputView}>
           <MultilineInput
             style={styles.input}
@@ -296,7 +300,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "flex-end",
     marginBottom: 0,
-    backgroundColor: "yellow",
+    backgroundColor: config.secondaryColor,
   },
   input: {
     flexGrow: 1,

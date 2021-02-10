@@ -43,8 +43,9 @@ import { DatePickerIOS } from "react-native"
 import { set } from "react-native-reanimated"
 import PostView from "./PostView"
 
-postList = []
-users = []
+let users = []
+let postList = []
+let currentUser = ""
 
 const Feed = ({ route, navigation }) => {
   const [posts, setPosts] = React.useState([])
@@ -73,6 +74,12 @@ const Feed = ({ route, navigation }) => {
       },
     })
   }, [navigation, focused])
+
+  React.useEffect(() => {
+    console.log(
+      "################ Navigation: " + JSON.stringify(navigation.state)
+    )
+  }, [navigation])
 
   const autoRefresh = () => {
     console.log("focused: " + focused)
@@ -169,7 +176,9 @@ const Feed = ({ route, navigation }) => {
 
   const downloadUsers = async () => {
     let userList = []
-    User.data.friends.forEach((user) => userList.push(user.userID))
+    if (User.data.friends) {
+      User.data.friends.forEach((user) => userList.push(user.userID))
+    }
     if (userList == null) {
       //downloadPosts()
     } else {
@@ -182,13 +191,35 @@ const Feed = ({ route, navigation }) => {
             pList.push(user.data().posts[i])
           }
         })
-        for (let i = 0; i < 2 && i < User.data.posts.length; i++) {
+        let userPostsLength = User.data.posts ? User.data.posts.length : 0
+        for (let i = 0; i < 2 && i < userPostsLength; i++) {
           pList.push(User.data.posts[i])
         }
-        let arr1 = pList.filter((item, index) => pList.indexOf(item) === index) //removeDups(pList)
 
+        let arr1 = pList.filter((item, index) => pList.indexOf(item) === index) //removeDups(pList)
+        let newUser = User.data.posts ? false : true
+        if (!newUser) {
+          postList.forEach((post) => {
+            if (User.data.posts.findIndex((x) => x === post) === -1) {
+              newUser = true
+            }
+          })
+        }
+        let reset = arr1.length < postList.length || newUser
+        console.log(
+          "not reseting: " +
+            (arr1.length < postList.length) +
+            newUser +
+            " " +
+            arr1.length
+        )
+        if (reset) {
+          console.log("reseting: " + (arr1.length < postList.length) + newUser)
+          postList = []
+          setPosts([])
+        }
         arr = await removeDups(Object.assign(arr1))
-        postList = [...arr1, ...postList]
+        postList = [...arr, ...postList]
         users = u
         //setRefreshing(false)
 
@@ -283,6 +314,11 @@ const Feed = ({ route, navigation }) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
         }>
+        {posts.length < 1 && (
+          <Text style={styles.starterText}>
+            Share your friend code to make friends
+          </Text>
+        )}
         {posts
           .filter((item, index) => posts.indexOf(item) === index)
           .map((post) => {
@@ -503,5 +539,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderRadius: 10,
+  },
+  starterText: {
+    color: config.primaryColor,
+    fontSize: 17,
+    width: "100%",
+    textAlign: "center",
+    marginTop: 30,
   },
 })
