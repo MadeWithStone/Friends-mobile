@@ -121,7 +121,7 @@ const Post = (props) => {
               height: dims.width - 16,
               borderColor: config.primaryColor,
               borderWidth: 2,
-              marginTop: 50 + "%",
+              marginTop: (dims.height - dims.width - 16) / 2,
               marginBottom: "auto",
               margin: 8,
               borderRadius: 5,

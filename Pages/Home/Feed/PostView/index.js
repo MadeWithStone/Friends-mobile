@@ -89,11 +89,7 @@ const PostView = ({ route, navigation }) => {
     if (keyboardOpen) {
       scrollview.current.scrollToEnd({ animated: true })
     }
-  }, [keyboardOpen])
-
-  React.useEffect(() => {
-    scrollview.current.scrollToEnd({ animated: true })
-  }, [comments])
+  }, [keyboardOpen, comments])
 
   React.useEffect(() => {
     setComments(params.post.comments)
@@ -159,7 +155,7 @@ const PostView = ({ route, navigation }) => {
     <ScrollView
       style={styles.scrollView}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ backgroundColor: config.secondaryColor }}
+      contentContainerStyle={{ backgroundColor: "red" }}
       keyboardDismissMode="on-drag"
       ref={scrollview}>
       <View>
@@ -203,9 +199,9 @@ const PostView = ({ route, navigation }) => {
         renderScrollable={renderScrollable}
         spaceBetweenKeyboardAndAccessoryView={-75}
         contentOffsetKeyboardOpened={-40}
-        contentOffsetKeyboardClosed={30}
-        contentContainerStyle={{ margin: 0 }}
-        style={{ backgroundColor: config.secondaryColor }}>
+        contentOffsetKeyboardClosed={35}
+        contentContainerStyle={{ margin: 0, backgroundColor: "red" }}
+        style={{ backgroundColor: "blue" }}>
         <View style={styles.inputView}>
           <MultilineInput
             style={styles.input}
@@ -241,12 +237,14 @@ const CommentObj = (props) => {
   let date = new Date(comment.date)
   return (
     <View style={styles.tView}>
-      <ProfileImage
-        image={user.profileImage}
-        name={user.firstName + " " + user.lastName}
-        id={user.id}
-        size={30}
-      />
+      {user && (
+        <ProfileImage
+          image={user ? user.profileImage : ""}
+          name={user ? user.firstName + " " + user.lastName : ""}
+          id={user.id}
+          size={30}
+        />
+      )}
       <Text style={styles.textView}>
         <Text
           style={{
@@ -254,7 +252,7 @@ const CommentObj = (props) => {
             color: config.textColor,
             paddingRight: 8,
           }}>
-          {user.firstName} {user.lastName}
+          {user ? user.firstName : ""} {user ? user.lastName : ""}
         </Text>
         {" " + comment.comment}
       </Text>
@@ -283,6 +281,7 @@ const styles = StyleSheet.create({
   },
   descriptionView: {
     margin: 8,
+    paddingBottom: 30,
   },
   description: {
     fontSize: 15,
@@ -297,6 +296,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "flex-end",
     marginBottom: 0,
+    backgroundColor: "yellow",
   },
   input: {
     flexGrow: 1,

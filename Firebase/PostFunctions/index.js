@@ -119,6 +119,11 @@ const updateReports = async (postID, reports) => {
   return postRef.update({ reports: reports })
 }
 
+const deletePost = async (postID) => {
+  const postRef = firebase.firestore().collection("posts").doc(postID)
+  return postRef.delete()
+}
+
 export {
   uploadImage,
   createPostData,
@@ -128,4 +133,5 @@ export {
   addComment,
   postReference,
   updateReports,
+  deletePost,
 }
