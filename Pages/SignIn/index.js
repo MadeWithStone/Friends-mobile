@@ -93,6 +93,7 @@ export default class SignIn extends React.Component {
                       code: this.props.route.params
                         ? this.props.route.params.code
                         : "",
+                      refresh: true,
                     },
                   },
                 ],

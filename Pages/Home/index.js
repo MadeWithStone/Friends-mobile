@@ -94,6 +94,9 @@ export default class Home extends React.Component {
           component={Feed}
           initialParams={{
             code: this.props.route.params ? this.props.route.params.code : "",
+            refresh: this.props.route.params
+              ? this.props.route.params.refresh
+              : false,
           }}
           options={{
             title: "",

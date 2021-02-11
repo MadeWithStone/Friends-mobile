@@ -84,6 +84,18 @@ const Feed = ({ route, navigation }) => {
   }, [navigation, focused])
 
   React.useEffect(() => {
+    if (focused) {
+      let refresh = route.params ? route.params.refresh : false
+      if (refresh) {
+        setPosts([])
+        postList = []
+        users = []
+        getData()
+      }
+    }
+  }, [navigation])
+
+  React.useEffect(() => {
     console.log(
       "################ Navigation: " + JSON.stringify(navigation.state)
     )
@@ -211,7 +223,6 @@ const Feed = ({ route, navigation }) => {
             if (User.data.posts.findIndex((x) => x === post) === -1) {
               newUser = true
             }
-            3
           })
         }
         let reset = arr1.length < postList.length || newUser
