@@ -11,11 +11,13 @@ import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
 import { ScrollView } from "react-native-gesture-handler"
 import { BarCodeScanner } from "expo-barcode-scanner"
-import { Button, Input, CancelButton } from "../../../../Components"
+import { Button, Input, CancelButton, IconButton } from "../../../../Components"
 import User from "../../../../Data/User"
+import Feather from "@expo/vector-icons/Feather"
 import {
   findUserWithFriendCode,
   sendFriendRequest,
+  updateUser,
 } from "../../../../Firebase/UserFunctions"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { KeyboardAvoidingView } from "react-native"
@@ -35,6 +37,7 @@ export default class AddFriend extends React.Component {
 
   componentDidMount() {
     this.setCurrentFC()
+    this.setState({ friendCode: this.props.route.params.code })
   }
 
   setCurrentFC = () => {
@@ -48,6 +51,14 @@ export default class AddFriend extends React.Component {
   handleCodeScanned = ({ type, data }) => {
     this.setState({ scan: false })
     this.onChangeText(data, "friendCode")
+  }
+
+  resetFriendCode = () => {
+    let newFriendCode = User.generateFriendCode()
+    updateUser({ friendCode: newFriendCode }, User.data.id).then(() => {
+      User.data.friendCode = newFriendCode
+      this.setState({ currentUserFC: newFriendCode })
+    })
   }
 
   onChangeText = (e, name) => {
@@ -158,10 +169,25 @@ export default class AddFriend extends React.Component {
                     backgroundColor="transparent"
                     color={config.primaryColor}
                   />
-                  <Text
-                    style={{ ...styles.codeText, color: config.primaryColor }}>
-                    {this.state.currentUserFC}
-                  </Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text
+                      style={{
+                        ...styles.codeText,
+                        color: config.primaryColor,
+                      }}>
+                      {this.state.currentUserFC}
+                    </Text>
+                    <IconButton
+                      onPressAction={() => this.resetFriendCode()}
+                      icon={
+                        <Feather
+                          name="refresh-cw"
+                          size={30}
+                          color={config.primaryColor}
+                        />
+                      }
+                    />
+                  </View>
                 </View>
               )}
             </View>
@@ -195,8 +221,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   codeText: {
-    textAlign: "center",
-    width: 100 + "%",
     fontSize: 17,
     marginBottom: 4,
     fontWeight: "bold",

@@ -60,6 +60,14 @@ const Feed = ({ route, navigation }) => {
     autoRefresh()
   }, [focused])
 
+  React.useEffect(() => {
+    console.log("route params: " + JSON.stringify(route.params))
+    let code = route.params ? route.params.code : ""
+    if (code !== "" && code) {
+      navigation.navigate("AddFriend", { code: code })
+    }
+  }, [])
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => <LogoHorizontal title={"Friends"} />,
@@ -421,13 +429,14 @@ const OptionsModal = (props) => {
 export { OptionsModal }
 
 const Stack = createStackNavigator()
-const FeedPage = ({ navigation }) => {
+const FeedPage = ({ navigation, route }) => {
   return (
     <Stack.Navigator
       options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
       <Stack.Screen
         name="FeedMain"
         component={Feed}
+        initialParams={route.params}
         options={{
           headerLeft: () => null,
           headerRight: () => (

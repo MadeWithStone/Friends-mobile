@@ -37,6 +37,7 @@ import {
 import EditProfile from "./EditProfile"
 import Settings from "./Settings"
 import { useIsFocused } from "@react-navigation/native"
+import FriendsList from "./FriendsList"
 
 let pList = []
 const Profile = ({ navigation, route }) => {
@@ -133,7 +134,11 @@ const Profile = ({ navigation, route }) => {
       acceptFriendRequest(req.userID, friendRequests, User.data.friends)
         .then(() => {
           // complete
-          alert("Added " + req.firstName + " as a friend")
+          alert(
+            "Added " +
+              friendRequests.find((x) => x.id === req.userID).firstName +
+              " as a friend"
+          )
           updateData()
         })
         .catch((err) => {
@@ -234,6 +239,11 @@ const Profile = ({ navigation, route }) => {
       {User.data != null && (
         <ProfileDataView user={{ data: User.data, auth: User.auth }} />
       )}
+      <Button
+        text="Friends"
+        onPressAction={() => navigation.navigate("YourFriends")}
+        style={{ margin: 8 }}
+      />
       {friendRequests != null && friendRequests.length > 0 && (
         <FriendRequestView
           friendRequests={friendRequests}
@@ -531,6 +541,37 @@ const ProfilePage = ({ navigation }) => {
             />
           ),
           title: "Settings",
+          headerStyle: {
+            backgroundColor: config.secondaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.primaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="YourFriends"
+        component={FriendsList}
+        options={{
+          headerLeft: () => (
+            <Btn
+              onPress={() => {
+                navigation.goBack()
+              }}
+              icon={
+                <FontAwesome5
+                  name="chevron-left"
+                  size={30}
+                  color={config.primaryColor}
+                />
+              }
+              type="clear"
+            />
+          ),
+          title: "Your Friends",
           headerStyle: {
             backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },

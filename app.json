@@ -4,6 +4,7 @@
     "slug": "Friends-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
+    "scheme": "friends",
     "icon": "./assets/Friends-purple.png",
     "splash": {
       "image": "./assets/Friends-splash.png",
