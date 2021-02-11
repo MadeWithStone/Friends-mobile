@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
+  Share,
 } from "react-native"
 import config from "../../../../config"
 import { WebView } from "react-native-webview"
@@ -21,66 +22,82 @@ import {
 } from "../../../../Firebase/UserFunctions"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { KeyboardAvoidingView } from "react-native"
-import { ceil } from "react-native-reanimated"
+import { ceil, set } from "react-native-reanimated"
+import { Button as Btn } from "react-native-elements"
+import * as Linking from "expo-linking"
 
-export default class AddFriend extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      friendCode: "",
-      addBtnDis: true,
-      currentUserFC: "",
-      scan: false,
-      showCode: true,
-    }
-  }
+const AddFriend = ({ navigation, route }) => {
+  const [friendCode, setFriendCode] = React.useState("")
+  const [addBtnDis, setAddBtnDis] = React.useState(true)
+  const [currentUserFC, setCurrentUserFC] = React.useState("")
+  const [scan, setScan] = React.useState(false)
+  const [showCode, setShowCode] = React.useState(true)
 
-  componentDidMount() {
-    this.setCurrentFC()
-    this.setState({
-      friendCode: this.props.route.params ? this.props.route.params.code : "",
+  React.useEffect(() => {
+    setCurrentFC()
+    setFriendCode(route.params ? route.params.code : "")
+  }, [])
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Btn
+          onPress={() => {
+            shareFriendCode()
+          }}
+          icon={<Feather name="share" size={30} color={config.primaryColor} />}
+          type="clear"
+        />
+      ),
     })
+  }, [])
+
+  const setCurrentFC = () => {
+    setCurrentUserFC(User.data.friendCode)
   }
 
-  setCurrentFC = () => {
-    this.setState({ currentUserFC: User.data.friendCode })
+  const scanFriendCode = () => {
+    setScan(true)
   }
 
-  scanFriendCode = () => {
-    this.setState({ scan: true })
+  const handleCodeScanned = ({ type, data }) => {
+    setScan(false)
+    onChangeText(data, "friendCode")
   }
 
-  handleCodeScanned = ({ type, data }) => {
-    this.setState({ scan: false })
-    this.onChangeText(data, "friendCode")
-  }
-
-  resetFriendCode = () => {
+  const resetFriendCode = () => {
     let newFriendCode = User.generateFriendCode()
     updateUser({ friendCode: newFriendCode }, User.data.id).then(() => {
       User.data.friendCode = newFriendCode
-      this.setState({ currentUserFC: newFriendCode })
+      setCurrentUserFC(newFriendCode)
     })
   }
 
-  onChangeText = (e, name) => {
+  const onChangeText = (e, name) => {
     let d = e.toUpperCase()
-    if (d.length <= 7) {
-      this.setState({ [name]: d })
+    let states = {
+      friendCode: setFriendCode,
+      addBtnDis: setAddBtnDis,
+      currentUserFC: setCurrentUserFC,
+      scan: setScan,
+      showCode: setShowCode,
     }
-    if (d.length == 7 && d != this.state.currentUserFC.toUpperCase()) {
-      this.setState({ addBtnDis: false })
+    if (d.length <= 7) {
+      states[name](d)
+    }
+    if (d.length == 7 && d != currentUserFC.toUpperCase()) {
+      setAddBtnDis(false)
     } else {
-      this.setState({ addBtnDis: true })
+      setAddBtnDis(true)
     }
   }
 
-  sendRequest = () => {
+  const sendRequest = () => {
     let take = this
-    if (this.state.friendCode.length == 7) {
+    if (friendCode.length == 7) {
       //find user
       console.log("finding user")
-      findUserWithFriendCode(this.state.friendCode)
+      findUserWithFriendCode(friendCode)
         .then((querySnapshot) => {
           let count = 0
           querySnapshot.forEach(function (doc) {
@@ -123,96 +140,110 @@ export default class AddFriend extends React.Component {
     }
   }
 
-  render() {
-    return (
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <KeyboardAvoidingView
-          style={{
-            ...StyleSheet.absoluteFill,
-            ...styles.contentView,
-            backgroundColor: config.secondaryColor,
-          }}>
-          <View styles={styles.mainView}>
-            <View style={styles.code} onPress={() => Keyboard.dismiss()}>
-              <View style={styles.addView}>
-                <View style={styles.verifyView}>
-                  <Input
-                    placeholder="Friend Code"
-                    style={{ flex: 8, marginRight: 4, height: 40 }}
-                    onChangeText={(text) =>
-                      this.onChangeText(text, "friendCode")
-                    }
-                    value={this.state.friendCode}
-                    onFocus={() => this.setState({ showCode: false })}
-                    onEndEditing={() => this.setState({ showCode: true })}
-                  />
-                  <Button
-                    text="Add"
-                    disabled={this.state.addBtnDis}
-                    style={{ flex: 1, height: 50 }}
-                    onPressAction={() => this.sendRequest()}
-                  />
-                </View>
+  const shareFriendCode = async () => {
+    let url = Linking.createURL("/signin/" + currentUserFC)
+    try {
+      const result = await Share.share({
+        url: url,
+      })
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message)
+    }
+  }
+
+  return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <KeyboardAvoidingView
+        style={{
+          ...StyleSheet.absoluteFill,
+          ...styles.contentView,
+          backgroundColor: config.secondaryColor,
+        }}>
+        <View styles={styles.mainView}>
+          <View style={styles.code} onPress={() => Keyboard.dismiss()}>
+            <View style={styles.addView}>
+              <View style={styles.verifyView}>
+                <Input
+                  placeholder="Friend Code"
+                  style={{ flex: 8, marginRight: 4, height: 40 }}
+                  onChangeText={(text) => onChangeText(text, "friendCode")}
+                  value={friendCode}
+                  onFocus={() => setShowCode(false)}
+                  onEndEditing={() => setShowCode(true)}
+                />
                 <Button
-                  text="Scan Friend Code"
-                  onPressAction={this.scanFriendCode}
+                  text="Add"
+                  disabled={addBtnDis}
+                  style={{ flex: 1, height: 50 }}
+                  onPressAction={() => sendRequest()}
                 />
               </View>
-              {this.state.showCode && (
-                <View style={{ alignItems: "center" }}>
-                  <QRCode
-                    value={
-                      this.state.currentUserFC != null &&
-                      this.state.currentUserFC != ""
-                        ? this.state.currentUserFC
-                        : "0"
-                    }
-                    size={300}
-                    backgroundColor="transparent"
-                    color={config.primaryColor}
-                  />
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text
-                      style={{
-                        ...styles.codeText,
-                        color: config.primaryColor,
-                      }}>
-                      {this.state.currentUserFC}
-                    </Text>
-                    <IconButton
-                      onPressAction={() => this.resetFriendCode()}
-                      icon={
-                        <Feather
-                          name="refresh-cw"
-                          size={30}
-                          color={config.primaryColor}
-                        />
-                      }
-                    />
-                  </View>
-                </View>
-              )}
+              <Button text="Scan Friend Code" onPressAction={scanFriendCode} />
             </View>
+            {showCode && (
+              <View style={{ alignItems: "center" }}>
+                <QRCode
+                  value={
+                    currentUserFC != null && currentUserFC != ""
+                      ? currentUserFC
+                      : "0"
+                  }
+                  size={300}
+                  backgroundColor="transparent"
+                  color={config.primaryColor}
+                />
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Text
+                    style={{
+                      ...styles.codeText,
+                      color: config.primaryColor,
+                    }}>
+                    {currentUserFC}
+                  </Text>
+                  <IconButton
+                    onPressAction={() => resetFriendCode()}
+                    icon={
+                      <Feather
+                        name="refresh-cw"
+                        size={30}
+                        color={config.primaryColor}
+                      />
+                    }
+                  />
+                </View>
+              </View>
+            )}
           </View>
-          {this.state.scan && (
-            <BarCodeScanner
-              onBarCodeScanned={this.handleCodeScanned}
-              style={StyleSheet.absoluteFill}>
-              <CancelButton
-                title={"Cancel"}
-                callback={() => this.setState({ scan: false })}
-                style={{
-                  alignSelf: "flex-end",
-                  margin: 16,
-                }}
-              />
-            </BarCodeScanner>
-          )}
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
-    )
-  }
+        </View>
+        {scan && (
+          <BarCodeScanner
+            onBarCodeScanned={handleCodeScanned}
+            style={StyleSheet.absoluteFill}>
+            <CancelButton
+              title={"Cancel"}
+              callback={() => setScan(false)}
+              style={{
+                alignSelf: "flex-end",
+                margin: 16,
+              }}
+            />
+          </BarCodeScanner>
+        )}
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+  )
 }
+
+export default AddFriend
 
 const styles = StyleSheet.create({
   code: { margin: 16 },
