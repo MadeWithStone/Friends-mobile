@@ -113,6 +113,7 @@ export default class SignIn extends React.Component {
           })
         } else {
           alert("You Must Verify Your Email")
+          this.setState({ spinning: false, loading: false })
         }
       })
       .catch((err) => {

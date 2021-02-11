@@ -1,5 +1,6 @@
 import React from "react"
 import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
+import { CheckBox } from "react-native-elements"
 import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 import {
   Input,
@@ -19,6 +20,7 @@ import {
   setUserData,
   verifyEmail,
 } from "../../Firebase/UserFunctions"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 
 export default class SignUp extends React.Component {
   constructor(props) {
@@ -31,6 +33,8 @@ export default class SignUp extends React.Component {
       lastName: "",
       spinning: false,
       title: "Friends",
+      tos: false,
+      ageVerification: false,
     }
   }
 
@@ -74,7 +78,9 @@ export default class SignUp extends React.Component {
       this.state.confirmPassword !== this.state.password ||
       this.state.password.length < 8 ||
       this.state.firstName.length <= 1 ||
-      !reg.test(this.state.email)
+      !reg.test(this.state.email) ||
+      !this.state.tos ||
+      !this.state.ageVerification
     let problemMessage = ""
     let problem = false
     if (this.state.firstName.length <= 1) {
@@ -92,10 +98,14 @@ export default class SignUp extends React.Component {
     }
     return (
       <View style={{ width: 100 + "%", height: 100 + "%" }}>
-        <KeyboardAvoidingView
+        <KeyboardAvoidingScrollView
           behavior={Platform.OS == "ios" ? "padding" : "height"}
-          style={{
-            ...styles.mainContainer,
+          horizontal={false}
+          showsVerticalScrollIndicator={false}
+          style={{ backgroundColor: "100%" }}
+          containerStyle={{ backgroundColor: config.secondaryColor }}
+          contentContainerStyle={{
+            width: "100%",
             backgroundColor: config.secondaryColor,
           }}>
           <DismissKeyboardView style={styles.bodyContainer}>
@@ -145,6 +155,37 @@ export default class SignUp extends React.Component {
                     placeholder="Confirm Pasword"
                     secure
                   />
+                  <View style={styles.checkboxContainer}>
+                    <CheckBox
+                      checked={this.state.ageVerification}
+                      onPress={() =>
+                        this.setState({
+                          ageVerification: !this.state.ageVerification,
+                        })
+                      }
+                      style={styles.checkbox}
+                      checkedColor={config.primaryColor}
+                      containerStyle={styles.checkbox}
+                    />
+                    <Text style={styles.label}>
+                      By checking this box you verify you are 13 years of age or
+                      older
+                    </Text>
+                  </View>
+                  <View style={styles.checkboxContainer}>
+                    <CheckBox
+                      checked={this.state.tos}
+                      onPress={() => this.setState({ tos: !this.state.tos })}
+                      style={styles.checkbox}
+                      checkedColor={config.primaryColor}
+                      containerStyle={styles.checkbox}
+                    />
+                    <Text style={styles.label}>
+                      By checking this box you agree to the{" "}
+                      <TextButton text="Terms of Use" /> and{" "}
+                      <TextButton text="Privacy Policy" />
+                    </Text>
+                  </View>
                   {problem && (
                     <Text style={styles.problemText}>{problemMessage}</Text>
                   )}
@@ -158,7 +199,7 @@ export default class SignUp extends React.Component {
               />
             </View>
           </DismissKeyboardView>
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingScrollView>
         <View
           style={{
             ...styles.footerContainer,
@@ -181,19 +222,16 @@ export default class SignUp extends React.Component {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    padding: 8,
+    margin: 8,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    width: "100%",
   },
   bodyContainer: {
-    width: 100 + "%",
-    padding: 16,
-    height: 100 + "%",
-    justifyContent: "center",
+    margin: 32,
   },
   input: {
-    width: "100%",
     marginBottom: 16,
   },
   text: {
@@ -212,5 +250,25 @@ const styles = StyleSheet.create({
     color: config.primaryColor,
     textAlign: "center",
     padding: 8,
+  },
+  container: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    padding: 0,
+    margin: 0,
+  },
+  label: {
+    margin: 8,
+    flexShrink: 1,
+    fontSize: 17,
+    alignItems: "center",
+    justifyContent: "center",
+    color: config.textColor,
   },
 })
