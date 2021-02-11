@@ -19,7 +19,7 @@ const signOut = () => {
 }
 
 const verifyEmail = () => {
-  firebase.auth().currentUser.sendEmailVerification()
+  firebase.auth().currentUser.sendEmailVerification() // pass in {url: 'url'} to set redirect url
 }
 
 const updateUserPosts = (postList) => {

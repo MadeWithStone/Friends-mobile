@@ -47,14 +47,14 @@ export default class SignUp extends React.Component {
       friendCode: User.generateFriendCode(),
     }
     createEmailUser(userData.email, this.state.password)
-      .then((resData) => {
+      .then(async (resData) => {
         verifyEmail()
-        setUserData(resData.user.uid, userData).then(() => {
+        setUserData(resData.user.uid, userData).then(async () => {
           this.setState({ spinning: false })
-          SecureStore.setItemAsync(
+          await SecureStore.setItemAsync(
             "credentials",
             JSON.stringify({
-              email: userData.email,
+              email: this.state.email,
               password: this.state.password,
             })
           )
