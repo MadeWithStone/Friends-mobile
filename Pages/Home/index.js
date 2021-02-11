@@ -92,7 +92,9 @@ export default class Home extends React.Component {
         <Tab.Screen
           name="Feed"
           component={Feed}
-          initialParams={{ code: this.props.route.params.code }}
+          initialParams={{
+            code: this.props.route.params ? this.props.route.params.code : "",
+          }}
           options={{
             title: "",
             tabBarIcon: ({ focused, color }) => {

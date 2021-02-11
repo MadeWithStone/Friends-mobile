@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Text, StyleSheet, Image } from "react-native"
+import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
 import * as ImagePicker from "expo-image-picker"

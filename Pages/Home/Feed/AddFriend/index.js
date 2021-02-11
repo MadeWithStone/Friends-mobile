@@ -37,7 +37,9 @@ export default class AddFriend extends React.Component {
 
   componentDidMount() {
     this.setCurrentFC()
-    this.setState({ friendCode: this.props.route.params.code })
+    this.setState({
+      friendCode: this.props.route.params ? this.props.route.params.code : "",
+    })
   }
 
   setCurrentFC = () => {

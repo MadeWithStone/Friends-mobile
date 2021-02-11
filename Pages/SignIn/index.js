@@ -90,7 +90,9 @@ export default class SignIn extends React.Component {
                   {
                     name: "Home",
                     params: {
-                      code: this.props.route.params.code,
+                      code: this.props.route.params
+                        ? this.props.route.params.code
+                        : "",
                     },
                   },
                 ],
