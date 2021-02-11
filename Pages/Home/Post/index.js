@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
+import { View, Text, StyleSheet, Image } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
 import * as ImagePicker from "expo-image-picker"
@@ -23,14 +23,20 @@ const Post = (props) => {
   const [image, setImage] = React.useState("")
   const focused = useIsFocused()
   let camera
-  let dims = {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
-  }
+  const [dims, setDims] = React.useState({
+    width: 0,
+    height: 0,
+  })
 
   React.useEffect(() => {
     if (focused && hasPermission == false) {
       setUpPermisions()
+    }
+    if (focused) {
+      setDims({
+        width: Dimensions.get("window").width,
+        height: Dimensions.get("window").height,
+      })
     }
   }, [focused])
 
@@ -51,6 +57,8 @@ const Post = (props) => {
       compressImage(photo)
     }
   }
+
+  const generateLink = async () => {}
 
   const compressImage = async (photo) => {
     let options = {

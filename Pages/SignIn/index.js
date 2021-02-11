@@ -86,7 +86,14 @@ export default class SignIn extends React.Component {
             this.props.navigation.dispatch(
               CommonActions.reset({
                 index: 0,
-                routes: [{ name: "Home" }],
+                routes: [
+                  {
+                    name: "Home",
+                    params: {
+                      code: this.props.route.params.code,
+                    },
+                  },
+                ],
               })
             )
 

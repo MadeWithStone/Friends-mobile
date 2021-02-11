@@ -17,6 +17,12 @@ import Profile from "./Profile"
 const Tab = createMaterialTopTabNavigator()
 
 export default class Home extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  componentDidMount() {
+    console.log("home params: " + JSON.stringify(this.props.route.params))
+  }
   render() {
     return (
       <Tab.Navigator
@@ -86,6 +92,7 @@ export default class Home extends React.Component {
         <Tab.Screen
           name="Feed"
           component={Feed}
+          initialParams={{ code: this.props.route.params.code }}
           options={{
             title: "",
             tabBarIcon: ({ focused, color }) => {
