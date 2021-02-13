@@ -25,6 +25,7 @@ import { KeyboardAvoidingView } from "react-native"
 import { ceil, set } from "react-native-reanimated"
 import { Button as Btn } from "react-native-elements"
 import * as Linking from "expo-linking"
+import { usePreventScreenCapture } from "expo-screen-capture"
 
 const AddFriend = ({ navigation, route }) => {
   const [friendCode, setFriendCode] = React.useState("")
@@ -32,6 +33,8 @@ const AddFriend = ({ navigation, route }) => {
   const [currentUserFC, setCurrentUserFC] = React.useState("")
   const [scan, setScan] = React.useState(false)
   const [showCode, setShowCode] = React.useState(true)
+
+  usePreventScreenCapture()
 
   React.useEffect(() => {
     setCurrentFC()

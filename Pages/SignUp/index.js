@@ -42,6 +42,10 @@ export default class SignUp extends React.Component {
     }
   }
 
+  async componentDidMount() {
+    await ScreenCapture.preventScreenCaptureAsync()
+  }
+
   onChangeText = (field, val) => {
     this.setState({ [field]: val })
   }

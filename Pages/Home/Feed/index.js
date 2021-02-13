@@ -42,6 +42,7 @@ import { loadData } from "../../../Firebase/UserFunctions"
 import { DatePickerIOS } from "react-native"
 import { set } from "react-native-reanimated"
 import PostView from "./PostView"
+import { usePreventScreenCapture } from "expo-screen-capture"
 
 let users = []
 let postList = []
@@ -53,6 +54,7 @@ const Feed = ({ route, navigation }) => {
   const [showChooser, setShowChooser] = React.useState(false)
   const [currentPost, setCurrentPost] = React.useState(0)
   let focused = useIsFocused()
+  usePreventScreenCapture()
 
   let refInterval = 0
 

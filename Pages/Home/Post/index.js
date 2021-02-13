@@ -28,6 +28,8 @@ const Post = (props) => {
     height: 0,
   })
 
+  usePreventScreenCapture()
+
   React.useEffect(() => {
     if (focused && hasPermission == false) {
       setUpPermisions()
