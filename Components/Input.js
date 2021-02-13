@@ -18,7 +18,9 @@ const Input = (props) => {
       keyboardType={props.type}
       onFocus={props.onFocus != null ? props.onFocus : () => {}}
       onEndEditing={props.onEndEditing != null ? props.onEndEditing : () => {}}
-      placeholderTextColor={props.placeholderColor}
+      placeholderTextColor={
+        config.secondaryColor === "#000" ? "white" : "#C7C7CD "
+      }
     />
   )
 }
@@ -35,10 +37,12 @@ const MultilineInput = (props) => {
         ...props.style,
       }}
       placeholder={props.placeholder}
+      placeholderTextColor={
+        config.secondaryColor === "#000" ? "#C7C7CD" : "#C7C7CD"
+      }
       secureTextEntry={props.secure}
       keyboardType={props.type}
       multiline
-      placeholderTextColor={props.placeholderColor}
       onSubmitEditing={props.submitAction ? props.submitAction : () => {}}
     />
   )

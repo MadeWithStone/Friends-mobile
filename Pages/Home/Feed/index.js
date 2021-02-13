@@ -57,11 +57,20 @@ const Feed = ({ route, navigation }) => {
   let refInterval = 0
 
   React.useEffect(() => {
-    autoRefresh()
+    // console.log("focused: " + focused)
+    if (focused) {
+      getData()
+      if (!refInterval) {
+        // console.log("starting interval")
+        setTimeout(() => updateData(), 40000)
+      }
+    } else {
+      // console.log("clearing interval")
+    }
   }, [focused])
 
   React.useEffect(() => {
-    console.log("route params: " + JSON.stringify(route.params))
+    // console.log("route params: " + JSON.stringify(route.params))
     let code = route.params ? route.params.code : ""
     if (code !== "" && code) {
       navigation.navigate("AddFriend", { code: code })
@@ -87,58 +96,47 @@ const Feed = ({ route, navigation }) => {
     if (focused) {
       let refresh = route.params ? route.params.refresh : false
       if (refresh) {
+        // console.log("refreshing data")
         setPosts([])
         postList = []
-        users = []
         getData()
       }
     }
   }, [navigation])
 
-  React.useEffect(() => {
-    console.log(
-      "################ Navigation: " + JSON.stringify(navigation.state)
-    )
-  }, [navigation])
-
-  const autoRefresh = () => {
-    console.log("focused: " + focused)
-    if (focused) {
-      getData()
-      if (!refInterval) {
-        console.log("starting interval")
-        refInterval = setInterval(() => updateData(), 40000)
-      }
-    } else {
-      console.log("clearing interval")
-      clearInterval(refInterval)
-    }
-  }
+  const autoRefresh = () => {}
 
   const getData = () => {
-    console.log("### running getData")
-    User.loadCurrentUser().then(() => {
-      console.log("### done loading user")
+    // console.log("running get data")
+    if (focused) {
+      // console.log("focused so getting data")
+      // console.log("### running getData")
+      // console.log("### done loading user")
       User.getUpdatedData().then(() => {
-        console.log("### done getData")
+        // console.log("### done getData")
         //setPosts([])
         //postList = []
         users = []
         downloadUsers()
       })
-    })
+    }
   }
 
   const updateData = () => {
+    // console.log("running update data")
     if (focused) {
-      User.loadCurrentUser().then(() => {
-        console.log("### done loading user")
-        User.getUpdatedData().then(() => {
-          console.log("### done getData")
-          //setPosts([])
-          //setPostList([])
-          downloadUsers()
-        })
+      // console.log("focused so getting data")
+      // console.log("### done loading user")
+      User.getUpdatedData().then(() => {
+        // console.log("### done getData")
+        //setPosts([])
+        //setPostList([])
+        downloadUsers()
+        if (focused) {
+          setTimeout(() => {
+            updateData()
+          }, 40000)
+        }
       })
     }
   }
@@ -150,7 +148,7 @@ const Feed = ({ route, navigation }) => {
         result.forEach((post) => {
           p.push(post.data())
         })
-        console.log("### posts: " + JSON.stringify(p))
+        // console.log("### posts: " + JSON.stringify(p))
         let _users = users
         _users.push(User.data)
         p.sort((a, b) => {
@@ -176,9 +174,9 @@ const Feed = ({ route, navigation }) => {
 
   const removeDups = (pList) => {
     return new Promise((resolve, reject) => {
-      console.log("postList in remove dups: " + JSON.stringify(postList))
+      // console.log("postList in remove dups: " + JSON.stringify(postList))
       let arr = pList
-      console.log("### removing dups")
+      // console.log("### removing dups")
       let len = postList.length
       let i = 0
       while (i < len) {
@@ -188,8 +186,8 @@ const Feed = ({ route, navigation }) => {
           i++
         }
       }
-      console.log("postList in remove dups: " + JSON.stringify(postList))
-      console.log("post list in remove dups: " + JSON.stringify(arr))
+      // console.log("postList in remove dups: " + JSON.stringify(postList))
+      // console.log("post list in remove dups: " + JSON.stringify(arr))
       resolve(arr)
     })
   }
@@ -226,21 +224,23 @@ const Feed = ({ route, navigation }) => {
           })
         }
         let reset = arr1.length < postList.length || newUser
-        console.log(
+        /* console.log(
           "not reseting: " +
             (arr1.length < postList.length) +
             newUser +
             " " +
             arr1.length
-        )
+        )*/
         if (reset) {
-          console.log("reseting: " + (arr1.length < postList.length) + newUser)
+          // console.log("reseting: " + (arr1.length < postList.length) + newUser)
           postList = []
           setPosts([])
         }
         arr = await removeDups(Object.assign(arr1))
         postList = [...arr, ...postList]
+        u.push(User.data)
         users = u
+        console.log("user set: " + JSON.stringify(users))
         //setRefreshing(false)
 
         downloadPosts(arr)
@@ -258,9 +258,9 @@ const Feed = ({ route, navigation }) => {
       return dA <= dB
     })
     for (let i = p.length - 1; i >= 0; i--) {
-      console.log("reports json: " + JSON.stringify(p[i].reports))
+      // console.log("reports json: " + JSON.stringify(p[i].reports))
       if (p[i].reports != null) {
-        console.log("reports: " + p[i].reports.length)
+        // console.log("reports: " + p[i].reports.length)
       }
       if (p[i].reports != null && p[i].reports.length >= 5) {
         p.splice(i, 1)

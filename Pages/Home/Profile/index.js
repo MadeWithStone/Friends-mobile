@@ -202,7 +202,7 @@ const Profile = ({ navigation, route }) => {
   const deletePost = () => {
     deletePostFunc(currentPost).then(() => {
       let posts = User.data.posts
-      let idx = posts.findIndex((x) => x.id === currentPost)
+      let idx = posts.findIndex((x) => x === currentPost)
       posts.splice(idx, 1)
       updateUser({ posts: posts }, User.data.id)
       setShowModel(false)
@@ -427,11 +427,15 @@ const PostsView = (props) => {
           flexWrap: "wrap",
           marginTop: -1,
         }}>
-        {props.posts.map((post, index) => (
-          <TouchableOpacity onPress={() => props.openModal(post.id)}>
-            <PostViewObj post={post} key={post.id} index={index} />
-          </TouchableOpacity>
-        ))}
+        {props.posts.map((post, index) => {
+          return (
+            <TouchableOpacity
+              onPress={() => props.openModal(post.id)}
+              key={post.id}>
+              <PostViewObj post={post} index={index} />
+            </TouchableOpacity>
+          )
+        })}
       </View>
     </View>
   )

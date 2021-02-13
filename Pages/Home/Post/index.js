@@ -116,7 +116,7 @@ const Post = (props) => {
 
   return (
     <View style={styles.container}>
-      {focused && hasPermission && (
+      {focused && hasPermission && dims !== {} && (
         <Camera
           style={styles.camera}
           type={type}

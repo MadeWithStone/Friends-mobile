@@ -21,6 +21,9 @@ import {
   verifyEmail,
 } from "../../Firebase/UserFunctions"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
+import * as Linking from "expo-linking"
+
+import KeyboardListener from "react-native-keyboard-listener"
 
 export default class SignUp extends React.Component {
   constructor(props) {
@@ -35,6 +38,7 @@ export default class SignUp extends React.Component {
       title: "Friends",
       tos: false,
       ageVerification: false,
+      keyboardOpen: false,
     }
   }
 
@@ -95,10 +99,17 @@ export default class SignUp extends React.Component {
     } else if (this.state.confirmPassword !== this.state.password) {
       problemMessage = "Passwords do not match"
       problem = true
+    } else if (!this.state.ageVerification) {
+      problemMessage = "Please verify your age"
+      problem = true
+    } else if (!this.state.tos) {
+      problemMessage = "Please agree to the Terms of Service and Privacy Policy"
+      problem = true
     }
     return (
       <View style={{ width: 100 + "%", height: 100 + "%" }}>
         <KeyboardAvoidingScrollView
+          scrollEventThrottle={32}
           behavior={Platform.OS == "ios" ? "padding" : "height"}
           horizontal={false}
           showsVerticalScrollIndicator={false}
@@ -106,7 +117,9 @@ export default class SignUp extends React.Component {
           containerStyle={{ backgroundColor: config.secondaryColor }}
           contentContainerStyle={{
             width: "100%",
+            height: !this.state.keyboardOpen ? "100%" : "auto",
             backgroundColor: config.secondaryColor,
+            justifyContent: "center",
           }}>
           <DismissKeyboardView style={styles.bodyContainer}>
             <View>
@@ -182,8 +195,28 @@ export default class SignUp extends React.Component {
                     />
                     <Text style={styles.label}>
                       By checking this box you agree to the{" "}
-                      <TextButton text="Terms of Use" /> and{" "}
-                      <TextButton text="Privacy Policy" />
+                      <TextButton
+                        text="Terms of Use"
+                        textStyle={{
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: -3,
+                        }}
+                      />{" "}
+                      and{" "}
+                      <TextButton
+                        text="Privacy Policy"
+                        textStyle={{
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: -3,
+                        }}
+                        onPressAction={() =>
+                          Linking.openURL(
+                            "https://dck12-my.sharepoint.com/:b:/g/personal/9259814_students_k12_dc_us/EaTQAOc7EGBGgKCr0qJQzHkBN2cEG2v7596xGsActpKDLQ?e=dQjVm7"
+                          )
+                        }
+                      />
                     </Text>
                   </View>
                   {problem && (
@@ -215,6 +248,14 @@ export default class SignUp extends React.Component {
             />
           </View>
         </View>
+        <KeyboardListener
+          onWillShow={() => {
+            this.setState({ keyboardOpen: true })
+          }}
+          onWillHide={() => {
+            this.setState({ keyboardOpen: false })
+          }}
+        />
       </View>
     )
   }
@@ -249,7 +290,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: config.primaryColor,
     textAlign: "center",
-    padding: 8,
+    marginBottom: 16,
   },
   container: {
     alignItems: "center",
@@ -264,11 +305,13 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   label: {
-    margin: 8,
+    marginBottom: 16,
     flexShrink: 1,
     fontSize: 17,
     alignItems: "center",
     justifyContent: "center",
     color: config.textColor,
+    flexDirection: "row",
+    flex: 1,
   },
 })
