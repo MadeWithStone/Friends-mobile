@@ -201,6 +201,11 @@ export default class SignUp extends React.Component {
                       By checking this box you agree to the{" "}
                       <TextButton
                         text="Terms of Use"
+                        onPressAction={() =>
+                          Linking.openURL(
+                            "https://friendsmobile.org/TermsOfUse.pdf"
+                          )
+                        }
                         textStyle={{
                           alignItems: "center",
                           justifyContent: "center",
@@ -217,7 +222,7 @@ export default class SignUp extends React.Component {
                         }}
                         onPressAction={() =>
                           Linking.openURL(
-                            "https://dck12-my.sharepoint.com/:b:/g/personal/9259814_students_k12_dc_us/EaTQAOc7EGBGgKCr0qJQzHkBN2cEG2v7596xGsActpKDLQ?e=dQjVm7"
+                            "https://friendsmobile.org/PrivacyPolicy.pdf"
                           )
                         }
                       />

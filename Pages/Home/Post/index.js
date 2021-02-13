@@ -13,6 +13,7 @@ import CreatePost from "./CreatePost"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import * as ImageManipulator from "expo-image-manipulator"
 import { useIsFocused } from "@react-navigation/native"
+import { usePreventScreenCapture } from "expo-screen-capture"
 
 import Feed from "../Feed"
 

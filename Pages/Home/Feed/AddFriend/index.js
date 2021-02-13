@@ -33,6 +33,7 @@ const AddFriend = ({ navigation, route }) => {
   const [currentUserFC, setCurrentUserFC] = React.useState("")
   const [scan, setScan] = React.useState(false)
   const [showCode, setShowCode] = React.useState(true)
+  const [share, setShare] = React.useState(false)
 
   usePreventScreenCapture()
 
@@ -46,7 +47,7 @@ const AddFriend = ({ navigation, route }) => {
       headerRight: () => (
         <Btn
           onPress={() => {
-            shareFriendCode()
+            setShare(true)
           }}
           icon={<Feather name="share" size={30} color={config.primaryColor} />}
           type="clear"
@@ -143,6 +144,12 @@ const AddFriend = ({ navigation, route }) => {
     }
   }
 
+  React.useEffect(() => {
+    if (share) {
+      shareFriendCode()
+    }
+  }, [share])
+
   const shareFriendCode = async () => {
     let url = Linking.createURL("/signin/" + currentUserFC)
     try {
@@ -158,6 +165,7 @@ const AddFriend = ({ navigation, route }) => {
       } else if (result.action === Share.dismissedAction) {
         // dismissed
       }
+      setShare(false)
     } catch (error) {
       alert(error.message)
     }

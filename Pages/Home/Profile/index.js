@@ -38,6 +38,7 @@ import EditProfile from "./EditProfile"
 import Settings from "./Settings"
 import { useIsFocused } from "@react-navigation/native"
 import FriendsList from "./FriendsList"
+import { usePreventScreenCapture } from "expo-screen-capture"
 
 let pList = []
 const Profile = ({ navigation, route }) => {
@@ -50,6 +51,8 @@ const Profile = ({ navigation, route }) => {
 
   let focused = useIsFocused()
   let listener
+
+  usePreventScreenCapture()
 
   React.useEffect(() => {
     console.log("running use effect")
