@@ -8,7 +8,7 @@ import * as SecureStore from "expo-secure-store"
 }*/
 
 export default class config {
-  static _primaryColor = "#b16cd9"
+  static _primaryColor = "  "
   static _secondaryColor = "#fff"
   static _textColor = "#515151"
   static _icon = 22
