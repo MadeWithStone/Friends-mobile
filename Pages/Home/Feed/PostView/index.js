@@ -37,6 +37,7 @@ import {
 } from "../../../../Firebase/PostFunctions"
 import User from "../../../../Data/User"
 import { OptionsModal } from "../index"
+import { usePreventScreenCapture } from "expo-screen-capture"
 
 const PostView = ({ route, navigation }) => {
   let params = route.params
@@ -52,6 +53,8 @@ const PostView = ({ route, navigation }) => {
   const [commentInput, setCommentInput] = React.useState("")
   const [users, setUsers] = React.useState([])
   const [showChooser, setShowChooser] = React.useState(false)
+
+  usePreventScreenCapture()
 
   let focused = useIsFocused()
   let listener

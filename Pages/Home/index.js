@@ -13,6 +13,7 @@ import config from "../../config"
 import Feed from "./Feed"
 import Post from "./Post"
 import Profile from "./Profile"
+import { usePreventScreenCapture } from "expo-screen-capture"
 
 const Tab = createMaterialTopTabNavigator()
 

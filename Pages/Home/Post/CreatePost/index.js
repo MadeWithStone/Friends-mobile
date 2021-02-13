@@ -27,6 +27,7 @@ import { updateUserPosts } from "../../../../Firebase/UserFunctions"
 import uuid from "react-native-uuid"
 import User from "../../../../Data/User"
 import FeedPage from "../../Feed"
+import { usePreventScreenCapture } from "expo-screen-capture"
 let _this = null
 let desc = ""
 export default function HomeScreen({ navigation, route }) {
@@ -41,6 +42,8 @@ export default function HomeScreen({ navigation, route }) {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   }
+
+  usePreventScreenCapture()
 
   const onChangeText = (text) => {
     if (text.split("").length < maxChars) {
