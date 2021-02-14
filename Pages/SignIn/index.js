@@ -187,23 +187,25 @@ export default class SignIn extends React.Component {
             ...styles.footerContainer,
             backgroundColor: config.secondaryColor,
           }}>
-          <View style={styles.signUpContainer}>
-            <Text style={{ ...styles.text, color: config.textColor }}>
-              Forgot password?
-            </Text>
-            <TextButton
-              text="Reset Password"
-              onPressAction={() => this.sendPasswordResetEmail()}
-            />
-          </View>
-          <View style={styles.signUpContainer}>
-            <Text style={{ ...styles.text, color: config.textColor }}>
-              Don't have an account?
-            </Text>
-            <TextButton
-              text="Sign Up"
-              onPressAction={() => this.props.navigation.navigate("SignUp")}
-            />
+          <View style={styles.footerContentContainer}>
+            <View style={styles.signUpContainer}>
+              <Text style={{ ...styles.text, color: config.textColor }}>
+                Forgot password?
+              </Text>
+              <TextButton
+                text="Reset Password"
+                onPressAction={() => this.sendPasswordResetEmail()}
+              />
+            </View>
+            <View style={styles.signUpContainer}>
+              <Text style={{ ...styles.text, color: config.textColor }}>
+                Don't have an account?
+              </Text>
+              <TextButton
+                text="Sign Up"
+                onPressAction={() => this.props.navigation.navigate("SignUp")}
+              />
+            </View>
           </View>
         </View>
       </View>
@@ -232,7 +234,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     marginRight: 4,
   },
-  signUpContainer: { flex: 1, flexDirection: "row" },
+  signUpContainer: { flexDirection: "row", marginBottom: 16 },
+  footerContentContainer: { flex: 1, alignItems: "center" },
   footerContainer: {
     flex: 0.15,
     justifyContent: "flex-end",
