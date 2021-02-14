@@ -11,7 +11,7 @@ import {
 } from "../../Components"
 import config from "../../config"
 import User from "../../Data/User"
-import { signIn, loadData } from "../../Firebase/UserFunctions"
+import { signIn, loadData, resetPassword } from "../../Firebase/UserFunctions"
 import { CommonActions } from "@react-navigation/native"
 
 import * as SecureStore from "expo-secure-store"
@@ -122,6 +122,18 @@ export default class SignIn extends React.Component {
       })
   }
 
+  sendPasswordResetEmail() {
+    resetPassword(this.state.email)
+      .then(function () {
+        // Email sent.
+        alert("Pasword reset email sent")
+      })
+      .catch(function (error) {
+        // An error happened.
+        alert(error)
+      })
+  }
+
   render() {
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     let disabled = this.state.password.length < 8 || !reg.test(this.state.email)
@@ -175,6 +187,15 @@ export default class SignIn extends React.Component {
             ...styles.footerContainer,
             backgroundColor: config.secondaryColor,
           }}>
+          <View style={styles.signUpContainer}>
+            <Text style={{ ...styles.text, color: config.textColor }}>
+              Forgot password?
+            </Text>
+            <TextButton
+              text="Reset Password"
+              onPressAction={() => this.sendPasswordResetEmail()}
+            />
+          </View>
           <View style={styles.signUpContainer}>
             <Text style={{ ...styles.text, color: config.textColor }}>
               Don't have an account?
