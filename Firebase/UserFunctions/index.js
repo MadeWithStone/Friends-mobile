@@ -19,7 +19,9 @@ const signOut = () => {
 }
 
 const verifyEmail = () => {
-  firebase.auth().currentUser.sendEmailVerification() // pass in {url: 'url'} to set redirect url
+  firebase.auth().currentUser.sendEmailVerification({
+    url: "https://friendsmobile.org/redirect.html",
+  }) // pass in {url: 'url'} to set redirect url
 }
 
 const resetPassword = (email) => {
