@@ -24,6 +24,7 @@ import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scrol
 import * as Linking from "expo-linking"
 
 import KeyboardListener from "react-native-keyboard-listener"
+import * as ScreenCapture from "expo-screen-capture"
 
 export default class SignUp extends React.Component {
   constructor(props) {

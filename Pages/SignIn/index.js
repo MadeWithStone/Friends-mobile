@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   signUpContainer: { flex: 1, flexDirection: "row" },
   footerContainer: {
-    flex: 0.1,
+    flex: 0.15,
     justifyContent: "flex-end",
     alignItems: "center",
   },

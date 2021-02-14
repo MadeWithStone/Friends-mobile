@@ -17,8 +17,8 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kidcrews.friends",
-      "buildNumber": "1.0.0"
+      "bundleIdentifier": "org.friendsmobile.friends",
+      "buildNumber": "1.0.1"
     },
     "android": {
       "adaptiveIcon": {
