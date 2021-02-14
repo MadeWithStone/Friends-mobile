@@ -139,7 +139,7 @@ const Profile = ({ navigation, route }) => {
           // complete
           alert(
             "Added " +
-              friendRequests.find((x) => x.id === req.userID).firstName +
+              users.find((x) => x.id === req.userID).firstName +
               " as a friend"
           )
           updateData()

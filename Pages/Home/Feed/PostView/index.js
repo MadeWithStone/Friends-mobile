@@ -198,7 +198,7 @@ const PostView = ({ route, navigation }) => {
     </ScrollView>
   )
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: config.secondaryColor }}>
       <KeyboardAccessoryView
         renderScrollable={renderScrollable}
         spaceBetweenKeyboardAndAccessoryView={-75}
@@ -309,6 +309,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     marginRight: 8,
     flexShrink: 1,
+    backgroundColor: config.secondaryColor,
   },
   container: {
     justifyContent: "flex-end",

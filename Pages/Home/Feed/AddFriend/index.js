@@ -39,7 +39,7 @@ const AddFriend = ({ navigation, route }) => {
 
   React.useEffect(() => {
     setCurrentFC()
-    setFriendCode(route.params ? route.params.code : "")
+    onChangeText(route.params ? route.params.code : "", "friendCode")
   }, [])
 
   React.useLayoutEffect(() => {

@@ -22,6 +22,10 @@ const verifyEmail = () => {
   firebase.auth().currentUser.sendEmailVerification() // pass in {url: 'url'} to set redirect url
 }
 
+const resetPassword = (email) => {
+  return firebase.auth().sendPasswordResetEmail(email) // pass in {url: 'url'} to set redirect url
+}
+
 const updateUserPosts = (postList) => {
   const usersRef = firebase.firestore().collection("users")
   const doc = usersRef.doc(firebase.auth().currentUser.uid)
@@ -129,4 +133,5 @@ export {
   declineFriendRequest,
   signOut,
   userReference,
+  resetPassword,
 }
