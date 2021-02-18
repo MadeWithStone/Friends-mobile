@@ -14,8 +14,12 @@ class FeedFunctions {
   /**
    * downloads user objects from list of friends
    *
+   * @static
+   * @async
+   * @method
    * @param {array} postList postList
    * @param {object} User current user
+   * @return {object} {pList, users}
    */
   static downloadUsers = async (postList, User) => {
     return new Promise((resolve, reject) => {
@@ -123,7 +127,7 @@ class FeedFunctions {
 
           console.log([arr, u])
           // resolve data
-          resolve([arr, u])
+          resolve({ pList: arr, users: u })
         })
       }
     })
@@ -132,8 +136,12 @@ class FeedFunctions {
   /**
    * removes all instances of duplicate posts
    *
+   * @static
    * @async
+   * @method
    * @param {array} pList list of post ids
+   * @param {array} postList list of current post ids
+   * @return {array} list of new posts
    */
   static removeDups = (pList, postList) => {
     // create new asynchronous promise
@@ -170,8 +178,13 @@ class FeedFunctions {
   /**
    * download post data from list of posts
    *
+   * @static
+   * @async
+   * @method
    * @param {array} pList list of post ids
    * @param {boolean} refreshPosts determines whether to delete current posts
+   * @param {array} postList list of current post ids
+   * @return {array} list of post objects
    */
   static downloadPosts = async (pList, refreshPosts, postList) => {
     return new Promise((resolve, reject) => {
@@ -248,6 +261,68 @@ class FeedFunctions {
         // setRefreshing(false)
         resolve([])
       }
+    })
+  }
+
+  /**
+   * removes duplicate instances of posts
+   *
+   * @param {array} pList list of post objects
+   */
+  static cleanOldPosts = (pList) => {
+    return new Promise((resolve, reject) => {
+      // make copy of pList
+      let p = [...pList]
+
+      // initialize array
+      let dict = []
+
+      // initialize array
+      let people = []
+
+      // sort p into ascending order
+      p.sort((a, b) => {
+        let dB = new Date(a.date)
+        let dA = new Date(b.date)
+        return dA <= dB
+      })
+
+      // loop through p backwards
+      for (let i = p.length - 1; i >= 0; i--) {
+        // if post has 5 or more reports
+        if (p[i].reports != null && p[i].reports.length >= 5) {
+          // remove post
+          p.splice(i, 1)
+        } else {
+          // find user in people array
+          let idx = people.indexOf(p[i].userID)
+
+          // user is not in people array
+          if (idx == -1) {
+            // add user to people array
+            people.push(p[i].userID)
+
+            // add a 1 to dict array
+            dict.push(1)
+          } else {
+            // if person has more than two posts
+            if (dict[idx] >= 2) {
+              // delete new posts
+              p.splice(i, 1)
+            } else dict[idx]++ // increment number of posts for person
+          }
+        }
+      }
+
+      // sort in descending order again
+      p.sort((a, b) => {
+        let dA = new Date(a.date)
+        let dB = new Date(b.date)
+        return dA <= dB
+      })
+
+      // update post state
+      resolve(p)
     })
   }
 }

@@ -117,7 +117,10 @@ const Feed = ({ route, navigation }) => {
   React.useEffect(() => {
     console.log("### posts useEffect: " + posts.length)
     if (posts.length > 1 && !cleaned) {
-      cleanOldPosts(posts)
+      FeedFunctions.cleanOldPosts(posts).then((cleanedPosts) => {
+        setPosts(cleanedPosts)
+        setCleaned(true)
+      })
     }
   }, [posts])
 
@@ -183,73 +186,31 @@ const Feed = ({ route, navigation }) => {
     }
   }
 
+  /**
+   * runs the functions that get firestore data in the FeedFunctions class
+   *
+   * @param {boolean} refresh whether to refresh the data
+   */
   const runFunctions = async (refresh) => {
-    let usersData = await FeedFunctions.downloadUsers([...postList], {
+    // get users and post list
+    let { pList, users } = await FeedFunctions.downloadUsers([...postList], {
       data: User.data,
     })
-  }
 
-  /**
-   * removes duplicate instances of posts
-   *
-   * @param {array} pList list of post objects
-   */
-  const cleanOldPosts = (pList) => {
-    // make copy of pList
-    let p = [...pList]
+    // get post data
+    let postData = await FeedFunctions.downloadPosts(pList, postList)
 
-    // initialize array
-    let dict = []
-
-    // initialize array
-    let people = []
-
-    // set cleaned to true
-    setCleaned(true)
-
-    // sort p into ascending order
-    p.sort((a, b) => {
-      let dB = new Date(a.date)
-      let dA = new Date(b.date)
-      return dA <= dB
+    // set new posts to state
+    setPosts((old) => {
+      let p = !refresh ? old : []
+      return [...p, ...postData]
     })
 
-    // loop through p backwards
-    for (let i = p.length - 1; i >= 0; i--) {
-      // if post has 5 or more reports
-      if (p[i].reports != null && p[i].reports.length >= 5) {
-        // remove post
-        p.splice(i, 1)
-      } else {
-        // find user in people array
-        let idx = people.indexOf(p[i].userID)
+    // clean new posts
+    setCleaned(false)
 
-        // user is not in people array
-        if (idx == -1) {
-          // add user to people array
-          people.push(p[i].userID)
-
-          // add a 1 to dict array
-          dict.push(1)
-        } else {
-          // if person has more than two posts
-          if (dict[idx] >= 2) {
-            // delete new posts
-            p.splice(i, 1)
-          } else dict[idx]++ // increment number of posts for person
-        }
-      }
-    }
-
-    // sort in descending order again
-    p.sort((a, b) => {
-      let dA = new Date(a.date)
-      let dB = new Date(b.date)
-      return dA <= dB
-    })
-
-    // update post state
-    setPosts(p)
+    // stop refresh indicator
+    setRefreshing(false)
   }
 
   /**
