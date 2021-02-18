@@ -1,7 +1,19 @@
+// Modules
 import React from "react"
-import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
-import { CheckBox } from "react-native-elements"
-import { TouchableWithoutFeedback } from "react-native-gesture-handler"
+import config from "../../config"
+import User from "../../Data/User"
+import * as SecureStore from "expo-secure-store"
+import * as Linking from "expo-linking"
+import * as ScreenCapture from "expo-screen-capture"
+
+// Data Functions
+import {
+  createEmailUser,
+  setUserData,
+  verifyEmail,
+} from "../../Firebase/UserFunctions"
+
+// Components
 import {
   Input,
   H1,
@@ -10,23 +22,18 @@ import {
   DismissKeyboardView,
   LogoHorizontal,
 } from "../../Components"
-import config from "../../config"
-
-import * as SecureStore from "expo-secure-store"
-
-import User from "../../Data/User"
-import {
-  createEmailUser,
-  setUserData,
-  verifyEmail,
-} from "../../Firebase/UserFunctions"
+import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
+import { CheckBox } from "react-native-elements"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
-import * as Linking from "expo-linking"
-
 import KeyboardListener from "react-native-keyboard-listener"
-import * as ScreenCapture from "expo-screen-capture"
 
-export default class SignUp extends React.Component {
+/**
+ * Handles sign up UI for the app
+ *
+ * @component
+ * @author Maxwell Stone
+ */
+class SignUp extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -44,26 +51,41 @@ export default class SignUp extends React.Component {
   }
 
   async componentDidMount() {
+    // prevent screen capture
     await ScreenCapture.preventScreenCaptureAsync()
   }
 
+  /** handles text field input change */
   onChangeText = (field, val) => {
+    // update changed field with new value
     this.setState({ [field]: val })
   }
 
+  /** use input user data to create a new user account */
   signUp = () => {
+    // start loading indicator
     this.setState({ spinning: true })
+
+    // format user data object
     const userData = {
       email: this.state.email,
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       friendCode: User.generateFriendCode(),
     }
+
+    // use firebase function to create new authentication email user
     createEmailUser(userData.email, this.state.password)
       .then(async (resData) => {
+        // send email verification email
         verifyEmail()
+
+        // upload user data to firebase using firebase function
         setUserData(resData.user.uid, userData).then(async () => {
+          // stop loading indicator
           this.setState({ spinning: false })
+
+          // save user sign in data
           await SecureStore.setItemAsync(
             "credentials",
             JSON.stringify({
@@ -71,25 +93,25 @@ export default class SignUp extends React.Component {
               password: this.state.password,
             })
           )
+
+          // alert user that they must verify their email
           alert("Please Verifiy Your Email Through The Link Sent To You")
+
+          // navigate back to sign in screen
           this.props.navigation.goBack()
         })
       })
       .catch((err) => {
+        // alert user of an error
         alert(err)
+
+        // stop loading indicator
         this.setState({ spinning: false })
       })
   }
 
-  render() {
-    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    let disabled =
-      this.state.confirmPassword !== this.state.password ||
-      this.state.password.length < 8 ||
-      this.state.firstName.length <= 1 ||
-      !reg.test(this.state.email) ||
-      !this.state.tos ||
-      !this.state.ageVerification
+  /** change message displayed to alert user of info they must enter */
+  problemMessage = () => {
     let problemMessage = ""
     let problem = false
     if (this.state.firstName.length <= 1) {
@@ -111,6 +133,22 @@ export default class SignUp extends React.Component {
       problemMessage = "Please agree to the Terms of Service and Privacy Policy"
       problem = true
     }
+
+    return { problemMessage, problem }
+  }
+
+  render() {
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    let disabled =
+      this.state.confirmPassword !== this.state.password ||
+      this.state.password.length < 8 ||
+      this.state.firstName.length <= 1 ||
+      !reg.test(this.state.email) ||
+      !this.state.tos ||
+      !this.state.ageVerification
+
+    let { problemMessage, problem } = this.problemMessage()
+
     return (
       <View style={{ width: 100 + "%", height: 100 + "%" }}>
         <KeyboardAvoidingScrollView
@@ -270,6 +308,8 @@ export default class SignUp extends React.Component {
     )
   }
 }
+
+export default SignUp
 
 const styles = StyleSheet.create({
   mainContainer: {
