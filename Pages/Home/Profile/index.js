@@ -55,14 +55,14 @@ const Profile = ({ navigation, route }) => {
   usePreventScreenCapture()
 
   React.useEffect(() => {
-    console.log("running use effect")
+    //console.log("running use effect")
   }, [])
 
   React.useEffect(() => {
     if (focused) {
       updateData()
       listener = userReference(User.data.id).onSnapshot((doc) => {
-        console.log("snap data: " + JSON.stringify(doc.data()))
+        //console.log("snap data: " + JSON.stringify(doc.data()))
         User.data = doc.data()
         getFriendRequests()
         getUserPosts()
@@ -94,14 +94,14 @@ const Profile = ({ navigation, route }) => {
     let postList = User.data.posts != null ? User.data.posts : []
     //console.warn("getting posts")
     let equal = arraysEqual(postList, pList)
-    console.log(
+    /*console.log(
       "postList: " +
         JSON.stringify(postList) +
         "; \npList: " +
         JSON.stringify(pList) +
         "; Equal: " +
         equal
-    )
+    )*/
     if (!equal) {
       pList = postList
       getPosts(postList).then((result) => {
@@ -165,7 +165,7 @@ const Profile = ({ navigation, route }) => {
         .then((data) => {
           User.data = data
           User.getUpdatedData().then(() => {
-            console.log("### done getData")
+            //console.log("### done getData")
             navigation.setOptions({
               title:
                 User.data != null
@@ -192,7 +192,7 @@ const Profile = ({ navigation, route }) => {
           })
         })
         .catch((err) => {
-          console.log("err: " + err)
+          //console.log("err: " + err)
         })
     }
   }

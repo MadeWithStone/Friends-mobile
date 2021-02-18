@@ -157,7 +157,7 @@ const PostView = ({ route, navigation }) => {
   const renderScrollable = (panHandlers) => (
     // Can be anything scrollable
     <ScrollView
-      style={styles.scrollView}
+      style={{ ...styles.scrollView, backgroundColor: config.secondaryColor }}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ backgroundColor: config.secondaryColor }}
       scrollEventThrottle={64}
@@ -209,9 +209,18 @@ const PostView = ({ route, navigation }) => {
           backgroundColor: config.secondaryColor,
         }}
         style={{ backgroundColor: config.secondaryColor }}>
-        <View style={styles.inputView}>
+        <View
+          style={{
+            ...styles.inputView,
+            backgroundColor: config.secondaryColor,
+          }}>
           <MultilineInput
-            style={styles.input}
+            style={{
+              flexGrow: 1,
+              marginRight: 8,
+              flexShrink: 1,
+              backgroundColor: config.secondaryColor,
+            }}
             onChangeText={inputChange}
             placeholder="Comment"
             value={commentInput}
@@ -336,7 +345,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     height: "100%",
-    backgroundColor: config.secondaryColor,
   },
   tView: {
     display: "flex",

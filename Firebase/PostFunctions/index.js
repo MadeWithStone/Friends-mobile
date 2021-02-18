@@ -1,6 +1,15 @@
 import { firebase } from "../config"
 import { getUsers } from "../UserFunctions"
 
+/**
+ * upload image to firebase storage and track download
+ *
+ * @method
+ * @param {string} image uri to local image
+ * @param {string} postID post id to use as id
+ * @param {function} stateUpdate function to call with upload progress updates
+ * @param {function} complete function to call when upload is complete
+ */
 const uploadImage = (image, postID, stateUpdate, complete) => {
   uriToBlob(image).then((blob) => {
     let uid = firebase.auth().currentUser.uid
@@ -22,17 +31,17 @@ const uploadImage = (image, postID, stateUpdate, complete) => {
         switch (error.code) {
           case "storage/unauthorized":
             // User doesn't have permission to access the object
-            console.log("user does not have permission")
+            //console.log("user does not have permission")
             break
 
           case "storage/canceled":
             // User canceled the upload
-            console.log("upload canceled")
+            //console.log("upload canceled")
             break
 
           case "storage/unknown":
             // Unknown error occurred, inspect error.serverResponse
-            console.log("unkown error")
+            //console.log("unkown error")
             break
         }
       },
@@ -40,7 +49,7 @@ const uploadImage = (image, postID, stateUpdate, complete) => {
         // Handle successful uploads on complete
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
         reference.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-          console.log("File available at", downloadURL)
+          //console.log("File available at", downloadURL)
           complete(downloadURL)
         })
       }
@@ -48,6 +57,12 @@ const uploadImage = (image, postID, stateUpdate, complete) => {
   })
 }
 
+/**
+ * convert image to blob for uploading
+ *
+ * @method
+ * @param {string} uri uri to local image
+ */
 uriToBlob = (uri) => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
@@ -68,28 +83,53 @@ uriToBlob = (uri) => {
   })
 }
 
+/**
+ * create post in firestore
+ *
+ * @async
+ * @param {object} data object containing post data
+ * @param {string} postID post id to use
+ */
 const createPostData = (data, postID) => {
   data.userID = firebase.auth().currentUser.uid
   data.id = postID
-  console.log("description: " + data.description)
+  //console.log("description: " + data.description)
   const postsRef = firebase.firestore().collection("posts")
   return postsRef.doc(postID).set(data)
 }
 
+/**
+ * get post data
+ *
+ * @async
+ * @param {string} postID
+ */
 const getPost = (postID) => {
   const postsRef = firebase.firestore().collection("posts")
   return postsRef.doc(postID).get()
 }
 
+/**
+ * gets post objects from list of post ids
+ *
+ * @async
+ * @param {array} postList
+ */
 const getPosts = async (postList) => {
   let postPromises = []
   postList.forEach((post) => {
-    console.log("adding getPost promise")
+    //console.log("adding getPost promise")
     postPromises.push(getPost(post))
   })
   return Promise.all(postPromises)
 }
 
+/**
+ * get users for array of comments
+ *
+ * @async
+ * @param {array} comments array of comments from a post
+ */
 const getCommentUsers = async (comments) => {
   return new Promise(async (resolve, reject) => {
     let userList = []
@@ -99,26 +139,51 @@ const getCommentUsers = async (comments) => {
     users.forEach((user) => {
       u.push(user.data())
     })
-    console.log("comment users: " + JSON.stringify(u[0]))
+    //console.log("comment users: " + JSON.stringify(u[0]))
     resolve(u)
   })
 }
 
+/**
+ * get post reference for post id
+ *
+ * @param {string} id
+ */
 const postReference = (id) => {
   const postsRef = firebase.firestore().collection("posts")
   return postsRef.doc(id)
 }
 
+/**
+ * update post comments
+ *
+ * @async
+ * @param {array} comments array of comment objects to update the post with
+ * @param {string} postID id of post to update
+ */
 const addComment = async (comments, postID) => {
   const postRef = firebase.firestore().collection("posts").doc(postID)
   return postRef.update({ comments: comments })
 }
 
+/**
+ * update post reports
+ *
+ * @async
+ * @param {string} postID id of post to update
+ * @param {array} reports arra of report objects to update the post with
+ */
 const updateReports = async (postID, reports) => {
   const postRef = firebase.firestore().collection("posts").doc(postID)
   return postRef.update({ reports: reports })
 }
 
+/**
+ * delete post
+ *
+ * @async
+ * @param {string} postID id of post to delet
+ */
 const deletePost = async (postID) => {
   const postRef = firebase.firestore().collection("posts").doc(postID)
   return postRef.delete()

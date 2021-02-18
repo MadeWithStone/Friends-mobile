@@ -56,7 +56,7 @@ const Post = (props) => {
   const snap = async () => {
     if (camera) {
       let photo = await camera.takePictureAsync()
-      console.log("image: " + photo.uri)
+      //console.log("image: " + photo.uri)
       compressImage(photo)
     }
   }
@@ -94,12 +94,12 @@ const Post = (props) => {
         image: manipResult.uri,
       })
     } catch (err) {
-      console.log("err: " + err)
+      //console.log("err: " + err)
     }
   }
 
   const pickImage = async () => {
-    if (pickerPermission) {
+    try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
@@ -107,12 +107,12 @@ const Post = (props) => {
         quality: 1,
       })
 
-      console.log(result)
+      //console.log(result)
 
       if (!result.cancelled) {
         compressImage(result)
       }
-    } else {
+    } catch (err) {
       alert("Enable camera roll permisions for Friends")
     }
   }

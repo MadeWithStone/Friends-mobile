@@ -1,26 +1,49 @@
+// modules
+import * as SecureStore from "expo-secure-store"
+import { firebase } from "../Firebase/config"
+
 //import functions for getting cloud data
 import {
   createEmailUser,
   signOut as signOutFunc,
   loadData,
 } from "../Firebase/UserFunctions"
-import { firebase } from "../Firebase/config"
 
-import * as SecureStore from "expo-secure-store"
-
-export default class User {
+/**
+ * current user
+ *
+ * @class
+ */
+class User {
   constructor(userData) {
     this.userData = userData
   }
 
+  /**
+   * set user data
+   *
+   * @method
+   * @param {object} data user data
+   */
   static set data(data) {
     this.userData = data
   }
 
+  /**
+   * get user data
+   *
+   * @method
+   */
   static get data() {
     return this.userData
   }
 
+  /**
+   * set auth data
+   *
+   * @method
+   * @param {object} auth auth data
+   */
   static set auth(auth) {
     console.log("setting auth")
     this.authData = auth
@@ -34,6 +57,11 @@ export default class User {
     return firebase.auth().signInWithEmailAndPassword(email, password)
   }
 
+  /**
+   * sign out user
+   *
+   * @static
+   */
   static signOut() {
     return new Promise(async (resolve, reject) => {
       this.data = null
@@ -48,12 +76,25 @@ export default class User {
     })
   }
 
+  /**
+   * save current user data to secure store
+   *
+   * @static
+   * @method
+   */
   static async setCurrentUser() {
     console.log("current user data: " + this.data)
     await SecureStore.setItemAsync("currentUser", JSON.stringify(this.data))
     await SecureStore.setItemAsync("currentAuth", JSON.stringify(this.auth))
   }
 
+  /**
+   * load current user data from secure store
+   *
+   * @static
+   * @async
+   * @param {function} callback called after data loaded
+   */
   static async loadCurrentUser(callback) {
     return new Promise(async (resolve, reject) => {
       let savedData = await SecureStore.getItemAsync("currentUser")
@@ -80,6 +121,12 @@ export default class User {
     })
   }
 
+  /**
+   * load current user data from firebase
+   *
+   * @static
+   * @async
+   */
   static async getUpdatedData() {
     return new Promise((resolve, reject) => {
       loadData(this.auth.uid)
@@ -94,6 +141,11 @@ export default class User {
     })
   }
 
+  /**
+   * generate new friend code
+   *
+   * @static
+   */
   static generateFriendCode() {
     let date = new Date()
     let ms = date.getTime()
@@ -111,8 +163,6 @@ export default class User {
     console.log("new friend code: " + code)
     return code
   }
-
-  static signOut() {
-    // sign out user and delete local data
-  }
 }
+
+export default User

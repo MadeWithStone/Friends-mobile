@@ -1,4 +1,14 @@
+// Modules 
 import React from "react"
+import { CommonActions } from "@react-navigation/native"
+import config from "../../config"
+import User from "../../Data/User"
+import * as SecureStore from "expo-secure-store"
+
+// Data Functions
+import { signIn, loadData, resetPassword } from "../../Firebase/UserFunctions"
+
+// Components
 import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
 import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 import {
@@ -9,14 +19,14 @@ import {
   DismissKeyboardView,
   LogoHorizontal,
 } from "../../Components"
-import config from "../../config"
-import User from "../../Data/User"
-import { signIn, loadData, resetPassword } from "../../Firebase/UserFunctions"
-import { CommonActions } from "@react-navigation/native"
 
-import * as SecureStore from "expo-secure-store"
-
-export default class SignIn extends React.Component {
+/**
+ * Handles signing in UI for the app
+ * 
+ * @component
+ * @author Maxwell Stone
+ */
+class SignIn extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -29,20 +39,52 @@ export default class SignIn extends React.Component {
   }
 
   async componentDidMount() {
-    let savedData = await SecureStore.getItemAsync("credentials")
+    this.loadCredentials()
+  }
+
+  /** 
+   * saved user credentials for automatic sign in 
+   * 
+   * @method
+  */
+  loadCredentials = () => {
+
+    // get user credentials from local storage
+    let savedData = await SecureStore.getItemAsync("credentials") 
     try {
-      savedData = JSON.parse(savedData)
-      this.setState({ email: savedData.email, password: savedData.password })
-      this.signIn()
+
+      // parse saved data (could fail if the object does not exist)
+      savedData = JSON.parse(savedData) 
+
+      if (savedData !== null) {
+
+        // set user credentials to state
+        this.setState({ email: savedData.email, password: savedData.password })
+        
+        // run signin
+        this.signIn()
+      }
     } catch (error) {
-      console.log("error " + error)
+
+      // log error if there is one
+      console.warn("error " + error)
     }
   }
 
+  /** 
+   * handles text field input change 
+   * @method
+  */
   onChangeText = (field, val) => {
+
+    // update changed field with new value
     this.setState({ [field]: val })
   }
 
+  /** 
+   * custom loading indicator 
+   * @method
+  */
   load = async (loading) => {
     if (loading) {
       this.setState({ loading: true, title: "F" }, async () => {
@@ -67,68 +109,127 @@ export default class SignIn extends React.Component {
     }
   }
 
+  /** 
+   * Uses input user data to authenticat a user with firebase 
+   * @method
+  */
   signIn = () => {
+
+    // turn on loading indicator
     this.setState({ spinning: true, loading: true })
+
+    // run firebase function with sign in info
     signIn(this.state.email, this.state.password)
       .then(async (d) => {
-        User.auth = d.user
-        if (User.auth.emailVerified) {
-          await SecureStore.setItemAsync(
-            "credentials",
-            JSON.stringify({
-              email: this.state.email,
-              password: this.state.password,
-            })
-          )
-          loadData(User.auth.uid).then((doc) => {
-            User.data = doc.data()
-            User.setCurrentUser()
-            this.props.navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [
-                  {
-                    name: "Home",
-                    params: {
-                      code: this.props.route.params
-                        ? this.props.route.params.code
-                        : "",
-                      refresh: true,
-                    },
-                  },
-                ],
-              })
-            )
 
-            setTimeout(
-              () =>
-                this.setState({
-                  spinning: false,
-                  loading: false,
-                  email: "",
-                  password: "",
-                }),
-              500
-            )
-          })
-        } else {
-          alert("You Must Verify Your Email")
-          this.setState({ spinning: false, loading: false })
-        }
+        // use authentication data to get user data
+        this.handleSignedInUser(d)
       })
       .catch((err) => {
+
+        // alert the user of a sign in issue
         alert(err)
+
+        // stop loading indicator
         this.setState({ spinning: false, loading: false })
       })
+    }
+
+  /** 
+   * parse downloaded auth data 
+   * @method
+  */
+  handleSignedInUser = (d) => {
+
+    // set current user auth object to the downloaded auth data
+    User.auth = d.user
+
+    if (User.auth.emailVerified) {
+
+      // set new sign in credentials to secure store
+      await SecureStore.setItemAsync(
+        "credentials",
+        JSON.stringify({
+          email: this.state.email,
+          password: this.state.password,
+        })
+      )
+
+      // download user data from firestore
+      this.downloadUserData()
+      
+    } else {
+
+      // alert the user if their email is not verified
+      alert("You Must Verify Your Email")
+
+      // stop loading indicator
+      this.setState({ spinning: false, loading: false })
+    }
+  }  
+
+  /** 
+   * download user data from firebase firestore 
+   * @method
+  */
+  downloadUserData = () => {
+
+    // run firebase function to download firestore data for user
+    loadData(User.auth.uid).then((doc) => {
+
+      // set current user data object to downloaded data
+      User.data = doc.data()
+
+      // save data
+      User.setCurrentUser()
+
+      // set up navigation and navigate to next screen
+      this.props.navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            {
+              name: "Home",
+              params: {
+                code: this.props.route.params
+                  ? this.props.route.params.code
+                  : "", // pass code to next screen if a friend code url was used
+                refresh: true,
+              },
+            },
+          ],
+        })
+      )
+
+      // stop the spinner after half a second
+      setTimeout(
+        () =>
+          this.setState({
+            spinning: false,
+            loading: false,
+            email: "",
+            password: "",
+          }),
+        500
+      )
+    })
   }
 
+  /** 
+   * send password reset email to input email 
+   * @method
+  */
   sendPasswordResetEmail() {
+
+    // run firebase function to send password reset email
     resetPassword(this.state.email)
       .then(function () {
+
         // Email sent.
         alert("Pasword reset email sent")
       })
       .catch(function (error) {
+
         // An error happened.
         alert(error)
       })
@@ -168,7 +269,7 @@ export default class SignIn extends React.Component {
                     style={styles.input}
                     value={this.state.password}
                     onChangeText={(text) => this.onChangeText("password", text)}
-                    placeholder="Pasword"
+                    placeholder="Password"
                     secure
                   />
                 </View>
@@ -212,6 +313,8 @@ export default class SignIn extends React.Component {
     )
   }
 }
+
+export default SignIn
 
 const styles = StyleSheet.create({
   mainContainer: {

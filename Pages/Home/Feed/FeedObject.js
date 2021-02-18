@@ -18,7 +18,7 @@ export default class FeedObject extends React.Component {
   }
 
   componentDidMount() {
-    console.log("image: " + JSON.stringify(this.props.post))
+    // console.log("image: " + JSON.stringify(this.props.post))
   }
 
   render() {

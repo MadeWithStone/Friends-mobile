@@ -53,6 +53,7 @@ const Feed = ({ route, navigation }) => {
   const [refreshing, setRefreshing] = React.useState(false)
   const [showChooser, setShowChooser] = React.useState(false)
   const [currentPost, setCurrentPost] = React.useState(0)
+  const [cleaned, setCleaned] = React.useState(false)
   let focused = useIsFocused()
   usePreventScreenCapture()
 
@@ -64,7 +65,7 @@ const Feed = ({ route, navigation }) => {
       getData()
       if (!refInterval) {
         // console.log("starting interval")
-        setTimeout(() => updateData(), 40000)
+        //setTimeout(() => updateData(), 40000)
       }
     } else {
       // console.log("clearing interval")
@@ -98,10 +99,9 @@ const Feed = ({ route, navigation }) => {
     if (focused) {
       let refresh = route.params ? route.params.refresh : false
       if (refresh) {
-        // console.log("refreshing data")
+        console.log("refreshing data")
         setPosts([])
         postList = []
-        getData()
       }
     }
   }, [navigation])
@@ -119,38 +119,41 @@ const Feed = ({ route, navigation }) => {
         //setPosts([])
         //postList = []
         users = []
-        downloadUsers()
+        downloadUsers(false)
+        if (focused) {
+          setTimeout(() => {
+            getData()
+          }, 60000)
+        }
       })
     }
   }
 
   const updateData = () => {
-    // console.log("running update data")
+    console.log("running update data")
     if (focused) {
       // console.log("focused so getting data")
       // console.log("### done loading user")
       User.getUpdatedData().then(() => {
         // console.log("### done getData")
         //setPosts([])
+        postList = []
+        users = []
         //setPostList([])
-        downloadUsers()
-        if (focused) {
-          setTimeout(() => {
-            updateData()
-          }, 40000)
-        }
+        downloadUsers(true)
       })
     }
   }
 
-  const downloadPosts = async (pList) => {
+  const downloadPosts = async (pList, refreshPosts) => {
     if (pList.length > 0) {
+      console.log("Post List: " + pList)
+      console.log("### posts: " + pList.length)
       getPosts(pList).then((result) => {
-        let p = posts
+        let p = []
         result.forEach((post) => {
           p.push(post.data())
         })
-        // console.log("### posts: " + JSON.stringify(p))
         let _users = users
         _users.push(User.data)
         p.sort((a, b) => {
@@ -164,9 +167,25 @@ const Feed = ({ route, navigation }) => {
           let d = new Date(item.date)
           return p.indexOf(item) === index && d >= cuttOff
         })
-        setPosts(p)
+        let removeIndexes = []
+        p.forEach((post, index) => {
+          if (postList.findIndex((x) => x === post.id) === -1) {
+            removeIndexes.push(index)
+          }
+        })
+        removeIndexes = removeIndexes.reverse()
+        for (let i = 0; i < removeIndexes.length; i++) {
+          p.splice(removeIndexes[i], 1)
+        }
+        console.log("### posts: " + posts.length + " " + [...p].length)
+        setPosts((old) => {
+          let pAdd = refreshPosts ? [] : old
+          return [...p, ...pAdd]
+        })
+        console.log("### posts: " + posts.length + " " + [...p].length)
         users = _users
-        cleanOldPosts()
+        //cleanOldPosts()
+        setCleaned(false)
         setRefreshing(false)
       })
     } else {
@@ -177,24 +196,30 @@ const Feed = ({ route, navigation }) => {
   const removeDups = (pList) => {
     return new Promise((resolve, reject) => {
       // console.log("postList in remove dups: " + JSON.stringify(postList))
-      let arr = pList
+      let arr = []
       // console.log("### removing dups")
-      let len = postList.length
+      let len = pList.length
       let i = 0
       while (i < len) {
-        if (postList.indexOf(pList[i]) != -1) {
-          arr.splice(i, 1)
-        } else {
-          i++
+        if (postList.indexOf(pList[i]) == -1) {
+          arr.push(pList[i])
         }
+        i++
       }
-      // console.log("postList in remove dups: " + JSON.stringify(postList))
-      // console.log("post list in remove dups: " + JSON.stringify(arr))
+      console.log("postList in remove dups: " + JSON.stringify(postList))
+      console.log("post list in remove dups: " + JSON.stringify(arr))
       resolve(arr)
     })
   }
 
-  const downloadUsers = async () => {
+  React.useEffect(() => {
+    console.log("### posts useEffect: " + posts.length)
+    if (posts.length > 1 && !cleaned) {
+      cleanOldPosts(posts)
+    }
+  }, [posts])
+
+  const downloadUsers = async (refresh) => {
     let userList = []
     if (User.data.friends) {
       User.data.friends.forEach((user) => userList.push(user.userID))
@@ -212,19 +237,14 @@ const Feed = ({ route, navigation }) => {
           }
         })
         let userPostsLength = User.data.posts ? User.data.posts.length : 0
+        let userDataPosts = []
         for (let i = 0; i < 2 && i < userPostsLength; i++) {
           pList.push(User.data.posts[i])
         }
 
         let arr1 = pList.filter((item, index) => pList.indexOf(item) === index) //removeDups(pList)
-        let newUser = User.data.posts ? false : true
-        if (!newUser) {
-          postList.forEach((post) => {
-            if (User.data.posts.findIndex((x) => x === post) === -1) {
-              newUser = true
-            }
-          })
-        }
+        let newUser = User.data.posts ? false : false
+
         let reset = arr1.length < postList.length || newUser
         /* console.log(
           "not reseting: " +
@@ -234,26 +254,39 @@ const Feed = ({ route, navigation }) => {
             arr1.length
         )*/
         if (reset) {
-          // console.log("reseting: " + (arr1.length < postList.length) + newUser)
+          console.log("reseting: " + (arr1.length < postList.length) + newUser)
           postList = []
           setPosts([])
         }
-        arr = await removeDups(Object.assign(arr1))
+        console.log("arr1: " + JSON.stringify(arr1))
+        let arr = await removeDups(Object.assign(arr1))
+        let removeIndexes = []
+        postList.forEach((post, index) => {
+          if (arr1.findIndex((x) => x === post) === -1) {
+            removeIndexes.push(index)
+          }
+        })
+        removeIndexes = removeIndexes.reverse()
+        for (let i = 0; i < removeIndexes.length; i++) {
+          postList.splice(removeIndexes[i], 1)
+        }
+        console.log("remove indexes: " + JSON.stringify(removeIndexes))
         postList = [...arr, ...postList]
         u.push(User.data)
         users = u
-        console.log("user set: " + JSON.stringify(users))
+        console.log("user set: " + JSON.stringify(userList))
         //setRefreshing(false)
 
-        downloadPosts(arr)
+        downloadPosts(arr, refresh)
       })
     }
   }
 
-  const cleanOldPosts = () => {
-    let p = posts
+  const cleanOldPosts = (pList) => {
+    let p = [...pList]
     let dict = []
     let people = []
+    setCleaned(true)
     p.sort((a, b) => {
       let dB = new Date(a.date)
       let dA = new Date(b.date)
@@ -283,6 +316,7 @@ const Feed = ({ route, navigation }) => {
       let dB = new Date(b.date)
       return dA <= dB
     })
+
     setPosts(p)
   }
 
@@ -334,7 +368,11 @@ const Feed = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
         horizontal={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={_onRefresh}
+            tintColor={config.textColor}
+          />
         }>
         {posts.length < 1 && (
           <Text style={styles.starterText}>

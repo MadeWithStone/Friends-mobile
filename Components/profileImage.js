@@ -55,8 +55,6 @@ export default class ProfileImage extends PureComponent {
 }
 
 const CachedImageView = (props) => {
-  console.log("image: " + props.image)
-  console.log("key: " + props.id)
   return (
     <CachedImage
       source={{ uri: props.image ? props.image : "" }}
@@ -67,8 +65,6 @@ const CachedImageView = (props) => {
 }
 
 const ImageView = (props) => {
-  console.log("image: " + props.image)
-  console.log("key: " + props.id)
   return (
     <Image
       source={{ uri: props.image ? props.image : "" }}
