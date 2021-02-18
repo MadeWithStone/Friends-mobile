@@ -1,4 +1,4 @@
-// Modules 
+// Modules
 import React from "react"
 import { CommonActions } from "@react-navigation/native"
 import config from "../../config"
@@ -22,7 +22,7 @@ import {
 
 /**
  * Handles signing in UI for the app
- * 
+ *
  * @component
  * @author Maxwell Stone
  */
@@ -42,49 +42,44 @@ class SignIn extends React.Component {
     this.loadCredentials()
   }
 
-  /** 
-   * saved user credentials for automatic sign in 
-   * 
+  /**
+   * saved user credentials for automatic sign in
+   *
    * @method
-  */
-  loadCredentials = () => {
-
+   */
+  loadCredentials = async () => {
     // get user credentials from local storage
-    let savedData = await SecureStore.getItemAsync("credentials") 
+    let savedData = await SecureStore.getItemAsync("credentials")
     try {
-
       // parse saved data (could fail if the object does not exist)
-      savedData = JSON.parse(savedData) 
+      savedData = JSON.parse(savedData)
 
       if (savedData !== null) {
-
         // set user credentials to state
         this.setState({ email: savedData.email, password: savedData.password })
-        
+
         // run signin
         this.signIn()
       }
     } catch (error) {
-
       // log error if there is one
       console.warn("error " + error)
     }
   }
 
-  /** 
-   * handles text field input change 
+  /**
+   * handles text field input change
    * @method
-  */
+   */
   onChangeText = (field, val) => {
-
     // update changed field with new value
     this.setState({ [field]: val })
   }
 
-  /** 
-   * custom loading indicator 
+  /**
+   * custom loading indicator
    * @method
-  */
+   */
   load = async (loading) => {
     if (loading) {
       this.setState({ loading: true, title: "F" }, async () => {
@@ -109,43 +104,38 @@ class SignIn extends React.Component {
     }
   }
 
-  /** 
-   * Uses input user data to authenticat a user with firebase 
+  /**
+   * Uses input user data to authenticat a user with firebase
    * @method
-  */
+   */
   signIn = () => {
-
     // turn on loading indicator
     this.setState({ spinning: true, loading: true })
 
     // run firebase function with sign in info
     signIn(this.state.email, this.state.password)
       .then(async (d) => {
-
         // use authentication data to get user data
         this.handleSignedInUser(d)
       })
       .catch((err) => {
-
         // alert the user of a sign in issue
         alert(err)
 
         // stop loading indicator
         this.setState({ spinning: false, loading: false })
       })
-    }
+  }
 
-  /** 
-   * parse downloaded auth data 
+  /**
+   * parse downloaded auth data
    * @method
-  */
-  handleSignedInUser = (d) => {
-
+   */
+  handleSignedInUser = async (d) => {
     // set current user auth object to the downloaded auth data
     User.auth = d.user
 
     if (User.auth.emailVerified) {
-
       // set new sign in credentials to secure store
       await SecureStore.setItemAsync(
         "credentials",
@@ -157,26 +147,22 @@ class SignIn extends React.Component {
 
       // download user data from firestore
       this.downloadUserData()
-      
     } else {
-
       // alert the user if their email is not verified
       alert("You Must Verify Your Email")
 
       // stop loading indicator
       this.setState({ spinning: false, loading: false })
     }
-  }  
+  }
 
-  /** 
-   * download user data from firebase firestore 
+  /**
+   * download user data from firebase firestore
    * @method
-  */
+   */
   downloadUserData = () => {
-
     // run firebase function to download firestore data for user
     loadData(User.auth.uid).then((doc) => {
-
       // set current user data object to downloaded data
       User.data = doc.data()
 
@@ -215,21 +201,18 @@ class SignIn extends React.Component {
     })
   }
 
-  /** 
-   * send password reset email to input email 
+  /**
+   * send password reset email to input email
    * @method
-  */
+   */
   sendPasswordResetEmail() {
-
     // run firebase function to send password reset email
     resetPassword(this.state.email)
       .then(function () {
-
         // Email sent.
         alert("Pasword reset email sent")
       })
       .catch(function (error) {
-
         // An error happened.
         alert(error)
       })

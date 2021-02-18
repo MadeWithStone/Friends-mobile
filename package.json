@@ -7,10 +7,11 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "prettier": "prettier ./**/*.js'",
-    "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
+    "eslint-check": "eslint --print-config .eslintrc",
     "precommit": "lint-staged",
     "package": "rm -rf dist && expo export --dev --public-url http://127.0.0.1:8000",
-    "docs": "jsdoc -c jsdoc.conf.json"
+    "docs": "jsdoc -c jsdoc.conf.json",
+    "test": "jest --detectOpenHandles"
   },
   "dependencies": {
     "@flyerhq/react-native-keyboard-accessory-view": "^2.1.1",
@@ -22,6 +23,7 @@
     "@react-navigation/native": "^5.8.10",
     "@react-navigation/stack": "^5.12.8",
     "better-docs": "^2.3.2",
+    "eslint": "^7.20.0",
     "expo": "~40.0.0",
     "expo-barcode-scanner": "~9.1.0",
     "expo-camera": "~9.1.0",
@@ -64,7 +66,7 @@
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
-    "eslint-config-prettier": "^7.0.0",
+    "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.0",
     "husky": "^4.3.6",
     "jsdoc-strip-async-await": "^0.1.0",
@@ -80,6 +82,21 @@
     "*.js": [
       "prettier --write",
       "git add"
+    ]
+  },
+  "jest": {
+    "preset": "react-native",
+    "cacheDirectory": "./cache",
+    "coveragePathIgnorePatterns": [
+      "./app/utils/vendor"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 80
+      }
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!react-native|react-clone-referenced-element|react-navigation)"
     ]
   },
   "private": true

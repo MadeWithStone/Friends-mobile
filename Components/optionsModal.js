@@ -1,3 +1,10 @@
+// Modules
+import React from "react"
+import config from "../config"
+
+// Components
+import { StyleSheet, Modal, View, TouchableOpacity, Text } from "react-native"
+
 /**
  * bottom options modal
  *
