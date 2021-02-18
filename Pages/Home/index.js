@@ -16,8 +16,12 @@ import Profile from "./Profile"
 import { usePreventScreenCapture } from "expo-screen-capture"
 
 const Tab = createMaterialTopTabNavigator()
-
-export default class Home extends React.Component {
+/**
+ * home tab navigator
+ *
+ * @component
+ */
+class Home extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -133,6 +137,7 @@ export default class Home extends React.Component {
     )
   }
 }
+export default Home
 
 const styles = StyleSheet.create({
   container: {

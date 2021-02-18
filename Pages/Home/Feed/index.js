@@ -1,4 +1,29 @@
+// Modules
 import React from "react"
+import config from "../../../config"
+import User from "../../../Data/User"
+
+// Contexts
+import { createStackNavigator } from "@react-navigation/stack"
+
+// Hooks
+import { useIsFocused } from "@react-navigation/native"
+import { usePreventScreenCapture } from "expo-screen-capture"
+
+// Data Functions
+import {
+  getPost,
+  getPosts,
+  updateReports,
+} from "../../../Firebase/PostFunctions"
+import { getUsers } from "../../../Firebase/UserFunctions"
+import { loadData } from "../../../Firebase/UserFunctions"
+
+// Navigation
+import AddFriend from "./AddFriend"
+import PostView from "./PostView"
+
+// Components
 import {
   StyleSheet,
   Text,
@@ -8,8 +33,6 @@ import {
   Modal,
   TouchableOpacity,
 } from "react-native"
-import { Button as Btn } from "react-native-elements"
-import { createStackNavigator } from "@react-navigation/stack"
 import {
   ScrollView,
   TouchableWithoutFeedback,
@@ -22,53 +45,52 @@ import {
   DismissKeyboardView,
   IconButton,
   LogoHorizontal,
+  OptionsModal,
 } from "../../../Components"
-import { useIsFocused } from "@react-navigation/native"
-import config from "../../../config"
+import { StatusBar } from "expo-status-bar"
+import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import FeedObject from "./FeedObject"
-import {
-  getPost,
-  getPosts,
-  updateReports,
-} from "../../../Firebase/PostFunctions"
-
-import { StatusBar } from "expo-status-bar"
-import AddFriend from "./AddFriend"
-import User from "../../../Data/User"
-import { getUsers } from "../../../Firebase/UserFunctions"
-import { loadData } from "../../../Firebase/UserFunctions"
-import { DatePickerIOS } from "react-native"
-import { set } from "react-native-reanimated"
-import PostView from "./PostView"
-import { usePreventScreenCapture } from "expo-screen-capture"
 
 let users = []
 let postList = []
 let currentUser = ""
 
+/**
+ * @name Feed
+ *
+ * @class
+ * @component
+ */
 const Feed = ({ route, navigation }) => {
+  // list of post objects
   const [posts, setPosts] = React.useState([])
+
+  // determines whether refresh indicator should show
   const [refreshing, setRefreshing] = React.useState(false)
+
+  // determines whether to show the report options chooser
   const [showChooser, setShowChooser] = React.useState(false)
+
+  // currently selected post
   const [currentPost, setCurrentPost] = React.useState(0)
+
+  // determines whether the post list is cleaned
   const [cleaned, setCleaned] = React.useState(false)
+
+  // hook to determine whether the component is mounted
   let focused = useIsFocused()
+
+  // hook to prevent screen capture when mounted
   usePreventScreenCapture()
 
   let refInterval = 0
 
+  // Use Effects
   React.useEffect(() => {
-    // console.log("focused: " + focused)
     if (focused) {
       getData()
-      if (!refInterval) {
-        // console.log("starting interval")
-        //setTimeout(() => updateData(), 40000)
-      }
-    } else {
-      // console.log("clearing interval")
     }
   }, [focused])
 
@@ -79,6 +101,24 @@ const Feed = ({ route, navigation }) => {
       navigation.navigate("AddFriend", { code: code })
     }
   }, [])
+
+  React.useEffect(() => {
+    if (focused) {
+      let refresh = route.params ? route.params.refresh : false
+      if (refresh) {
+        console.log("refreshing data")
+        setPosts([])
+        postList = []
+      }
+    }
+  }, [navigation])
+
+  React.useEffect(() => {
+    console.log("### posts useEffect: " + posts.length)
+    if (posts.length > 1 && !cleaned) {
+      cleanOldPosts(posts)
+    }
+  }, [posts])
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -95,32 +135,23 @@ const Feed = ({ route, navigation }) => {
     })
   }, [navigation, focused])
 
-  React.useEffect(() => {
-    if (focused) {
-      let refresh = route.params ? route.params.refresh : false
-      if (refresh) {
-        console.log("refreshing data")
-        setPosts([])
-        postList = []
-      }
-    }
-  }, [navigation])
-
-  const autoRefresh = () => {}
-
+  /**
+   * get feed data
+   */
   const getData = () => {
-    // console.log("running get data")
+    // if component mounted
     if (focused) {
-      // console.log("focused so getting data")
-      // console.log("### running getData")
-      // console.log("### done loading user")
+      // get updated user data from firestore
       User.getUpdatedData().then(() => {
-        // console.log("### done getData")
-        //setPosts([])
-        //postList = []
+        // reset the users list
         users = []
+
+        // run download users and do not reset the posts
         downloadUsers(false)
+
+        // if still focused
         if (focused) {
+          // call itself after 60 seconds
           setTimeout(() => {
             getData()
           }, 60000)
@@ -129,230 +160,408 @@ const Feed = ({ route, navigation }) => {
     }
   }
 
+  /**
+   * update feed data
+   */
   const updateData = () => {
     console.log("running update data")
+
+    // if component mounted
     if (focused) {
-      // console.log("focused so getting data")
-      // console.log("### done loading user")
+      // get updated user data from firestore
       User.getUpdatedData().then(() => {
-        // console.log("### done getData")
-        //setPosts([])
+        // reset the post list
         postList = []
+
+        // reset the user list
         users = []
-        //setPostList([])
+
+        // download users and reset the posts
         downloadUsers(true)
       })
     }
   }
 
+  /**
+   * download post data from list of posts
+   *
+   * @param {array} pList list of post ids
+   * @param {boolean} refreshPosts determines whether to delete current posts
+   */
   const downloadPosts = async (pList, refreshPosts) => {
+    // if there are posts to download
     if (pList.length > 0) {
       console.log("Post List: " + pList)
       console.log("### posts: " + pList.length)
+
+      // run firebase function to get posts from list
       getPosts(pList).then((result) => {
+        // initalize list of post objects
         let p = []
+
+        // loop through posts
         result.forEach((post) => {
+          // append each post's data to the list of post objects
           p.push(post.data())
         })
-        let _users = users
+
+        // create a copy of the list of downloaded user objects
+        let _users = [...users]
+
+        // add the current user to the list of user objects
         _users.push(User.data)
+
+        // sort the list of posts in date descending order
         p.sort((a, b) => {
           let dA = new Date(a.date)
           let dB = new Date(b.date)
           return dA <= dB
         })
+
+        // initialize cuttof date object
         let cuttOff = new Date()
+
+        // set cuttoff date to one day before the current date
         cuttOff.setDate(cuttOff.getDate() - 1)
+
+        // filter all the posts to make sure they are no later than the cuttoff date
         p = p.filter((item, index) => {
           let d = new Date(item.date)
           return p.indexOf(item) === index && d >= cuttOff
         })
+
+        // list of post indexes to remove
         let removeIndexes = []
+
+        // loop through each post
         p.forEach((post, index) => {
+          // remove post if it is a duplicate
           if (postList.findIndex((x) => x === post.id) === -1) {
+            // add index to list of indexes to remove
             removeIndexes.push(index)
           }
         })
+
+        // reverse the direction of the removeIndexes list
         removeIndexes = removeIndexes.reverse()
+
+        // loop through the indexes to remove
         for (let i = 0; i < removeIndexes.length; i++) {
+          // remove the post at the current remove index
           p.splice(removeIndexes[i], 1)
         }
+
         console.log("### posts: " + posts.length + " " + [...p].length)
+
+        // add new posts to the posts state
         setPosts((old) => {
           let pAdd = refreshPosts ? [] : old
           return [...p, ...pAdd]
         })
+
         console.log("### posts: " + posts.length + " " + [...p].length)
+
+        // set the users to the updated users
         users = _users
-        //cleanOldPosts()
+
+        // set cleaned to false calling the cleaned useEffect hook
         setCleaned(false)
+
+        // stop the refresh indicator
         setRefreshing(false)
       })
     } else {
+      // stop the refresh indicator if no new posts
       setRefreshing(false)
     }
   }
 
+  /**
+   * removes all instances of duplicate posts
+   *
+   * @async
+   * @param {array} pList list of post ids
+   */
   const removeDups = (pList) => {
+    // create new asynchronous promise
     return new Promise((resolve, reject) => {
       // console.log("postList in remove dups: " + JSON.stringify(postList))
+
+      // initialize new array
       let arr = []
       // console.log("### removing dups")
+
+      // get length of pList
       let len = pList.length
+
+      // initialize index
       let i = 0
+
+      // loop through pList
       while (i < len) {
+        // check if the post is in the list of current posts
         if (postList.indexOf(pList[i]) == -1) {
+          // if it isnt add it the list of new posts
           arr.push(pList[i])
         }
+
+        // increment index
         i++
       }
+
       console.log("postList in remove dups: " + JSON.stringify(postList))
       console.log("post list in remove dups: " + JSON.stringify(arr))
+
+      // resolve promise with list of new posts
       resolve(arr)
     })
   }
 
-  React.useEffect(() => {
-    console.log("### posts useEffect: " + posts.length)
-    if (posts.length > 1 && !cleaned) {
-      cleanOldPosts(posts)
-    }
-  }, [posts])
-
+  /**
+   * downloads user objects from list of friends
+   *
+   * @param {boolean} refresh determines whether to reset the post data
+   */
   const downloadUsers = async (refresh) => {
+    // initialize list of users
     let userList = []
+
+    // if the current user has friends
     if (User.data.friends) {
+      // add the friends to the list of users
       User.data.friends.forEach((user) => userList.push(user.userID))
     }
+
+    // if there are no users to download
     if (userList == null) {
-      //downloadPosts()
+      // stop refreshing indicator
+      setRefreshing(false)
     } else {
+      // get copy of postList
       let pList = [...postList]
+
+      // run firestore function to get user objects from list
       getUsers(userList).then(async (result) => {
+        // initialize list of users
         let u = []
+
+        // loop through downloaded user objects
         result.forEach((user) => {
+          // add user data to list of users
           u.push(user.data())
+
+          // get the latest two posts from the current user and add them to pList
           for (let i = 0; i < 2 && i < user.data().posts.length; i++) {
+            // add post to pList
             pList.push(user.data().posts[i])
           }
         })
+
+        // get length of current user's list of posts
         let userPostsLength = User.data.posts ? User.data.posts.length : 0
-        let userDataPosts = []
+
+        // loop through user posts
         for (let i = 0; i < 2 && i < userPostsLength; i++) {
+          // add top two to pList
           pList.push(User.data.posts[i])
         }
 
+        // filter pList to remove duplicate items
         let arr1 = pList.filter((item, index) => pList.indexOf(item) === index) //removeDups(pList)
+
+        // determine if this is a new user
         let newUser = User.data.posts ? false : false
 
+        // user newUser and post list length to determine whether to reset
         let reset = arr1.length < postList.length || newUser
-        /* console.log(
-          "not reseting: " +
-            (arr1.length < postList.length) +
-            newUser +
-            " " +
-            arr1.length
-        )*/
+
+        // if reset
         if (reset) {
           console.log("reseting: " + (arr1.length < postList.length) + newUser)
+
+          // reset postList
           postList = []
+
+          // reset list of post objects
           setPosts([])
         }
+
         console.log("arr1: " + JSON.stringify(arr1))
+
+        // remove posts that are already downloaded
         let arr = await removeDups(Object.assign(arr1))
+
+        // initialize list of indexes to remove
         let removeIndexes = []
+
+        // loop through postList
         postList.forEach((post, index) => {
+          // if post is not in new list of posts
           if (arr1.findIndex((x) => x === post) === -1) {
+            // add post index to list of posts to remove
             removeIndexes.push(index)
           }
         })
+
+        // reverse list of remove indexes
         removeIndexes = removeIndexes.reverse()
+
+        // loop through remove indexes
         for (let i = 0; i < removeIndexes.length; i++) {
+          // remove posts
           postList.splice(removeIndexes[i], 1)
         }
-        console.log("remove indexes: " + JSON.stringify(removeIndexes))
-        postList = [...arr, ...postList]
-        u.push(User.data)
-        users = u
-        console.log("user set: " + JSON.stringify(userList))
-        //setRefreshing(false)
 
+        console.log("remove indexes: " + JSON.stringify(removeIndexes))
+
+        // add new posts to postList
+        postList = [...arr, ...postList]
+
+        // update users with new list of users
+        users = u
+
+        console.log("user set: " + JSON.stringify(userList))
+
+        // download new posts
         downloadPosts(arr, refresh)
       })
     }
   }
 
+  /**
+   * removes duplicate instances of posts
+   *
+   * @param {array} pList list of post objects
+   */
   const cleanOldPosts = (pList) => {
+    // make copy of pList
     let p = [...pList]
+
+    // initialize array
     let dict = []
+
+    // initialize array
     let people = []
+
+    // set cleaned to true
     setCleaned(true)
+
+    // sort p into ascending order
     p.sort((a, b) => {
       let dB = new Date(a.date)
       let dA = new Date(b.date)
       return dA <= dB
     })
+
+    // loop through p backwards
     for (let i = p.length - 1; i >= 0; i--) {
-      // console.log("reports json: " + JSON.stringify(p[i].reports))
-      if (p[i].reports != null) {
-        // console.log("reports: " + p[i].reports.length)
-      }
+      // if post has 5 or more reports
       if (p[i].reports != null && p[i].reports.length >= 5) {
+        // remove post
         p.splice(i, 1)
       } else {
+        // find user in people array
         let idx = people.indexOf(p[i].userID)
+
+        // user is not in people array
         if (idx == -1) {
+          // add user to people array
           people.push(p[i].userID)
+
+          // add a 1 to dict array
           dict.push(1)
         } else {
+          // if person has more than two posts
           if (dict[idx] >= 2) {
+            // delete new posts
             p.splice(i, 1)
-          } else dict[idx]++
+          } else dict[idx]++ // increment number of posts for person
         }
       }
     }
+
+    // sort in descending order again
     p.sort((a, b) => {
       let dA = new Date(a.date)
       let dB = new Date(b.date)
       return dA <= dB
     })
 
+    // update post state
     setPosts(p)
   }
 
+  /**
+   * called when user pulls down on feed scroll view
+   */
   const _onRefresh = () => {
+    // set refresh indicator to true
     setRefreshing(true)
+
+    // run update data
     updateData()
   }
 
+  /**
+   * shows report menu
+   */
   const menu = (id) => {
+    // set current post to selected post
     setCurrentPost(id)
+
+    // show options menu
     setShowChooser(true)
   }
 
+  /**
+   * adds a report to the currently selected post
+   *
+   * @param {number} type optiens menu number
+   */
   const reportPost = (type) => {
+    // find current post in list of posts
     let reports = posts.find((x) => x.id == currentPost)
+
+    // get reports array for post
     reports = reports.reports ? reports.reports : []
+
+    // check if user has not already reported the post
     if (reports.findIndex((x) => x.userID === User.data.id) == -1) {
+      // add new report
       reports.push({
         userID: User.data.id,
         report: type,
         date: new Date().toISOString(),
       })
+
+      // run update reports firebase function
       updateReports(currentPost, reports).then(() => {
+        // get updated post
         getPost(currentPost).then((post) => {
+          // update posts with new post
           setPosts((pPosts) => {
+            // get copy of posts array
             let prevPosts = [...pPosts]
+
+            // find index of updated post
             let idx = prevPosts.findIndex((x) => x.id === currentPost)
+
+            // update post
             prevPosts[idx] = post.data()
+
+            // save results
             return prevPosts
           })
 
-          cleanOldPosts()
+          // clean posts
+          setCleaned(false)
+
+          // close chooser
           setShowChooser(false)
         })
       })
     } else {
+      // close chooser if already reported
       setShowChooser(false)
     }
   }
@@ -404,80 +613,27 @@ const Feed = ({ route, navigation }) => {
         showChooser={showChooser}
         setShowChooser={setShowChooser}
         reportAction={reportPost}
+        reportOptions={[
+          "Report for Sexually Explicit Content",
+          "Report for Copyright Infringement",
+          "Report for Violation of Terms of Service",
+          "Report for Violation of Privacy Policy",
+        ]}
       />
       <StatusBar style="light" />
     </View>
   )
 }
 
-const OptionsModal = (props) => {
-  const reportOptions = [
-    "Report for Sexually Explicit Content",
-    "Report for Copyright Infringement",
-    "Report for Violation of Terms of Service",
-    "Report for Violation of Privacy Policy",
-  ]
-  return (
-    <Modal visible={props.showChooser} animationType="fade" transparent={true}>
-      <View style={{ justifyContent: "flex-end", height: 100 + "%" }}>
-        <View style={{ marginBottom: 100 }}>
-          <View
-            style={{
-              margin: 8,
-              borderRadius: 15,
-            }}>
-            {reportOptions.map((option, index) => {
-              return (
-                <TouchableOpacity
-                  key={option}
-                  activeOpacity={1}
-                  onPress={() => {
-                    props.reportAction(index)
-                  }}
-                  style={{
-                    ...styles.buttonContainer,
-                    borderRadius: 0,
-                    borderbottomColor: config.secondaryColor,
-
-                    backgroundColor: config.primaryColor,
-                    borderBottomWidth:
-                      index != reportOptions.length - 1
-                        ? StyleSheet.hairlineWidth
-                        : 0,
-                    borderBottomLeftRadius:
-                      index == reportOptions.length - 1 ? 10 : 0,
-                    borderBottomRightRadius:
-                      index == reportOptions.length - 1 ? 10 : 0,
-                    borderTopLeftRadius: index == 0 ? 10 : 0,
-                    borderTopRightRadius: index == 0 ? 10 : 0,
-                  }}>
-                  <Text
-                    style={{ ...styles.button, color: config.secondaryColor }}>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => props.setShowChooser(false)}
-            style={{
-              ...styles.buttonContainer,
-              backgroundColor: config.primaryColor,
-              margin: 8,
-            }}>
-            <Text style={{ ...styles.button, color: config.secondaryColor }}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  )
-}
-
-export { OptionsModal }
+const styles = StyleSheet.create({
+  starterText: {
+    color: config.primaryColor,
+    fontSize: 17,
+    width: "100%",
+    textAlign: "center",
+    marginTop: 30,
+  },
+})
 
 const Stack = createStackNavigator()
 const FeedPage = ({ navigation, route }) => {
@@ -591,21 +747,3 @@ const FeedPage = ({ navigation, route }) => {
 }
 
 export default FeedPage
-
-const styles = StyleSheet.create({
-  button: {
-    fontSize: 20,
-    padding: 8,
-    textAlign: "center",
-  },
-  buttonContainer: {
-    borderRadius: 10,
-  },
-  starterText: {
-    color: config.primaryColor,
-    fontSize: 17,
-    width: "100%",
-    textAlign: "center",
-    marginTop: 30,
-  },
-})

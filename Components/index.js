@@ -6,6 +6,7 @@ import ProfileImage from "./profileImage"
 import { SectionHeader } from "./headers"
 import CachedImage from "./CachedImage"
 import { LogoHorizontal, Logo } from "./logo"
+import { OptionsModal } from "./optionsModal"
 
 export { Input, MultilineInput }
 export { H1 }
@@ -15,3 +16,4 @@ export { ProfileImage }
 export { SectionHeader }
 export { LogoHorizontal, Logo }
 export { CachedImage }
+export { OptionsModal }

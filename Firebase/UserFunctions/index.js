@@ -3,6 +3,7 @@ import { firebase } from "../config"
 /**
  * creates a firebase authentication email user
  *
+ * @memberof Firebase
  * @async
  * @param {string} email user email
  * @param {string} password user password
@@ -14,6 +15,7 @@ const createEmailUser = (email, password) => {
 /**
  * set user firestore data
  *
+ * @memberof Firebase
  * @async
  * @param {string} uid user id
  * @param {object} data user data object
@@ -26,6 +28,7 @@ const setUserData = (uid, data) => {
 /**
  * signin user using email and password
  *
+ * @memberof Firebase
  * @async
  * @param {string} email user email
  * @param {string} password user password
@@ -37,6 +40,7 @@ const signIn = async (email, password) => {
 /**
  * sign out user
  *
+ * @memberof Firebase
  * @async
  */
 const signOut = () => {
@@ -45,6 +49,8 @@ const signOut = () => {
 
 /**
  * send email verification email
+ *
+ * @memberof Firebase
  */
 const verifyEmail = () => {
   firebase.auth().currentUser.sendEmailVerification({
@@ -55,6 +61,7 @@ const verifyEmail = () => {
 /**
  * send password reset email
  *
+ * @memberof Firebase
  * @async
  * @param {string} email user email
  */
@@ -65,6 +72,7 @@ const resetPassword = (email) => {
 /**
  * update current users's list of posts
  *
+ * @memberof Firebase
  * @async
  * @param {array} postList
  */
@@ -77,6 +85,7 @@ const updateUserPosts = (postList) => {
 /**
  * accept friend request
  *
+ * @memberof Firebase
  * @async
  * @param {string} userID user id of person who sent request
  * @param {array} friendRequests list of current user's friend requests
@@ -116,6 +125,7 @@ const acceptFriendRequest = async (userID, friendRequests, _friends) => {
 /**
  * decline friend request
  *
+ * @memberof Firebase
  * @async
  * @param {string} userID user id of person who sent request
  * @param {array} friendRequests list of current user's friend requests
@@ -131,6 +141,7 @@ const declineFriendRequest = (userID, friendRequests) => {
 /**
  * get firestore data for user
  *
+ * @memberof Firebase
  * @async
  * @param {string} uid user's id
  */
@@ -142,6 +153,7 @@ const loadData = async (uid) => {
 /**
  * get user objects from list of user ids
  *
+ * @memberof Firebase
  * @async
  * @param {array} userList list of user ids (strings)
  */
@@ -162,6 +174,7 @@ const getUsers = async (userList) => {
 /**
  * get firestore reference for user id
  *
+ * @memberof Firebase
  * @async
  * @param {string} id id of user
  */
@@ -173,6 +186,7 @@ const userReference = (id) => {
 /**
  * finds user with friend code
  *
+ * @memberof Firebase
  * @async
  * @param {string} code friend code
  */
@@ -184,6 +198,7 @@ const findUserWithFriendCode = async (code) => {
 /**
  * update user
  *
+ * @memberof Firebase
  * @async
  * @param {object} data data to update user with
  * @param {string} uid id of user to update
@@ -196,6 +211,7 @@ const updateUser = async (data, uid) => {
 /**
  * send friend request to user
  *
+ * @memberof Firebase
  * @async
  * @param {object} user user object of user to send request to
  */

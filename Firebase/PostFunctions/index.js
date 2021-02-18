@@ -4,6 +4,7 @@ import { getUsers } from "../UserFunctions"
 /**
  * upload image to firebase storage and track download
  *
+ * @memberof Firebase
  * @method
  * @param {string} image uri to local image
  * @param {string} postID post id to use as id
@@ -60,6 +61,7 @@ const uploadImage = (image, postID, stateUpdate, complete) => {
 /**
  * convert image to blob for uploading
  *
+ * @memberof Firebase
  * @method
  * @param {string} uri uri to local image
  */
@@ -86,6 +88,7 @@ uriToBlob = (uri) => {
 /**
  * create post in firestore
  *
+ * @memberof Firebase
  * @async
  * @param {object} data object containing post data
  * @param {string} postID post id to use
@@ -101,6 +104,7 @@ const createPostData = (data, postID) => {
 /**
  * get post data
  *
+ * @memberof Firebase
  * @async
  * @param {string} postID
  */
@@ -112,6 +116,7 @@ const getPost = (postID) => {
 /**
  * gets post objects from list of post ids
  *
+ * @memberof Firebase
  * @async
  * @param {array} postList
  */
@@ -127,6 +132,7 @@ const getPosts = async (postList) => {
 /**
  * get users for array of comments
  *
+ * @memberof Firebase
  * @async
  * @param {array} comments array of comments from a post
  */
@@ -147,6 +153,7 @@ const getCommentUsers = async (comments) => {
 /**
  * get post reference for post id
  *
+ * @memberof Firebase
  * @param {string} id
  */
 const postReference = (id) => {
@@ -157,6 +164,7 @@ const postReference = (id) => {
 /**
  * update post comments
  *
+ * @memberof Firebase
  * @async
  * @param {array} comments array of comment objects to update the post with
  * @param {string} postID id of post to update
@@ -169,6 +177,7 @@ const addComment = async (comments, postID) => {
 /**
  * update post reports
  *
+ * @memberof Firebase
  * @async
  * @param {string} postID id of post to update
  * @param {array} reports arra of report objects to update the post with
@@ -181,6 +190,7 @@ const updateReports = async (postID, reports) => {
 /**
  * delete post
  *
+ * @memberof Firebase
  * @async
  * @param {string} postID id of post to delet
  */

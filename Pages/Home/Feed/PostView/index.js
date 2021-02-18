@@ -7,6 +7,7 @@ import {
   Input,
   MultilineInput,
   CachedImage,
+  OptionsModal,
 } from "../../../../Components"
 import Entypo from "@expo/vector-icons/Entypo"
 import MaterialIcons from "@expo/vector-icons/MaterialIcons"
@@ -36,7 +37,6 @@ import {
   updateReports,
 } from "../../../../Firebase/PostFunctions"
 import User from "../../../../Data/User"
-import { OptionsModal } from "../index"
 import { usePreventScreenCapture } from "expo-screen-capture"
 
 const PostView = ({ route, navigation }) => {
