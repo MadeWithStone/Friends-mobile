@@ -1,13 +1,22 @@
+// Modules
 import React from "react"
-import { Text, Image, Dimensions, View, StyleSheet } from "react-native"
-import { Icon } from "react-native-elements"
+import config from "../../../config"
+
+// Components
+import { Text, Dimensions, View, StyleSheet } from "react-native"
 import { IconButton, ProfileImage, CachedImage } from "../../../Components"
 import Entypo from "@expo/vector-icons/Entypo"
-import { Button as Btn } from "react-native-elements"
-import config from "../../../config"
 import { TouchableWithoutFeedback } from "react-native"
 
-export default class FeedObject extends React.Component {
+/**
+ * Feed list component
+ *
+ * @prop {object} post post object
+ * @prop {object} user post user
+ * @prop {funciton} menuAction called when 3 dots pressed
+ * @prop {function} onImagePress called when image pressed
+ */
+class FeedObject extends React.Component {
   constructor(props) {
     super(props)
     this.state = {}
@@ -15,10 +24,6 @@ export default class FeedObject extends React.Component {
       width: Dimensions.get("window").width,
       height: Dimensions.get("window").height,
     }
-  }
-
-  componentDidMount() {
-    // console.log("image: " + JSON.stringify(this.props.post))
   }
 
   render() {
@@ -111,3 +116,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 })
+
+export default FeedObject

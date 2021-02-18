@@ -2,6 +2,12 @@ import React from "react"
 import { View, Text, StyleSheet } from "react-native"
 import config from "../config"
 
+/**
+ * section header with bottom border
+ *
+ * @memberof Components
+ * @prop {string} title text title
+ */
 const SectionHeader = (props) => {
   return (
     <View

@@ -8,6 +8,16 @@ import { Button as Btn } from "react-native-elements"
 import config from "../config"
 import { ActivityIndicator } from "react-native-paper"
 
+/**
+ * filled button
+ *
+ * @memberof Components
+ * @component
+ * @prop {string} text title text
+ * @prop {function} onPressAction called when pressed
+ * @prop {boolean} disabled determines whether the button can be pressed
+ * @prop {boolean} spinning determines whether the loading spinner is spinning
+ */
 const Button = (props) => {
   let btnContStyle = props.disabled
     ? styles.buttonContainerDisabled
@@ -48,6 +58,14 @@ const Button = (props) => {
   )
 }
 
+/**
+ * clickable text
+ *
+ * @memberof Components
+ * @component
+ * @prop {string} text title text
+ * @prop {function} onPressAction called when pressed
+ */
 const TextButton = (props) => {
   return (
     <TouchableWithoutFeedback
@@ -64,6 +82,15 @@ const TextButton = (props) => {
   )
 }
 
+/**
+ * clickable icon
+ *
+ * @memberof Components
+ * @component
+ * @prop {object} icon react native vector icon
+ * @prop {function} onPressAction called when pressed
+ * @prop {object} style custom style object
+ */
 const IconButton = (props) => {
   return (
     <Btn
@@ -75,6 +102,18 @@ const IconButton = (props) => {
   )
 }
 
+/**
+ * cancel button
+ *
+ * @memberof Components
+ * @component
+ * @method
+ * @prop {string} title title text
+ * @prop {function} callback called when pressed
+ * @prop {boolean} disabled determines whether the button can be pressed
+ * @prop {object} style custom style object
+ * @prop {object} textStyle custom text style object
+ */
 class CancelButton extends Component {
   render() {
     return (

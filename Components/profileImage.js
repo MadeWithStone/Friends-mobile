@@ -3,7 +3,18 @@ import { StyleSheet, View, Text, Image } from "react-native"
 import config from "../config"
 import CachedImage from "./CachedImage"
 
-export default class ProfileImage extends PureComponent {
+/**
+ * profile image view
+ *
+ * @method
+ * @memberof Components
+ * @prop {string} name user name
+ * @prop {string} image image uri
+ * @prop {number} size size of profile image
+ * @prop {string} id identifier
+ * @prop {boolean} noCache determines whether to use caching or not
+ */
+class ProfileImage extends PureComponent {
   constructor(props) {
     super(props)
   }
@@ -114,6 +125,8 @@ const hslToHex = (h, s, l) => {
   }
   return `#${f(0)}${f(8)}${f(4)}`
 }
+
+export default ProfileImage
 
 const styles = StyleSheet.create({
   container: {

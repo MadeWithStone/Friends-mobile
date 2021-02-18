@@ -8,6 +8,10 @@ import CachedImage from "./CachedImage"
 import { LogoHorizontal, Logo } from "./logo"
 import { OptionsModal } from "./optionsModal"
 
+/**
+ * @namespace Components
+ */
+
 export { Input, MultilineInput }
 export { H1 }
 export { Button, TextButton, IconButton, CancelButton }

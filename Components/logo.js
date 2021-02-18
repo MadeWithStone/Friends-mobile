@@ -4,6 +4,14 @@ import config from "../config"
 import Feather from "@expo/vector-icons/Feather"
 import Svg, { Path, Circle } from "react-native-svg"
 
+/**
+ * horizontal logo
+ *
+ * @memberof Components
+ * @prop {string} title title text
+ * @prop {number} size size value
+ * @prop {boolean} split whether to split or center the text and logo
+ */
 const LogoHorizontal = (props) => {
   return (
     <View
@@ -30,6 +38,14 @@ const LogoHorizontal = (props) => {
   )
 }
 
+/**
+ * logo icon
+ *
+ * @memberof Components
+ * @prop {number} size size value
+ * @prop {string} color color value
+ * @prop {object} props props
+ */
 const Logo = (props) => {
   return (
     <Svg

@@ -1,11 +1,20 @@
+// Modules
 import React, { useEffect, useState, useRef } from "react"
-
-import { Image } from "react-native"
-
 import * as FileSystem from "expo-file-system"
-
 import PropTypes from "prop-types"
 
+// Components
+import { Image } from "react-native"
+
+/**
+ * image view with caching
+ *
+ * @memberof Components
+ * @component
+ * @prop {object} source source object (uri field)
+ * @prop {string} cacheKey key to save cached image with
+ * @prop {objec} style custom style object
+ */
 const CachedImage = (props) => {
   const {
     source: { uri },

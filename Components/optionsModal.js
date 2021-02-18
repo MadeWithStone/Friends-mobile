@@ -1,3 +1,12 @@
+/**
+ * bottom options modal
+ *
+ * @memberof Components
+ * @prop {array} reportOptions list of options to press
+ * @prop {boolean} showChooser whether the chooser is visible
+ * @prop {function} reportAction called when option pressed (passes index of option)
+ * @prop {function} setShowChooser called to change the visibility of the chooser
+ */
 const OptionsModal = (props) => {
   const reportOptions = props.reportOptions
 

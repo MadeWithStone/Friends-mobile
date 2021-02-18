@@ -2,6 +2,19 @@ import React from "react"
 import { TextInput, StyleSheet } from "react-native"
 import config from "../config"
 
+/**
+ * default text input
+ *
+ * @memberof Components
+ * @prop {string} value text input value
+ * @prop {string} placeholder text placeholder
+ * @prop {function} onChangeText called when text changed
+ * @prop {boolean} secure whether to use secure text entry
+ * @prop {string} type keyboard input type
+ * @prop {function} onFocus called when text input focused
+ * @prop {function} onEndEditing called when editing ended
+ * @prop {object} style style object
+ */
 const Input = (props) => {
   return (
     <TextInput
@@ -25,6 +38,19 @@ const Input = (props) => {
   )
 }
 
+/**
+ * multiline text input
+ *
+ * @memberof Components
+ * @prop {string} value text input value
+ * @prop {string} placeholder text placeholder
+ * @prop {function} onChangeText called when text changed
+ * @prop {boolean} secure whether to use secure text entry
+ * @prop {string} type keyboard input type
+ * @prop {function} onEndEditing called when editing ended
+ * @prop {function} submitAction called when submit key pressed
+ * @prop {object} style style object
+ */
 const MultilineInput = (props) => {
   return (
     <TextInput
