@@ -29,9 +29,6 @@ class FeedObject extends React.Component {
   render() {
     let date = new Date(this.props.post.date)
     let user = this.props.user ? this.props.user : {}
-    console.log(
-      "FeedObject.render: this.props.user: " + JSON.stringify(this.props.user)
-    )
     return (
       <View
         style={{ ...styles.mainView, backroundColor: config.secondaryColor }}>

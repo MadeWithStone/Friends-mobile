@@ -1,22 +1,35 @@
+// Modules
 import React from "react"
-import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
-import { TouchableOpacity } from "react-native-gesture-handler"
-import { Camera } from "expo-camera"
 import * as ImagePicker from "expo-image-picker"
-import Ionicons from "@expo/vector-icons/Ionicons"
-import Feather from "@expo/vector-icons/Feather"
-import { IconButton } from "../../../Components"
-import { Button as Btn } from "react-native-elements"
+import User from "../../../Data/User"
 import config from "../../../config"
+import * as ImageManipulator from "expo-image-manipulator"
+
+// Navigation
 import { createStackNavigator } from "@react-navigation/stack"
 import CreatePost from "./CreatePost"
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
-import * as ImageManipulator from "expo-image-manipulator"
+import Feed from "../Feed"
+
+// Hooks
 import { useIsFocused } from "@react-navigation/native"
 import { usePreventScreenCapture } from "expo-screen-capture"
 
-import Feed from "../Feed"
+// Components
+import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import { Camera } from "expo-camera"
+import { IconButton } from "../../../Components"
+import { Button as Btn } from "react-native-elements"
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
+import Ionicons from "@expo/vector-icons/Ionicons"
+import Feather from "@expo/vector-icons/Feather"
 
+/**
+ * screen to choose or take pictures to post
+ *
+ * @class
+ * @component
+ */
 const Post = (props) => {
   const [hasPermission, setHasPermission] = React.useState(false)
   const [pickerPermission, setPickerPermission] = React.useState(false)
@@ -40,41 +53,76 @@ const Post = (props) => {
         width: Dimensions.get("window").width,
         height: Dimensions.get("window").height,
       })
+      if (User.data.posts && User.data.posts.length >= 6) {
+        alert(
+          "You have hit your post maximum. Please delete 1 or more posts to post a new one."
+        )
+      }
     }
   }, [focused])
 
+  /**
+   * sets up camera and picker permissions
+   *
+   * @method
+   */
   const setUpPermisions = async () => {
+    // use Camera module to request permissions to access the camera
     const { status } = await Camera.requestPermissionsAsync()
+
+    // get the permission status of the image picker
     const {
       pickerStatus,
     } = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
+    // update state with permissions
     setHasPermission(status === "granted")
     setPickerPermission(pickerStatus === "granted")
   }
 
+  /**
+   * take picture
+   *
+   * @method
+   */
   const snap = async () => {
+    // if we have a camera reference
     if (camera) {
+      // take a photo
       let photo = await camera.takePictureAsync()
-      //console.log("image: " + photo.uri)
+
+      // compress the photo
       compressImage(photo)
     }
   }
 
-  const generateLink = async () => {}
-
+  /**
+   * uses the ImageManipulator to compress the image
+   *
+   * @param {string} photo uri to the image
+   */
   const compressImage = async (photo) => {
+    // create options object
     let options = {
       originX: 0,
       originY: 0,
       width: photo.width,
       height: photo.height,
     }
+
+    // if image is not square
     if (photo.width !== photo.height) {
+      // find the intended width of square image
       let width = photo.width > photo.height ? photo.height : photo.width
+
+      // find the y origin of the cropped image
       let originY =
         photo.width > photo.height ? 0 : photo.height / 2 - width / 2
+
+      // find the x origin of the cropped image
       let originX = photo.width > photo.height ? photo.width / 2 - width / 2 : 0
+
+      // update options object
       options = {
         originX: originX,
         originY: originY,
@@ -83,23 +131,37 @@ const Post = (props) => {
       }
     }
 
+    // try to crop and compress the image
     try {
+      // pass image and options into the ImageManipulator
       const manipResult = await ImageManipulator.manipulateAsync(
         photo.uri,
         [{ crop: options }],
         { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
       )
+
+      // update the image state
       setImage(manipResult.uri)
+
+      // navigate to the CreatePost screen
       props.navigation.navigate("CreatePost", {
         image: manipResult.uri,
       })
     } catch (err) {
-      //console.log("err: " + err)
+      // if error
+      console.log("Post.compressImage: catch error: " + err)
     }
   }
 
+  /**
+   * show image picker
+   *
+   * @method
+   */
   const pickImage = async () => {
+    // try to pick the image
     try {
+      // use ImagePicker module to get an image
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
@@ -107,12 +169,13 @@ const Post = (props) => {
         quality: 1,
       })
 
-      //console.log(result)
-
+      // if picker was not cancelled
       if (!result.cancelled) {
+        // compress the image
         compressImage(result)
       }
     } catch (err) {
+      // if there was an error picking then alert the user
       alert("Enable camera roll permisions for Friends")
     }
   }
