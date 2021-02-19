@@ -54,7 +54,7 @@ import Feather from "@expo/vector-icons/Feather"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import FeedObject from "./FeedObject"
 
-let users = []
+let users = {}
 let postList = []
 let currentUser = ""
 
@@ -158,7 +158,7 @@ const Feed = ({ route, navigation }) => {
           // call itself after 60 seconds
           setTimeout(() => {
             getData()
-          }, 60000)
+          }, 5000)
         }
       })
     }
@@ -178,7 +178,7 @@ const Feed = ({ route, navigation }) => {
         postList = []
 
         // reset the user list
-        users = []
+        users = {}
 
         // download users and reset the posts
         runFunctions(true)
@@ -193,12 +193,18 @@ const Feed = ({ route, navigation }) => {
    */
   const runFunctions = async (refresh) => {
     // get users and post list
-    let { pList, users } = await FeedFunctions.downloadUsers([...postList], {
+    let { pList, u } = await FeedFunctions.downloadUsers([...postList], {
       data: User.data,
     })
 
+    // set updated users
+    users = u
+
     // get post data
     let postData = await FeedFunctions.downloadPosts(pList, postList)
+
+    // update postList
+    postList = [...postList, ...pList]
 
     // set new posts to state
     setPosts((old) => {
@@ -316,13 +322,13 @@ const Feed = ({ route, navigation }) => {
             return (
               <FeedObject
                 post={post}
-                user={users.find((x) => x.id == post.userID)}
+                user={users[post.userID]}
                 key={post.date}
                 menuAction={() => menu(post.id)}
                 onImagePress={() => {
                   navigation.navigate("Post", {
                     post: post,
-                    user: users.find((x) => x.id == post.userID),
+                    user: users[post.userID],
                     currentUser: User.data,
                   })
                 }}
