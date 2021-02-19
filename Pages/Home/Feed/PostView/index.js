@@ -194,6 +194,12 @@ const PostView = ({ route, navigation }) => {
         showChooser={showChooser}
         setShowChooser={setShowChooser}
         reportAction={reportPost}
+        reportOptions={[
+          "Report for Sexually Explicit Content",
+          "Report for Copyright Infringement",
+          "Report for Violation of Terms of Service",
+          "Report for Violation of Privacy Policy",
+        ]}
       />
     </ScrollView>
   )

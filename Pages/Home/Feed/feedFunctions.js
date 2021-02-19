@@ -25,7 +25,7 @@ class FeedFunctions {
     return new Promise((resolve, reject) => {
       // initialize list of users
       let userList = []
-      console.log(User)
+
       // if the current user has friends
       if (User.data.friends) {
         // add the friends to the list of users
@@ -43,12 +43,13 @@ class FeedFunctions {
         // run firestore function to get user objects from list
         getUsers(userList).then(async (result) => {
           // initialize list of users
-          let u = []
+          let u = {}
 
           // loop through downloaded user objects
           result.forEach((user) => {
             // add user data to list of users
-            u.push(user.data())
+            let userData = user.data()
+            u[userData.id] = userData
 
             // get the latest two posts from the current user and add them to pList
             for (
@@ -118,16 +119,14 @@ class FeedFunctions {
             postList.splice(removeIndexes[i], 1)
           }
 
-          //console.log("remove indexes: " + JSON.stringify(removeIndexes))
-
           // add new posts to postList
           postList = [...arr, ...postList]
 
-          //console.log("user set: " + JSON.stringify(userList))
+          // add current user
+          u[User.data.id] = User.data
 
-          console.log([arr, u])
           // resolve data
-          resolve({ pList: arr, users: u })
+          resolve({ pList: arr, u: u })
         })
       }
     })
@@ -186,7 +185,7 @@ class FeedFunctions {
    * @param {array} postList list of current post ids
    * @return {array} list of post objects
    */
-  static downloadPosts = async (pList, refreshPosts, postList) => {
+  static downloadPosts = async (pList, postList) => {
     return new Promise((resolve, reject) => {
       // if there are posts to download
       if (pList.length > 0) {
@@ -212,7 +211,7 @@ class FeedFunctions {
           let cuttOff = new Date()
 
           // set cuttoff date to one day before the current date
-          cuttOff.setDate(cuttOff.getDate() - 1)
+          cuttOff.setDate(cuttOff.getDate() - 2)
 
           // filter all the posts to make sure they are no later than the cuttoff date
           p = p.filter((item, index) => {
@@ -232,7 +231,6 @@ class FeedFunctions {
             }
           })
 
-          console.log("### posts: " + [...p])
           // reverse the direction of the removeIndexes list
           removeIndexes = removeIndexes.reverse()
           // loop through the indexes to remove
@@ -241,24 +239,11 @@ class FeedFunctions {
             p.splice(removeIndexes[i], 1)
           }
 
-          resolve(refreshPosts ? [] : [...p])
-          /*// add new posts to the posts state
-              setPosts((old) => {
-                let pAdd = refreshPosts ? [] : old
-                return [...p, ...pAdd]
-              })
-      
-              console.log("### posts: " + posts.length + " " + [...p].length)
-      
-              // set cleaned to false calling the cleaned useEffect hook
-              setCleaned(false)
-      
-              // stop the refresh indicator
-              setRefreshing(false)*/
+          // resolve data
+          resolve(p)
         })
       } else {
         // stop the refresh indicator if no new posts
-        // setRefreshing(false)
         resolve([])
       }
     })
