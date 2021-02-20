@@ -158,7 +158,7 @@ const Feed = ({ route, navigation }) => {
           // call itself after 60 seconds
           setTimeout(() => {
             getData()
-          }, 5000)
+          }, 60000)
         }
       })
     }
