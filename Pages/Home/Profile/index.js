@@ -21,6 +21,7 @@ import {
   SectionHeader,
   TextButton,
   CachedImage,
+  IconButton,
 } from "../../../Components"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import {
@@ -254,15 +255,14 @@ const Profile = ({ navigation, route }) => {
           callback={friendRequestCallback}
         />
       )}
-      {posts != null && posts.length > 0 && (
-        <PostsView
-          posts={posts}
-          openModal={(id) => {
-            setShowModel(true)
-            setCurrentPost(id)
-          }}
-        />
-      )}
+      <PostsView
+        posts={posts}
+        openModal={(id) => {
+          setShowModel(true)
+          setCurrentPost(id)
+        }}
+        navigation={navigation}
+      />
       <PostOptionsModal
         showChooser={showModel}
         setShowChooser={setShowModel}
@@ -423,23 +423,70 @@ const PostsView = (props) => {
   return (
     <View style={{ marginTop: 8 }}>
       <SectionHeader title={"Posts"} />
-      <View
-        style={{
-          float: "left",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          marginTop: -1,
-        }}>
-        {props.posts.map((post, index) => {
-          return (
-            <TouchableOpacity
-              onPress={() => props.openModal(post.id)}
-              key={post.id}>
-              <PostViewObj post={post} index={index} />
-            </TouchableOpacity>
-          )
-        })}
-      </View>
+      {props.posts != null && props.posts.length > 0 ? (
+        <View
+          style={{
+            float: "left",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            marginTop: -1,
+          }}>
+          {props.posts.map((post, index) => {
+            return (
+              <TouchableOpacity
+                onPress={() => props.openModal(post.id)}
+                key={post.id}>
+                <PostViewObj post={post} index={index} />
+              </TouchableOpacity>
+            )
+          })}
+        </View>
+      ) : (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: 8,
+          }}>
+          <Text
+            style={{
+              color: config.textColor,
+              fontSize: 17,
+              textAlign: "center",
+              justifyContent: "center",
+              alignItems: "center",
+            }}>
+            go to the
+          </Text>
+          <IconButton
+            icon={
+              <Feather
+                name="plus-square"
+                size={config.iconFocused}
+                color={config.primaryColor}
+                style={{
+                  alignSelf: "center",
+                }}
+              />
+            }
+            style={{
+              margin: -4,
+            }}
+            onPressAction={() => props.navigation.navigate("Post")}
+          />
+          <Text
+            style={{
+              color: config.textColor,
+              fontSize: 17,
+              textAlign: "center",
+              justifyContent: "center",
+              alignItems: "center",
+            }}>
+            tab to create a post
+          </Text>
+        </View>
+      )}
     </View>
   )
 }

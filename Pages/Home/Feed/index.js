@@ -320,8 +320,19 @@ const Feed = ({ route, navigation }) => {
           />
         }>
         {posts.length < 1 && (
-          <Text style={styles.starterText}>
-            Share your <TextButton>friend code</TextButton> to make friends
+          <Text style={{ ...styles.starterText, color: config.textColor }}>
+            Share your{" "}
+            <TextButton
+              text="Friend Code"
+              textStyle={{
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: -3,
+                fontWeight: "bold",
+              }}
+              onPressAction={() => navigation.navigate("AddFriend")}
+            />{" "}
+            to make friends
           </Text>
         )}
         {posts
@@ -363,11 +374,12 @@ const Feed = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   starterText: {
-    color: config.textColor,
     fontSize: 17,
     width: "100%",
     textAlign: "center",
     marginTop: 30,
+    alignItems: "center",
+    justifyContent: "center",
   },
 })
 
