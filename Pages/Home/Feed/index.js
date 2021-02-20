@@ -208,8 +208,16 @@ const Feed = ({ route, navigation }) => {
 
     // set new posts to state
     setPosts((old) => {
-      let p = !refresh ? old : []
-      return [...p, ...postData]
+      let pCopy = !refresh ? [...old] : []
+      // loop through pCopy backwards
+      for (let i = pCopy.length - 1; i >= 0; i--) {
+        // if post is not in new list of posts
+        if (pList.findIndex((x) => x === pCopy[i].id) === -1) {
+          // remove post
+          pCopy.splice(i, 1)
+        }
+      }
+      return [...pCopy, ...postData]
     })
 
     // clean new posts
