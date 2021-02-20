@@ -313,7 +313,7 @@ const Feed = ({ route, navigation }) => {
         }>
         {posts.length < 1 && (
           <Text style={styles.starterText}>
-            Share your friend code to make friends
+            Share your <TextButton>friend code</TextButton> to make friends
           </Text>
         )}
         {posts
@@ -355,7 +355,7 @@ const Feed = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   starterText: {
-    color: config.primaryColor,
+    color: config.textColor,
     fontSize: 17,
     width: "100%",
     textAlign: "center",
