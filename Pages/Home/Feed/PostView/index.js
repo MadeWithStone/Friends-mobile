@@ -1,34 +1,9 @@
+// Modules
 import React from "react"
-import { Text, Image, Dimensions, View, StyleSheet } from "react-native"
-import { Icon } from "react-native-elements"
-import {
-  IconButton,
-  ProfileImage,
-  Input,
-  MultilineInput,
-  CachedImage,
-  OptionsModal,
-} from "../../../../Components"
-import Entypo from "@expo/vector-icons/Entypo"
-import MaterialIcons from "@expo/vector-icons/MaterialIcons"
-import { Button as Btn } from "react-native-elements"
 import config from "../../../../config"
-import {
-  KeyboardAvoidingView,
-  TextInput,
-  Platform,
-  TouchableWithoutFeedback,
-  Button,
-  Keyboard,
-  InputAccessoryView,
-} from "react-native"
-import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
-import { ScrollView } from "react-native-gesture-handler"
-import { KeyboardAccessoryView } from "@flyerhq/react-native-keyboard-accessory-view"
-import { GestureResponderHandlers } from "react-native"
-import { SafeAreaView } from "react-native"
-import KeyboardListener from "react-native-keyboard-listener"
-import { useIsFocused, useScrollToTop } from "@react-navigation/native"
+import User from "../../../../Data/User"
+
+// Firebase Functions
 import {
   addComment,
   getCommentUsers,
@@ -36,9 +11,33 @@ import {
   postReference,
   updateReports,
 } from "../../../../Firebase/PostFunctions"
-import User from "../../../../Data/User"
+
+// Hooks
+import { useIsFocused, useScrollToTop } from "@react-navigation/native"
 import { usePreventScreenCapture } from "expo-screen-capture"
 
+// Components
+import { Text, Dimensions, View, StyleSheet } from "react-native"
+import {
+  IconButton,
+  ProfileImage,
+  MultilineInput,
+  CachedImage,
+  OptionsModal,
+} from "../../../../Components"
+import Entypo from "@expo/vector-icons/Entypo"
+import MaterialIcons from "@expo/vector-icons/MaterialIcons"
+import { ScrollView } from "react-native-gesture-handler"
+import { KeyboardAccessoryView } from "@flyerhq/react-native-keyboard-accessory-view"
+import { SafeAreaView } from "react-native"
+import KeyboardListener from "react-native-keyboard-listener"
+
+/**
+ * handles viewing of post after clicked in feed
+ *
+ * @class
+ * @component
+ */
 const PostView = ({ route, navigation }) => {
   let params = route.params
   let dims = {
@@ -96,6 +95,10 @@ const PostView = ({ route, navigation }) => {
   }, [keyboardOpen, comments])
 
   React.useEffect(() => {
+    scrollview.current.scrollToEnd({ animated: true })
+  }, [comments])
+
+  React.useEffect(() => {
     setComments(params.post.comments)
     getPost(params.post.id).then((post) => {
       params.post = post.data()
@@ -103,7 +106,11 @@ const PostView = ({ route, navigation }) => {
     })
     listener = postReference(params.post.id).onSnapshot((doc) => {
       params.post = doc.data()
-      setComments(params.post.comments)
+      if (params.post == undefined) {
+        navigation.goBack()
+      } else {
+        setComments(params.post.comments)
+      }
     })
   }, [])
 
@@ -125,30 +132,55 @@ const PostView = ({ route, navigation }) => {
     }
   }
 
+  /**
+   * make a new comment on the post
+   *
+   * @method
+   */
   const newComment = () => {
+    // get list of comments
     let newComments = [...comments]
+
+    // add new comment object
     newComments.push({
       userID: User.data.id,
       comment: commentInput,
       date: new Date().toISOString(),
     })
+
+    // set the comment input field to blank
     setCommentInput("")
+
+    // run firebase function to add a new comment
     addComment(newComments, params.post.id)
   }
 
+  /**
+   * add a report to the current post
+   */
   const reportPost = (type) => {
-    let reports = params.post.reports
+    // get list of reports
+    let reports = [...params.post.reports]
+
+    // make empty list if reports does not exist
     reports = reports ? reports : []
+
+    // check if user has already reported
     if (reports.findIndex((x) => x.userID === User.data.id) == -1) {
+      // add new report if not already reported
       reports.push({
         userID: User.data.id,
         report: type,
         date: new Date().toISOString(),
       })
+
+      // run firebase function to update the post's reports
       updateReports(params.post.id, reports).then(() => {
+        // close the report chooser
         setShowChooser(false)
       })
     } else {
+      // if already reported close chooser
       setShowChooser(false)
     }
   }

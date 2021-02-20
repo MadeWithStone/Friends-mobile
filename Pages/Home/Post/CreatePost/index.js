@@ -23,11 +23,16 @@ import config from "../../../../config"
 import { Button as Btn } from "react-native-elements"
 import { ProgressBar, Colors } from "react-native-paper"
 import { uploadImage, createPostData } from "../../../../Firebase/PostFunctions"
-import { updateUserPosts } from "../../../../Firebase/UserFunctions"
+import {
+  updateUserPosts,
+  userReference,
+} from "../../../../Firebase/UserFunctions"
 import uuid from "react-native-uuid"
 import User from "../../../../Data/User"
 import FeedPage from "../../Feed"
 import { usePreventScreenCapture } from "expo-screen-capture"
+import { useIsFocused } from "@react-navigation/native"
+
 let _this = null
 let desc = ""
 export default function HomeScreen({ navigation, route }) {
@@ -44,6 +49,16 @@ export default function HomeScreen({ navigation, route }) {
   }
 
   usePreventScreenCapture()
+  let focused = useIsFocused()
+
+  React.useEffect(() => {
+    if (focused && User.data.posts && User.data.posts.length >= 6) {
+      alert(
+        "You have reached your post maximum of 6. Please go to your profile and delete posts."
+      )
+      navigation.goBack()
+    }
+  }, [focused])
 
   const onChangeText = (text) => {
     if (text.split("").length < maxChars) {

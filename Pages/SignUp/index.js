@@ -199,7 +199,7 @@ class SignUp extends React.Component {
                     style={styles.input}
                     value={this.state.password}
                     onChangeText={(text) => this.onChangeText("password", text)}
-                    placeholder="Pasword"
+                    placeholder="Password"
                     secure
                   />
                   <Input
@@ -208,7 +208,7 @@ class SignUp extends React.Component {
                     onChangeText={(text) =>
                       this.onChangeText("confirmPassword", text)
                     }
-                    placeholder="Confirm Pasword"
+                    placeholder="Confirm Password"
                     secure
                   />
                   <View style={styles.checkboxContainer}>
