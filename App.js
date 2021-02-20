@@ -10,6 +10,7 @@ import SignUp from "./Pages/SignUp"
 import Home from "./Pages/Home"
 import Load from "./Load"
 import * as Linking from "expo-linking"
+import * as Analytics from "expo-firebase-analytics"
 
 const Stack = createStackNavigator()
 const prefix = Linking.createURL("/")
@@ -49,6 +50,7 @@ export default class App extends React.Component {
 }
 
 const Loader = ({ navigation, route }) => {
+  Analytics.setAnalyticsCollectionEnabled(false)
   config
     .init()
     .then(() => {
