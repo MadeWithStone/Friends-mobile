@@ -256,7 +256,7 @@ const Profile = ({ navigation, route }) => {
         />
       )}
       <PostsView
-        posts={posts}
+        posts={posts ? posts : []}
         openModal={(id) => {
           setShowModel(true)
           setCurrentPost(id)

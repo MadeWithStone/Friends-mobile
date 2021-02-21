@@ -1,5 +1,6 @@
 import { firebase } from "../config"
 import { getUsers } from "../UserFunctions"
+import User from "../../Data/User"
 
 /**
  * upload image to firebase storage and track download
@@ -196,7 +197,16 @@ const updateReports = async (postID, reports) => {
  */
 const deletePost = async (postID) => {
   const postRef = firebase.firestore().collection("posts").doc(postID)
+  let deleted = await deleteImage(User.data.id, postID)
   return postRef.delete()
+}
+
+const deleteImage = async (uid, postID) => {
+  const reference = firebase
+    .storage()
+    .ref()
+    .child(uid + "/" + postID + ".jpg")
+  return reference.delete()
 }
 
 export {

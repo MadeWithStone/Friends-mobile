@@ -212,7 +212,7 @@ const Feed = ({ route, navigation }) => {
       // loop through pCopy backwards
       for (let i = pCopy.length - 1; i >= 0; i--) {
         // if post is not in new list of posts
-        if (pList.findIndex((x) => x === pCopy[i].id) === -1) {
+        if (postList.findIndex((x) => x === pCopy[i].id) === -1) {
           // remove post
           pCopy.splice(i, 1)
         }
