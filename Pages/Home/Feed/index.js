@@ -367,7 +367,7 @@ const Feed = ({ route, navigation }) => {
           "Report for Violation of Privacy Policy",
         ]}
       />
-      <StatusBar style="light" />
+      <StatusBar style={config.secondaryColor === "#000" ? "light" : "dark"} />
     </View>
   )
 }

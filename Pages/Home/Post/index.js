@@ -15,7 +15,14 @@ import { useIsFocused } from "@react-navigation/native"
 import { usePreventScreenCapture } from "expo-screen-capture"
 
 // Components
-import { View, Text, StyleSheet, Image, Dimensions } from "react-native"
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  StatusBar,
+} from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
 import { IconButton } from "../../../Components"
@@ -189,18 +196,20 @@ const Post = (props) => {
           ref={(ref) => {
             camera = ref
           }}>
-          <View
-            style={{
-              width: dims.width - 16,
-              height: dims.width - 16,
-              borderColor: config.primaryColor,
-              borderWidth: 2,
-              marginTop: (dims.height - dims.width - 16) / 2 - 16,
-              marginBottom: "auto",
-              margin: 8,
-              borderRadius: 5,
-            }}
-          />
+          {dims.height !== 0 && dims.width != 0 && (
+            <View
+              style={{
+                width: dims.width - 16,
+                height: dims.width - 16,
+                borderColor: config.primaryColor,
+                borderWidth: 2,
+                marginTop: (dims.height - dims.width - 16) / 2 - 16,
+                marginBottom: "auto",
+                margin: 8,
+                borderRadius: 5,
+              }}
+            />
+          )}
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={pickImage}>
               <Image
@@ -234,6 +243,13 @@ const Post = (props) => {
             />
           </View>
         </Camera>
+      )}
+
+      {focused && (
+        <StatusBar
+          style={config.secondaryColor === "#000" ? "light" : "dark"}
+          hidden
+        />
       )}
     </View>
   )

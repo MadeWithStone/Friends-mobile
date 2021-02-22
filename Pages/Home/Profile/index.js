@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Modal,
   TouchableOpacity,
+  StatusBar,
 } from "react-native"
 import { createStackNavigator } from "@react-navigation/stack"
 import { Button as Btn } from "react-native-elements"
@@ -268,6 +269,12 @@ const Profile = ({ navigation, route }) => {
         setShowChooser={setShowModel}
         action={deletePost}
       />
+      {focused && (
+        <StatusBar
+          style={config.secondaryColor === "#000" ? "light" : "dark"}
+          hidden={false}
+        />
+      )}
     </KeyboardAvoidingScrollView>
   )
 }

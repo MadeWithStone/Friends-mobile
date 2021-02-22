@@ -19,8 +19,13 @@ const OptionsModal = (props) => {
 
   return (
     <Modal visible={props.showChooser} animationType="fade" transparent={true}>
-      <View style={{ justifyContent: "flex-end", height: 100 + "%" }}>
-        <View style={{ marginBottom: 100 }}>
+      <View
+        style={{
+          justifyContent: "flex-end",
+          height: 100 + "%",
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+        }}>
+        <View style={{ marginBottom: 16 }}>
           <View
             style={{
               margin: 8,

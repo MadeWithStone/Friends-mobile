@@ -66,7 +66,11 @@ const Loader = ({ navigation, route }) => {
   React.useEffect(() => {
     console.log("running use effect")
   }, [navigation])
-  return <View></View>
+  return (
+    <View>
+      <StatusBar style={config.secondaryColor === "#000" ? "light" : "dark"} />
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
