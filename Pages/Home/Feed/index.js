@@ -33,6 +33,7 @@ import {
   RefreshControl,
   Modal,
   TouchableOpacity,
+  FlatList,
 } from "react-native"
 import {
   ScrollView,
@@ -115,7 +116,7 @@ const Feed = ({ route, navigation }) => {
   }, [navigation])
 
   React.useEffect(() => {
-    console.log("### posts useEffect: " + posts.length)
+    console.log("### posts cleaning: " + posts.length)
     if (posts.length > 1 && !cleaned) {
       FeedFunctions.cleanOldPosts(posts).then((cleanedPosts) => {
         setPosts(cleanedPosts)
@@ -302,9 +303,12 @@ const Feed = ({ route, navigation }) => {
     }
   }
 
+  let cuttOff = new Date()
+  cuttOff.setDate(cuttOff.getDate() - 2)
+
   return (
     <View>
-      <ScrollView
+      <FlatList
         style={{
           width: 100 + "%",
           height: 100 + "%",
@@ -312,13 +316,41 @@ const Feed = ({ route, navigation }) => {
         }}
         showsVerticalScrollIndicator={false}
         horizontal={false}
+        data={posts
+          .filter((item, index) => {
+            let date = new Date(item.date)
+            return date >= cuttOff && posts.indexOf(item) === index
+          })
+          .sort((a, b) => {
+            let dA = new Date(a.date)
+            let dB = new Date(b.date)
+            return dA <= dB
+          })}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={_onRefresh}
             tintColor={config.textColor}
           />
-        }>
+        }
+        renderItem={({ item, index, separators }) => {
+          let post = item
+          return (
+            <FeedObject
+              post={post}
+              user={users[post.userID]}
+              key={post.date}
+              menuAction={() => menu(post.id)}
+              onImagePress={() => {
+                navigation.navigate("Post", {
+                  post: post,
+                  user: users[post.userID],
+                  currentUser: User.data,
+                })
+              }}
+            />
+          )
+        }}>
         {posts.length < 1 && (
           <Text style={{ ...styles.starterText, color: config.textColor }}>
             Share your{" "}
@@ -354,7 +386,7 @@ const Feed = ({ route, navigation }) => {
               />
             )
           })}
-      </ScrollView>
+      </FlatList>
 
       <OptionsModal
         showChooser={showChooser}

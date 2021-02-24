@@ -211,15 +211,17 @@ const Post = (props) => {
             />
           )}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={pickImage}>
-              <Image
-                style={styles.library}
-                source={{
-                  uri:
-                    "https://www.nationalgeographic.com/content/dam/photography/photos/000/000/6.ngsversion.1467942028599.adapt.1900.1.jpg",
-                }}
-              />
-            </TouchableOpacity>
+            <IconButton
+              style={styles.button}
+              onPressAction={pickImage}
+              icon={
+                <Ionicons
+                  name="ios-images-outline"
+                  size={45}
+                  color={config.primaryColor}
+                />
+              }
+            />
             <TouchableOpacity
               style={{ ...styles.round, backgroundColor: config.primaryColor }}
               onPress={snap}

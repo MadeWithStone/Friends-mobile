@@ -499,6 +499,14 @@ const PostsView = (props) => {
 }
 
 const PostViewObj = (props) => {
+  // initialize cuttof date object
+  let cuttOff = new Date()
+
+  // set cuttoff date to one day before the current date
+  cuttOff.setDate(cuttOff.getDate() - 2)
+
+  let currentDate = new Date(props.post.date)
+
   return (
     <CachedImage
       key={props.post.id}
@@ -512,7 +520,7 @@ const PostViewObj = (props) => {
         marginBottom: 1,
         opacity: props.index > 1 ? 0.4 : 1,
         borderColor: config.primaryColor,
-        borderWidth: props.index <= 1 ? 1 : 0,
+        borderWidth: currentDate > cuttOff && props.index <= 1 ? 1 : 0,
       }}
     />
   )
