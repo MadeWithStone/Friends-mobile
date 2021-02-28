@@ -41,6 +41,7 @@ import Settings from "./Settings"
 import { useIsFocused } from "@react-navigation/native"
 import FriendsList from "./FriendsList"
 import { usePreventScreenCapture } from "expo-screen-capture"
+import { DeviceEventEmitter } from "react-native"
 
 let pList = []
 const Profile = ({ navigation, route }) => {
@@ -87,7 +88,10 @@ const Profile = ({ navigation, route }) => {
       })
       setUsersList(data)
       setFriendRequests(freReqs)
-
+      console.log("Profile.getFriendRequests: badge count emitted")
+      DeviceEventEmitter.emit("friendBadgeCount", {
+        val: freReqs.length,
+      })
       setRefreshing(false)
     })
   }
@@ -315,23 +319,27 @@ const FriendRequestView = (props) => {
 
 const FriendRequestObj = (props) => {
   return (
-    <View style={frStyles.requestOBJContainer}>
-      <Text style={{ fontSize: 17, color: config.textColor }}>
-        {props.user.firstName} {props.user.lastName}
-      </Text>
-      <View style={frStyles.buttonContainer}>
-        <Button
-          text={"Accept"}
-          style={{ marginRight: 8 }}
-          textStyle={{ fontSize: 17, fontWeight: "bold", padding: 6 }}
-          onPressAction={() => props.callback(true, props.request)}
-        />
-        <TextButton
-          text={"Decline"}
-          textStyle={{ fontSize: 17, color: "gray", fontWeight: "bold" }}
-          onPressAction={() => props.callback(false, props.request)}
-        />
-      </View>
+    <View>
+      {props.user && (
+        <View style={frStyles.requestOBJContainer}>
+          <Text style={{ fontSize: 17, color: config.textColor }}>
+            {props.user.firstName} {props.user.lastName}
+          </Text>
+          <View style={frStyles.buttonContainer}>
+            <Button
+              text={"Accept"}
+              style={{ marginRight: 8 }}
+              textStyle={{ fontSize: 17, fontWeight: "bold", padding: 6 }}
+              onPressAction={() => props.callback(true, props.request)}
+            />
+            <TextButton
+              text={"Decline"}
+              textStyle={{ fontSize: 17, color: "gray", fontWeight: "bold" }}
+              onPressAction={() => props.callback(false, props.request)}
+            />
+          </View>
+        </View>
+      )}
     </View>
   ) //return a friend request object with callback for accept and decline
 }
