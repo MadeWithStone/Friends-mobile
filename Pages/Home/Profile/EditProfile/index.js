@@ -28,7 +28,10 @@ import { ScreenStackHeaderConfig } from "react-native-screens"
 import * as ImageManipulator from "expo-image-manipulator"
 import * as ImagePicker from "expo-image-picker"
 import { Camera } from "expo-camera"
-import { updateUser } from "../../../../Firebase/UserFunctions"
+import {
+  removeProfileImage,
+  updateUser,
+} from "../../../../Firebase/UserFunctions"
 import { uploadImage } from "../../../../Firebase/PostFunctions"
 
 const EditProfile = ({ navigation, route }) => {
@@ -150,25 +153,37 @@ const EditProfile = ({ navigation, route }) => {
       compressImage(result)
     }
   }
+
+  const removePhoto = async () => {
+    setImage("")
+  }
+
   const saveEdits = async () => {
     console.log("firstname: " + firstName)
-    if (User.data != null) {
-      let imgURL = User.data.profileImage
-      if (image != null && image.length > 0 && image != imgURL) {
-        imgURL = await uploadUserImg()
-      }
-      setImage(imgURL)
-      console.log("firstname: " + firstName)
-      let newData = {
-        firstName: firstName.valueOf(),
-        lastName: lastName.valueOf(),
-        profileImage: imgURL.valueOf(),
-      }
+    if (firstName.length <= 0) {
+      alert("You must enter a first name")
+    } else {
+      if (User.data != null) {
+        let imgURL = User.data.profileImage
+        if (image != null && image.length > 0 && image != imgURL) {
+          imgURL = await uploadUserImg()
+        } else if (image == "" && imgURL != image) {
+          imgURL = ""
+          await removeProfileImage(User.data.id)
+        }
+        setImage(imgURL)
+        console.log("firstname: " + firstName)
+        let newData = {
+          firstName: firstName.valueOf(),
+          lastName: lastName.valueOf(),
+          profileImage: imgURL.valueOf(),
+        }
 
-      console.log("new data: " + JSON.stringify(newData))
-      updateUser(newData, User.data.id).then(() => {
-        navigation.goBack()
-      })
+        console.log("new data: " + JSON.stringify(newData))
+        updateUser(newData, User.data.id).then(async () => {
+          navigation.goBack()
+        })
+      }
     }
   }
   const uploadUserImg = async () => {
@@ -240,6 +255,25 @@ const EditProfile = ({ navigation, route }) => {
                 style={{
                   ...styles.buttonContainer,
 
+                  borderbottomColor: config.secondaryColor,
+
+                  backgroundColor: config.primaryColor,
+                  borderBottomWidth: StyleSheet.hairlineWidth,
+                  borderRadius: 0,
+                }}>
+                <Text
+                  style={{ ...styles.button, color: config.secondaryColor }}>
+                  Pick From Library
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => {
+                  removePhoto()
+                }}
+                style={{
+                  ...styles.buttonContainer,
+
                   backgroundColor: config.primaryColor,
                   borderRadius: 0,
                   borderBottomLeftRadius: 10,
@@ -247,7 +281,7 @@ const EditProfile = ({ navigation, route }) => {
                 }}>
                 <Text
                   style={{ ...styles.button, color: config.secondaryColor }}>
-                  Pick From Library
+                  Remove Photo
                 </Text>
               </TouchableOpacity>
             </View>
@@ -323,7 +357,7 @@ const EditProfile = ({ navigation, route }) => {
             <ProfileImage
               image={image}
               size={120}
-              name={User.data.firstName + " " + User.data.lastName}
+              name={firstName + " " + lastName}
               style={{ alignSelf: "center" }}
               id={image}
               noCache

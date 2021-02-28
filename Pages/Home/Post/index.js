@@ -4,6 +4,8 @@ import * as ImagePicker from "expo-image-picker"
 import User from "../../../Data/User"
 import config from "../../../config"
 import * as ImageManipulator from "expo-image-manipulator"
+import * as ScreenOrientation from "expo-screen-orientation"
+import { DeviceMotion } from "expo-sensors"
 
 // Navigation
 import { createStackNavigator } from "@react-navigation/stack"
@@ -30,6 +32,7 @@ import { Button as Btn } from "react-native-elements"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import Feather from "@expo/vector-icons/Feather"
+import Slider from "@react-native-community/slider"
 
 /**
  * screen to choose or take pictures to post
@@ -42,24 +45,57 @@ const Post = (props) => {
   const [pickerPermission, setPickerPermission] = React.useState(false)
   const [type, setType] = React.useState(Camera.Constants.Type.back)
   const [image, setImage] = React.useState("")
+  const [zoom, setZoom] = React.useState(0)
+  const [focusDepth, setFocusDepth] = React.useState(0)
   const focused = useIsFocused()
   let camera
   const [dims, setDims] = React.useState({
-    width: 0,
-    height: 0,
+    width: Dimensions.get("screen").width,
+    height: Dimensions.get("screen").height,
   })
 
   usePreventScreenCapture()
+
+  React.useEffect(() => {
+    if (focused) {
+      ScreenOrientation.addOrientationChangeListener((data) => {
+        console.log("Post.motionListener: orientation: " + data.orientation)
+        switchOrientation()
+      })
+    } else {
+      ScreenOrientation.removeOrientationChangeListeners()
+    }
+  }, [focused])
+
+  const switchOrientation = (orientation) => {
+    switch (orientation) {
+      case 0:
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP
+        )
+
+      case 90:
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT
+        )
+
+      case 180:
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_DOWN
+        )
+
+      case -90:
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.LANDSCAPE_LEFT
+        )
+    }
+  }
 
   React.useEffect(() => {
     if (focused && hasPermission == false) {
       setUpPermisions()
     }
     if (focused) {
-      setDims({
-        width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height,
-      })
       if (User.data.posts && User.data.posts.length >= 6) {
         alert(
           "You have hit your post maximum. Please delete 1 or more posts to post a new one."
@@ -170,10 +206,11 @@ const Post = (props) => {
     try {
       // use ImagePicker module to get an image
       let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
+        color: config.primaryColor,
       })
 
       // if picker was not cancelled
@@ -186,13 +223,16 @@ const Post = (props) => {
       alert("Enable camera roll permisions for Friends")
     }
   }
-
+  console.log("Post.render: dims.height: " + dims.height)
   return (
     <View style={styles.container}>
       {focused && hasPermission && dims !== {} && (
         <Camera
           style={styles.camera}
           type={type}
+          zoom={zoom}
+          focusDepth={focusDepth}
+          useCamera2Api
           ref={(ref) => {
             camera = ref
           }}>
@@ -210,6 +250,26 @@ const Post = (props) => {
               }}
             />
           )}
+          <Slider
+            style={{ width: dims.width - 64, height: 24, margin: 8 }}
+            minimumValue={0}
+            maximumValue={0.5}
+            minimumTrackTintColor={config.primaryColor}
+            maximumTrackTintColor="transparent"
+            thumbTintColor={config.primaryColor}
+            value={zoom}
+            onValueChange={(val) => setZoom(val)}
+          />
+          <Slider
+            style={{ width: dims.width - 64, height: 24, marginBottom: 8 }}
+            minimumValue={0}
+            maximumValue={1}
+            minimumTrackTintColor={config.primaryColor}
+            maximumTrackTintColor="transparent"
+            thumbTintColor={config.primaryColor}
+            value={focusDepth}
+            onValueChange={(val) => setFocusDepth(val)}
+          />
           <View style={styles.buttonContainer}>
             <IconButton
               style={styles.button}
@@ -273,6 +333,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     alignSelf: "center",
     margin: 20,
+    marginTop: 16,
     justifyContent: "space-around",
     width: 100 + "%",
   },

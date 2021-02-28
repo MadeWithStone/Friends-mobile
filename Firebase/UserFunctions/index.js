@@ -208,6 +208,14 @@ const updateUser = async (data, uid) => {
   return usersRef.doc(uid).update(data)
 }
 
+const removeProfileImage = async (uid) => {
+  const reference = firebase
+    .storage()
+    .ref()
+    .child(uid + "/" + uid + ".jpg")
+  return reference.delete()
+}
+
 /**
  * send friend request to user
  *
@@ -244,4 +252,5 @@ export {
   signOut,
   userReference,
   resetPassword,
+  removeProfileImage,
 }
