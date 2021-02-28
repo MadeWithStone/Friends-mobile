@@ -39,7 +39,6 @@ const AddFriend = ({ navigation, route }) => {
 
   React.useEffect(() => {
     setCurrentFC()
-    onChangeText(route.params ? route.params.code : "", "friendCode")
   }, [])
 
   React.useLayoutEffect(() => {
@@ -58,6 +57,7 @@ const AddFriend = ({ navigation, route }) => {
 
   const setCurrentFC = () => {
     setCurrentUserFC(User.data.friendCode)
+    onChangeText(route.params ? route.params.code : "", "friendCode")
   }
 
   const scanFriendCode = () => {
@@ -86,10 +86,16 @@ const AddFriend = ({ navigation, route }) => {
       scan: setScan,
       showCode: setShowCode,
     }
-    if (d.length <= 7) {
-      states[name](d)
-    }
-    if (d.length == 7 && d != currentUserFC.toUpperCase()) {
+    states[name](d)
+    console.log(
+      "AddFriend.onChangeText: " +
+        d +
+        " not " +
+        User.data.friendCode +
+        ": " +
+        (d != User.data.friendCode.toUpperCase())
+    )
+    if (d.length == 7 && d != User.data.friendCode.toUpperCase()) {
       setAddBtnDis(false)
     } else {
       setAddBtnDis(true)
@@ -151,10 +157,15 @@ const AddFriend = ({ navigation, route }) => {
   }, [share])
 
   const shareFriendCode = async () => {
-    let url = Linking.createURL("/signin/" + currentUserFC)
+    let url =
+      "https://friendsmobile.org/friendRedirect.html?code=" + currentUserFC
     try {
       const result = await Share.share({
         url: url,
+        message:
+          "Add me on Friends - Private Network. My code is " +
+          currentUserFC +
+          ".",
       })
       if (result.action === Share.sharedAction) {
         if (result.activityType) {

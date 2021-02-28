@@ -204,6 +204,17 @@ const Feed = ({ route, navigation }) => {
     // get post data
     let postData = await FeedFunctions.downloadPosts(pList, postList)
 
+    let removeIndexes = []
+    postList.forEach((item, index) => {
+      if (pList.find((x) => x.id === item) === -1) {
+        removeIndexes.push(index)
+      }
+    })
+
+    for (let i = removeIndexes.length - 1; i >= 0; i--) {
+      postList.splice(removeIndexes[i], 1)
+    }
+
     // update postList
     postList = [...postList, ...pList]
 
@@ -333,6 +344,22 @@ const Feed = ({ route, navigation }) => {
             tintColor={config.textColor}
           />
         }
+        ListEmptyComponent={
+          <Text style={{ ...styles.starterText, color: config.textColor }}>
+            Share your{" "}
+            <TextButton
+              text="Friend Code"
+              textStyle={{
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: -3,
+                fontWeight: "bold",
+              }}
+              onPressAction={() => navigation.navigate("AddFriend")}
+            />{" "}
+            to make friends
+          </Text>
+        }
         renderItem={({ item, index, separators }) => {
           let post = item
           return (
@@ -350,43 +377,7 @@ const Feed = ({ route, navigation }) => {
               }}
             />
           )
-        }}>
-        {posts.length < 1 && (
-          <Text style={{ ...styles.starterText, color: config.textColor }}>
-            Share your{" "}
-            <TextButton
-              text="Friend Code"
-              textStyle={{
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: -3,
-                fontWeight: "bold",
-              }}
-              onPressAction={() => navigation.navigate("AddFriend")}
-            />{" "}
-            to make friends
-          </Text>
-        )}
-        {posts
-          .filter((item, index) => posts.indexOf(item) === index)
-          .map((post) => {
-            return (
-              <FeedObject
-                post={post}
-                user={users[post.userID]}
-                key={post.date}
-                menuAction={() => menu(post.id)}
-                onImagePress={() => {
-                  navigation.navigate("Post", {
-                    post: post,
-                    user: users[post.userID],
-                    currentUser: User.data,
-                  })
-                }}
-              />
-            )
-          })}
-      </FlatList>
+        }}></FlatList>
 
       <OptionsModal
         showChooser={showChooser}

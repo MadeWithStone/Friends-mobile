@@ -139,6 +139,19 @@ export default function HomeScreen({ navigation, route }) {
       showsVerticalScrollIndicator={false}
       scrollEventThrottle={32}
       cont
+      stickyFooter={
+        <Text
+          style={{
+            padding: 8,
+            color: config.primaryColor,
+            fontSize: 17,
+            backgroundColor: config.secondaryColor,
+            fontWeight: "bold",
+            textAlign: "center",
+          }}>
+          Posts are only viewable within two days of posting.
+        </Text>
+      }
       innerRef={(ref) => {
         scroll = ref
       }}>
@@ -172,24 +185,26 @@ export default function HomeScreen({ navigation, route }) {
         </View>
       </Modal>
       <View>
-        <Image
-          source={{ uri: image }}
-          style={{ width: dims.width, height: dims.width }}
-        />
-        <Text style={{ padding: 8, color: config.textColor }}>
-          {maxChars - d.split("").length}
-        </Text>
-        <MultilineInput
-          placeholder={"Description"}
-          onChangeText={(text) => onChangeText(text)}
-          value={d}
-          style={{
-            paddingLeft: 8,
-            paddingRight: 8,
-            paddingBottom: 4,
-            borderBottomWidth: 0,
-          }}
-        />
+        <View>
+          <Image
+            source={{ uri: image }}
+            style={{ width: dims.width, height: dims.width }}
+          />
+          <Text style={{ padding: 8, color: config.textColor }}>
+            {maxChars - d.split("").length}
+          </Text>
+          <MultilineInput
+            placeholder={"Description"}
+            onChangeText={(text) => onChangeText(text)}
+            value={d}
+            style={{
+              paddingLeft: 8,
+              paddingRight: 8,
+              paddingBottom: 4,
+              borderBottomWidth: 0,
+            }}
+          />
+        </View>
       </View>
     </KeyboardAvoidingScrollView>
   )

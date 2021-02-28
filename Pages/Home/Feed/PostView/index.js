@@ -59,6 +59,18 @@ const PostView = ({ route, navigation }) => {
   let listener
 
   React.useLayoutEffect(() => {
+    if (focused) {
+      navigation.setOptions({
+        headerStyle: {
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
+        },
+        headerTintColor: config.primaryColor,
+      })
+    }
+  }, [focused])
+
+  React.useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
         <View style={styles.topView}>

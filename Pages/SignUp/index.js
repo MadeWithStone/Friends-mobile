@@ -68,7 +68,6 @@ class SignUp extends React.Component {
 
     // format user data object
     const userData = {
-      email: this.state.email,
       firstName: this.state.firstName,
       lastName: this.state.lastName,
       friendCode: User.generateFriendCode(),

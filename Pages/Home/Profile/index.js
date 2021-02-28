@@ -23,6 +23,7 @@ import {
   TextButton,
   CachedImage,
   IconButton,
+  OptionsModal,
 } from "../../../Components"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import {
@@ -339,62 +340,12 @@ const FriendRequestObj = (props) => {
 const PostOptionsModal = (props) => {
   const reportOptions = ["Delete Post"]
   return (
-    <Modal visible={props.showChooser} animationType="fade" transparent={true}>
-      <View style={{ justifyContent: "flex-end", height: 100 + "%" }}>
-        <View style={{ marginBottom: 100 }}>
-          <View
-            style={{
-              margin: 8,
-              borderRadius: 15,
-            }}>
-            {reportOptions.map((option, index) => {
-              return (
-                <TouchableOpacity
-                  key={option}
-                  activeOpacity={1}
-                  onPress={() => {
-                    props.action()
-                  }}
-                  style={{
-                    ...styles.buttonContainer,
-                    borderRadius: 0,
-                    borderbottomColor: config.secondaryColor,
-
-                    backgroundColor: config.primaryColor,
-                    borderBottomWidth:
-                      index != reportOptions.length - 1
-                        ? StyleSheet.hairlineWidth
-                        : 0,
-                    borderBottomLeftRadius:
-                      index == reportOptions.length - 1 ? 10 : 0,
-                    borderBottomRightRadius:
-                      index == reportOptions.length - 1 ? 10 : 0,
-                    borderTopLeftRadius: index == 0 ? 10 : 0,
-                    borderTopRightRadius: index == 0 ? 10 : 0,
-                  }}>
-                  <Text
-                    style={{ ...styles.button, color: config.secondaryColor }}>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => props.setShowChooser(false)}
-            style={{
-              ...styles.buttonContainer,
-              backgroundColor: config.primaryColor,
-              margin: 8,
-            }}>
-            <Text style={{ ...styles.button, color: config.secondaryColor }}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
+    <OptionsModal
+      reportOptions={reportOptions}
+      showChooser={props.showChooser}
+      reportAction={() => props.action()}
+      setShowChooser={props.setShowChooser}
+    />
   )
 }
 
@@ -430,7 +381,7 @@ const PostsView = (props) => {
   return (
     <View style={{ marginTop: 8 }}>
       <SectionHeader title={"Posts"} />
-      {props.posts != null && props.posts.length > 0 ? (
+      {props.posts != null && props.posts.length > 0 && (
         <View
           style={{
             float: "left",
@@ -442,55 +393,96 @@ const PostsView = (props) => {
             return (
               <TouchableOpacity
                 onPress={() => props.openModal(post.id)}
-                key={post.id}>
+                key={post.id}
+                activeOpacity={0.6}>
                 <PostViewObj post={post} index={index} />
               </TouchableOpacity>
             )
           })}
         </View>
-      ) : (
+      )}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          margin: 8,
+        }}>
+        <Text
+          style={{
+            color: config.textColor,
+            fontSize: 17,
+            textAlign: "center",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          go to the
+        </Text>
+        <IconButton
+          icon={
+            <Feather
+              name="plus-square"
+              size={config.iconFocused}
+              color={config.primaryColor}
+              style={{
+                alignSelf: "center",
+              }}
+            />
+          }
+          style={{
+            margin: -4,
+          }}
+          onPressAction={() => props.navigation.navigate("Post")}
+        />
+        <Text
+          style={{
+            color: config.textColor,
+            fontSize: 17,
+            textAlign: "center",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          tab to create a post
+        </Text>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          margin: 8,
+          marginTop: 0,
+        }}>
+        <Text
+          style={{
+            color: config.textColor,
+            fontSize: 17,
+            textAlign: "center",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          purple posts are not viewable by other users
+        </Text>
+      </View>
+      {props.posts.length >= 6 && (
         <View
           style={{
             flexDirection: "row",
             justifyContent: "center",
             alignItems: "center",
             margin: 8,
+            marginTop: 0,
           }}>
           <Text
             style={{
-              color: config.textColor,
+              color: config.primaryColor,
               fontSize: 17,
+              fontWeight: "bold",
               textAlign: "center",
               justifyContent: "center",
               alignItems: "center",
             }}>
-            go to the
-          </Text>
-          <IconButton
-            icon={
-              <Feather
-                name="plus-square"
-                size={config.iconFocused}
-                color={config.primaryColor}
-                style={{
-                  alignSelf: "center",
-                }}
-              />
-            }
-            style={{
-              margin: -4,
-            }}
-            onPressAction={() => props.navigation.navigate("Post")}
-          />
-          <Text
-            style={{
-              color: config.textColor,
-              fontSize: 17,
-              textAlign: "center",
-              justifyContent: "center",
-              alignItems: "center",
-            }}>
-            tab to create a post
+            You have hit your post maximum of 6
           </Text>
         </View>
       )}
@@ -508,21 +500,28 @@ const PostViewObj = (props) => {
   let currentDate = new Date(props.post.date)
 
   return (
-    <CachedImage
-      key={props.post.id}
-      source={{ uri: props.post.image }}
-      cacheKey={props.post.id}
+    <View
       style={{
-        width: Dimensions.get("window").width / 3 - 0.7,
-        height: Dimensions.get("window").width / 3,
+        backgroundColor: config.primaryColor,
         marginRight: props.index % 3 == 0 ? 1 : 0,
         marginLeft: (props.index + 1) % 3 == 0 ? 1 : 0,
         marginBottom: 1,
-        opacity: props.index > 1 ? 0.4 : 1,
-        borderColor: config.primaryColor,
-        borderWidth: currentDate > cuttOff && props.index <= 1 ? 1 : 0,
-      }}
-    />
+        opacity: currentDate <= cuttOff || props.index > 1 ? 0.8 : 1,
+      }}>
+      <CachedImage
+        key={props.post.id}
+        source={{ uri: props.post.image }}
+        cacheKey={props.post.id}
+        style={{
+          width: Dimensions.get("window").width / 3 - 0.7,
+          height: Dimensions.get("window").width / 3,
+
+          opacity: currentDate <= cuttOff || props.index > 1 ? 0.5 : 1,
+          borderColor: config.primaryColor,
+          //borderWidth: currentDate > cuttOff && props.index <= 1 ? 3 : 0,
+        }}
+      />
+    </View>
   )
 }
 
