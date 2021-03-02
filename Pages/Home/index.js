@@ -1,7 +1,10 @@
 import "react-native-gesture-handler"
 import { StatusBar } from "expo-status-bar"
 import React from "react"
-import { NavigationContainer } from "@react-navigation/native"
+import {
+  getFocusedRouteNameFromRoute,
+  NavigationContainer,
+} from "@react-navigation/native"
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs"
 
 import Ionicons from "@expo/vector-icons/Ionicons"
@@ -14,6 +17,7 @@ import Feed from "./Feed"
 import Post from "./Post"
 import Profile from "./Profile"
 import { usePreventScreenCapture } from "expo-screen-capture"
+import * as ScreenOrientation from "expo-screen-orientation"
 
 const Tab = createMaterialTopTabNavigator()
 /**
@@ -25,22 +29,51 @@ class Home extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      friendRequestCount: 100,
+      friendRequestCount: 0,
+      barLocation: "bottom",
     }
   }
   componentDidMount() {
     console.log("home params: " + JSON.stringify(this.props.route.params))
-
+    //ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
     DeviceEventEmitter.addListener(
       "friendBadgeCount",
       this.updateBadgeCount.bind(this)
     )
+    ScreenOrientation.addOrientationChangeListener((data) => {
+      console.log(
+        "Home.motionListener: orientation: " + data.orientationInfo.orientation
+      )
+      this.updateOrientaiton(data.orientationInfo.orientation)
+    })
   }
 
   updateBadgeCount(c) {
     this.setState({ friendRequestCount: c.val })
     console.log("Home.updateBadgeCount: update: " + c.val)
   }
+
+  updateOrientaiton = (val) => {
+    if (val == 1 || val == 3) {
+      this.setState({ barLocation: "bottom" })
+      console.log("Home.updateOrientation: barLocation: bottom")
+      this.forceUpdate()
+    } else {
+      this.setState({ barLocation: "right" })
+      this.forceUpdate()
+    }
+  }
+
+  getTabBarVisibility = (route) => {
+    const routeName = route.name ? route.name : ""
+    console.log("Home.getTabBarVisibility: routeName: " + routeName)
+    if (routeName === "Post") {
+      return false
+    }
+
+    return true
+  }
+
   render() {
     return (
       <Tab.Navigator
@@ -51,7 +84,7 @@ class Home extends React.Component {
         shifting
         labeled={false}
         backBehavior="none"
-        tabBarPosition="bottom"
+        tabBarPosition={this.state.barLocation}
         swipeEnabled
         tabBarOptions={{
           showIcon: true,
@@ -69,6 +102,9 @@ class Home extends React.Component {
             zIndex: 0,
           },
         }}
+        options={({ route }) => ({
+          tabBarVisible: this.getTabBarVisibility(route),
+        })}
         /*screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName
@@ -90,11 +126,11 @@ class Home extends React.Component {
             return icon
           },
         })}*/
-        initialRouteName="Feed">
+        initialRouteName={"Feed"}>
         <Tab.Screen
           name="Post"
           component={Post}
-          options={{
+          options={({ route }) => ({
             title: "",
             tabBarIcon: ({ focused, color }) => {
               return (
@@ -105,7 +141,8 @@ class Home extends React.Component {
                 />
               )
             },
-          }}
+            tabBarVisible: this.getTabBarVisibility(route),
+          })}
         />
         <Tab.Screen
           name="Feed"
@@ -138,14 +175,16 @@ class Home extends React.Component {
             tabBarIcon: ({ focused, color }) => {
               return (
                 <View style={styles.badgeIconView}>
-                  <Text
-                    style={{
-                      ...styles.badge,
-                      color: color,
-                      fontWeight: "bold",
-                    }}>
-                    {this.state.friendRequestCount}
-                  </Text>
+                  {this.state.friendRequestCount > 0 && (
+                    <Text
+                      style={{
+                        ...styles.badge,
+                        color: color,
+                        fontWeight: "bold",
+                      }}>
+                      {this.state.friendRequestCount}
+                    </Text>
+                  )}
                   <Feather
                     name={"user"}
                     size={focused ? config.iconFocused : config.icon}
