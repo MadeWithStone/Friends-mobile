@@ -13,7 +13,10 @@ import CreatePost from "./CreatePost"
 import Feed from "../Feed"
 
 // Hooks
-import { useIsFocused } from "@react-navigation/native"
+import {
+  getFocusedRouteNameFromRoute,
+  useIsFocused,
+} from "@react-navigation/native"
 import { usePreventScreenCapture } from "expo-screen-capture"
 
 // Components
@@ -47,6 +50,7 @@ const Post = (props) => {
   const [image, setImage] = React.useState("")
   const [zoom, setZoom] = React.useState(0)
   const [focusDepth, setFocusDepth] = React.useState(0)
+  const [orientation, setOrientation] = React.useState(1)
   const focused = useIsFocused()
   let camera
   const [dims, setDims] = React.useState({
@@ -58,33 +62,60 @@ const Post = (props) => {
 
   React.useEffect(() => {
     if (focused) {
-      ScreenOrientation.addOrientationChangeListener((data) => {
+      //ScreenOrientation.unlockAsync()
+      DeviceMotion.addListener((data) => {
         console.log("Post.motionListener: orientation: " + data.orientation)
-        switchOrientation()
+        //setOrientation(data.orientation)
+        switch (data.orientation) {
+          case 0:
+            setOrientation(0)
+          case 90:
+            setOrientation(1)
+          case 180:
+            setOrientation(3)
+
+          case -90:
+            setOrientation(4)
+        }
+        setDims({
+          width: Dimensions.get("screen").width,
+          height: Dimensions.get("screen").height,
+        })
+      })
+      ScreenOrientation.addOrientationChangeListener((data) => {
+        console.log(
+          "Post.motionListener: orientation: " +
+            data.orientationInfo.orientation
+        )
+        setOrientation(data.orientationInfo.orientation)
       })
     } else {
       ScreenOrientation.removeOrientationChangeListeners()
     }
   }, [focused])
 
+  React.useEffect(() => {
+    //switchOrientation(orientation)
+    if (focused) {
+      setDims({
+        width: Dimensions.get("screen").width,
+        height: Dimensions.get("screen").height,
+      })
+    }
+  }, [orientation, focused])
+
   const switchOrientation = (orientation) => {
     switch (orientation) {
-      case 0:
-        ScreenOrientation.lockAsync(
-          ScreenOrientation.OrientationLock.PORTRAIT_UP
-        )
+      case 1:
 
-      case 90:
-        ScreenOrientation.lockAsync(
-          ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT
-        )
+      case 2:
 
-      case 180:
+      case 3:
         ScreenOrientation.lockAsync(
           ScreenOrientation.OrientationLock.PORTRAIT_DOWN
         )
 
-      case -90:
+      case 4:
         ScreenOrientation.lockAsync(
           ScreenOrientation.OrientationLock.LANDSCAPE_LEFT
         )
@@ -156,6 +187,7 @@ const Post = (props) => {
     // if image is not square
     if (photo.width !== photo.height) {
       // find the intended width of square image
+
       let width = photo.width > photo.height ? photo.height : photo.width
 
       // find the y origin of the cropped image
@@ -185,7 +217,12 @@ const Post = (props) => {
 
       // update the image state
       setImage(manipResult.uri)
-
+      console.log(
+        "Post.compressImage: photoDimensions: width: " +
+          manipResult.width +
+          " height: " +
+          manipResult.height
+      )
       // navigate to the CreatePost screen
       props.navigation.navigate("CreatePost", {
         image: manipResult.uri,
@@ -223,12 +260,56 @@ const Post = (props) => {
       alert("Enable camera roll permisions for Friends")
     }
   }
+
+  const buildStyles = StyleSheet.create({
+    viewUp: {
+      width: dims.width - 16,
+      height: dims.width - 16,
+      borderColor: config.primaryColor,
+      borderWidth: 2,
+      marginTop: (dims.height - dims.width - 16) / 2 - 16,
+
+      marginBottom: "auto",
+      borderRadius: 5,
+      margin: 8,
+      //backgroundColor: "blue",
+    },
+    viewRight: {
+      borderColor: config.primaryColor,
+      borderWidth: 2,
+
+      marginLeft: (dims.width - dims.height - 16) / 2 - 16,
+      //marginRight: "auto",
+      margin: 8,
+      borderRadius: 5,
+      //backgroundColor: "blue",
+    },
+  })
   console.log("Post.render: dims.height: " + dims.height)
   return (
     <View style={styles.container}>
       {focused && hasPermission && dims !== {} && (
         <Camera
-          style={styles.camera}
+          orientation={Camera.orientation.LANDSCAPE_LEFT}
+          style={
+            dims.height > dims.width
+              ? {
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: dims.width,
+                  height: dims.height,
+                  transform: [{ rotate: "0deg" }],
+                }
+              : {
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: dims.height,
+                  height: dims.width,
+                  transform: [{ rotate: "90deg" }],
+                }
+          }
           type={type}
           zoom={zoom}
           focusDepth={focusDepth}
@@ -236,73 +317,132 @@ const Post = (props) => {
           ref={(ref) => {
             camera = ref
           }}>
-          {dims.height !== 0 && dims.width != 0 && (
+          <View
+            style={{
+              flexDirection:
+                orientation == 1 || orientation == 3 ? "column" : "row",
+              //backgroundColor: "red",
+              width: "100%",
+              height: "100%",
+            }}>
+            {dims.height !== 0 && dims.width != 0 && (
+              <View
+                style={
+                  orientation == 1 || orientation == 3
+                    ? {
+                        width: dims.width - 16,
+                        height: dims.width - 16,
+                        borderColor: config.primaryColor,
+                        borderWidth: 2,
+                        marginTop: (dims.height - dims.width - 16) / 2 - 16,
+
+                        marginBottom: "auto",
+                        borderRadius: 5,
+                        margin: 8,
+                        //backgroundColor: "blue",
+                      }
+                    : {
+                        width: dims.height - 16,
+                        height: dims.height - 16,
+                        borderColor: config.primaryColor,
+                        borderWidth: 2,
+
+                        marginLeft: (dims.width - dims.height - 16) / 2 - 16,
+                        marginRight: "auto",
+                        margin: 8,
+                        borderRadius: 5,
+                      }
+                }
+              />
+            )}
+
             <View
               style={{
-                width: dims.width - 16,
-                height: dims.width - 16,
-                borderColor: config.primaryColor,
-                borderWidth: 2,
-                marginTop: (dims.height - dims.width - 16) / 2 - 16,
-                marginBottom: "auto",
-                margin: 8,
-                borderRadius: 5,
-              }}
-            />
-          )}
-          <Slider
-            style={{ width: dims.width - 64, height: 24, margin: 8 }}
-            minimumValue={0}
-            maximumValue={0.5}
-            minimumTrackTintColor={config.primaryColor}
-            maximumTrackTintColor="transparent"
-            thumbTintColor={config.primaryColor}
-            value={zoom}
-            onValueChange={(val) => setZoom(val)}
-          />
-          <Slider
-            style={{ width: dims.width - 64, height: 24, marginBottom: 8 }}
-            minimumValue={0}
-            maximumValue={1}
-            minimumTrackTintColor={config.primaryColor}
-            maximumTrackTintColor="transparent"
-            thumbTintColor={config.primaryColor}
-            value={focusDepth}
-            onValueChange={(val) => setFocusDepth(val)}
-          />
-          <View style={styles.buttonContainer}>
-            <IconButton
-              style={styles.button}
-              onPressAction={pickImage}
-              icon={
-                <Ionicons
-                  name="ios-images-outline"
-                  size={45}
-                  color={config.primaryColor}
+                ...styles.buttonContainer,
+              }}>
+              <Slider
+                style={{
+                  width:
+                    orientation == 1 || orientation == 3
+                      ? dims.width - 64
+                      : dims.height - 64,
+                  height: 24,
+                  margin: 8,
+                  transform: [
+                    {
+                      rotate:
+                        orientation == 1 || orientation == 3
+                          ? "0deg"
+                          : "-90deg",
+                    },
+                    {
+                      translateX:
+                        orientation == 1 || orientation == 3
+                          ? 0
+                          : (-1 * (dims.height - 64)) / 2,
+                    },
+                  ],
+                  alignSelf: "center",
+                }}
+                minimumValue={0}
+                maximumValue={0.5}
+                minimumTrackTintColor={config.primaryColor}
+                maximumTrackTintColor="transparent"
+                thumbTintColor={config.primaryColor}
+                value={zoom}
+                onValueChange={(val) => setZoom(val)}
+              />
+              <View
+                style={{
+                  flexDirection:
+                    orientation == 1 || orientation == 3
+                      ? "row"
+                      : "column-reverse",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  width: orientation == 1 || orientation == 3 ? "100%" : "auto",
+                  height:
+                    orientation == 1 || orientation == 3 ? "auto" : "100%",
+                  marginTop:
+                    orientation == 1 || orientation == 3 ? 0 : -(24 + 16),
+                }}>
+                <IconButton
+                  style={styles.button}
+                  onPressAction={pickImage}
+                  icon={
+                    <Ionicons
+                      name="ios-images-outline"
+                      size={45}
+                      color={config.primaryColor}
+                    />
+                  }
                 />
-              }
-            />
-            <TouchableOpacity
-              style={{ ...styles.round, backgroundColor: config.primaryColor }}
-              onPress={snap}
-            />
-            <IconButton
-              style={styles.button}
-              onPressAction={() => {
-                setType((t) => {
-                  return t === Camera.Constants.Type.back
-                    ? Camera.Constants.Type.front
-                    : Camera.Constants.Type.back
-                })
-              }}
-              icon={
-                <Ionicons
-                  name="camera-reverse-outline"
-                  size={45}
-                  color={config.primaryColor}
+                <TouchableOpacity
+                  style={{
+                    ...styles.round,
+                    backgroundColor: config.primaryColor,
+                  }}
+                  onPress={snap}
                 />
-              }
-            />
+                <IconButton
+                  style={styles.button}
+                  onPressAction={() => {
+                    setType((t) => {
+                      return t === Camera.Constants.Type.back
+                        ? Camera.Constants.Type.front
+                        : Camera.Constants.Type.back
+                    })
+                  }}
+                  icon={
+                    <Ionicons
+                      name="camera-reverse-outline"
+                      size={45}
+                      color={config.primaryColor}
+                    />
+                  }
+                />
+              </View>
+            </View>
           </View>
         </Camera>
       )}
@@ -329,13 +469,13 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     backgroundColor: "transparent",
-    flexDirection: "row",
     alignItems: "flex-end",
     alignSelf: "center",
     margin: 20,
     marginTop: 16,
     justifyContent: "space-around",
-    width: 100 + "%",
+    flexGrow: 1,
+    flexShrink: 1,
   },
   button: {
     //flex: 0.1,
@@ -360,7 +500,10 @@ const styles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
-const PostPage = ({ navigation }) => {
+const PostPage = ({ route, navigation }) => {
+  React.useLayoutEffect(() => {
+    navigation.setO
+  }, [navigation])
   return (
     <Stack.Navigator
       options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
@@ -369,6 +512,7 @@ const PostPage = ({ navigation }) => {
         component={Post}
         options={{
           headerShown: false,
+          tabBarVisible: false,
           headerLeft: () => null,
           headerRight: () => (
             <Btn
@@ -423,11 +567,6 @@ const PostPage = ({ navigation }) => {
             fontSize: 30,
           },
         }}
-      />
-      <Stack.Screen
-        name="Feed"
-        component={Feed}
-        options={{ title: "Friends" }}
       />
     </Stack.Navigator>
   )

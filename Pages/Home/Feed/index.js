@@ -3,6 +3,7 @@ import React from "react"
 import config from "../../../config"
 import User from "../../../Data/User"
 import FeedFunctions from "./feedFunctions"
+import * as ScreenOrientation from "expo-screen-orientation"
 
 // Contexts
 import { createStackNavigator } from "@react-navigation/stack"
@@ -93,6 +94,7 @@ const Feed = ({ route, navigation }) => {
   React.useEffect(() => {
     if (focused) {
       getData()
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
     }
   }, [focused])
 

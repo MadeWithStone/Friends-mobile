@@ -60,7 +60,7 @@ const Profile = ({ navigation, route }) => {
 
   React.useEffect(() => {
     //console.log("running use effect")
-  }, [])
+  }, [focused])
 
   React.useEffect(() => {
     if (focused) {
@@ -90,9 +90,9 @@ const Profile = ({ navigation, route }) => {
       setUsersList(data)
       setFriendRequests(freReqs)
       console.log("Profile.getFriendRequests: badge count emitted")
-      DeviceEventEmitter.emit("friendBadgeCount", {
+      /*DeviceEventEmitter.emit("friendBadgeCount", {
         val: freReqs.length,
-      })
+      })*/
       setRefreshing(false)
     })
   }

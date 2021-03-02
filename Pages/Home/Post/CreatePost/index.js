@@ -33,6 +33,9 @@ import FeedPage from "../../Feed"
 import { usePreventScreenCapture } from "expo-screen-capture"
 import { useIsFocused } from "@react-navigation/native"
 
+import * as ScreenOrientation from "expo-screen-orientation"
+import { SegmentedControlIOSComponent } from "react-native"
+
 let _this = null
 let desc = ""
 export default function HomeScreen({ navigation, route }) {
@@ -43,10 +46,10 @@ export default function HomeScreen({ navigation, route }) {
   let [progressText, updateProgressText] = useState("")
   let scroll = null
   let maxChars = 140
-  let dims = {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
-  }
+  const [dims, setDims] = React.useState({
+    width: Dimensions.get("screen").width,
+    height: Dimensions.get("screen").height,
+  })
 
   usePreventScreenCapture()
   let focused = useIsFocused()
@@ -57,6 +60,16 @@ export default function HomeScreen({ navigation, route }) {
         "You have reached your post maximum of 6. Please go to your profile and delete posts."
       )
       navigation.goBack()
+    }
+    if (focused) {
+      ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP
+      ).then(() => {
+        setDims({
+          width: Dimensions.get("screen").width,
+          height: Dimensions.get("screen").height,
+        })
+      })
     }
   }, [focused])
 
@@ -186,10 +199,15 @@ export default function HomeScreen({ navigation, route }) {
       </Modal>
       <View>
         <View>
-          <Image
-            source={{ uri: image }}
-            style={{ width: dims.width, height: dims.width }}
-          />
+          {dims && (
+            <Image
+              source={{ uri: image }}
+              style={{
+                width: dims.width > dims.height ? dims.height : dims.width,
+                height: dims.width > dims.height ? dims.height : dims.width,
+              }}
+            />
+          )}
           <Text style={{ padding: 8, color: config.textColor }}>
             {maxChars - d.split("").length}
           </Text>
