@@ -111,11 +111,13 @@ const Profile = ({ navigation, route }) => {
     ) */
     if (!equal) {
       pList = postList
+      console.log(`Profile.getUserPosts: postList: ${postList}`)
       getPosts(postList).then((result) => {
         const p = []
         result.forEach((post) => {
           p.push(post.data())
         })
+        console.log(`Profile.getUserPosts: p: ${JSON.stringify(p)}`)
         setPosts(p)
 
         setRefreshing(false)
@@ -168,55 +170,34 @@ const Profile = ({ navigation, route }) => {
 
   const updateData = () => {
     if (focused) {
-      User.loadCurrentUser()
-        .then((data) => {
-          User.data = data
-          User.getUpdatedData().then(() => {
-            // console.log("### done getData")
-            navigation.setOptions({
-              title:
-                User.data != null
-                  ? `${User.data.firstName} ${User.data.lastName}`
-                  : "Profile",
-              headerLeft: () => (
-                <Btn
-                  onPress={() => {
-                    navigation.navigate("EditProfile", { user: User.data })
-                  }}
-                  icon={
-                    <Feather
-                      name="edit"
-                      size={30}
-                      color={config.primaryColor}
-                    />
-                  }
-                  type="clear"
-                />
-              ),
-            })
-            getFriendRequests()
-            getUserPosts()
-          })
+      User.getUpdatedData().then(() => {
+        // console.log("### done getData")
+        navigation.setOptions({
+          title:
+            User.data != null
+              ? `${User.data.firstName} ${User.data.lastName}`
+              : "Profile",
+          headerLeft: () => (
+            <Btn
+              onPress={() => {
+                navigation.navigate("EditProfile", { user: User.data })
+              }}
+              icon={
+                <Feather name="edit" size={30} color={config.primaryColor} />
+              }
+              type="clear"
+            />
+          ),
         })
-        .catch((err) => {
-          // console.log("err: " + err)
-        })
+        getFriendRequests()
+        getUserPosts()
+      })
     }
   }
 
   const _onRefresh = () => {
     setRefreshing(true)
     updateData()
-  }
-
-  const deletePost = () => {
-    deletePostFunc(currentPost).then(() => {
-      const { posts } = User.data
-      const idx = posts.findIndex((x) => x === currentPost)
-      posts.splice(idx, 1)
-      updateUser({ posts }, User.data.id)
-      setShowModel(false)
-    })
   }
 
   React.useLayoutEffect(() => {
@@ -263,16 +244,14 @@ const Profile = ({ navigation, route }) => {
       )}
       <PostsView
         posts={posts || []}
-        openModal={(id) => {
-          setShowModel(true)
-          setCurrentPost(id)
+        openModal={(post) => {
+          navigation.navigate("PostView", {
+            post,
+            user: User.data,
+            currentUser: User.data,
+          })
         }}
         navigation={navigation}
-      />
-      <PostOptionsModal
-        showChooser={showModel}
-        setShowChooser={setShowModel}
-        action={deletePost}
       />
       {focused && (
         <StatusBar
@@ -392,7 +371,7 @@ const PostsView = (props) => (
         }}>
         {props.posts.map((post, index) => (
           <TouchableOpacity
-            onPress={() => props.openModal(post.id)}
+            onPress={() => props.openModal(post)}
             key={post.id}
             activeOpacity={0.6}>
             <PostViewObj post={post} index={index} />

@@ -384,12 +384,16 @@ const Feed = ({ route, navigation }) => {
         showChooser={showChooser}
         setShowChooser={setShowChooser}
         reportAction={reportPost}
-        reportOptions={[
-          "Report for Sexually Explicit Content",
-          "Report for Copyright Infringement",
-          "Report for Violation of Terms of Service",
-          "Report for Violation of Privacy Policy",
-        ]}
+        reportOptions={
+          currentPost.userID === User.data.id
+            ? []
+            : [
+                "Report for Sexually Explicit Content",
+                "Report for Copyright Infringement",
+                "Report for Violation of Terms of Service",
+                "Report for Violation of Privacy Policy",
+              ]
+        }
       />
       <StatusBar style={config.secondaryColor === "#000" ? "light" : "dark"} />
     </View>

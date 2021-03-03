@@ -19,6 +19,7 @@ import PostView from "./Pages/Home/Feed/PostView"
 import FriendsList from "./Pages/Home/Profile/FriendsList"
 import EditProfile from "./Pages/Home/Profile/EditProfile"
 import Settings from "./Pages/Home/Profile/Settings"
+import CreatePost from "./Pages/Home/Post/CreatePost"
 
 const Stack = createStackNavigator()
 const prefix = Linking.createURL("/")
@@ -150,6 +151,36 @@ export default class App extends React.Component {
                 />
               ),
               title: "Your Friends",
+              headerStyle: {
+                backgroundColor: config.secondaryColor,
+                shadowOffset: { height: 0, width: 0 },
+              },
+              headerTintColor: config.primaryColor,
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 30,
+              },
+              headerShown: true,
+            })}
+          />
+          <Stack.Screen
+            name="CreatePost"
+            component={CreatePost}
+            options={({ route, navigation }) => ({
+              headerLeft: () => (
+                <Btn
+                  icon={
+                    <FontAwesome5
+                      name="chevron-left"
+                      size={30}
+                      color={config.primaryColor}
+                    />
+                  }
+                  type="clear"
+                  onPress={() => navigation.navigate("PostStack")}
+                />
+              ),
+              title: "Create Post",
               headerStyle: {
                 backgroundColor: config.secondaryColor,
                 shadowOffset: { height: 0, width: 0 },

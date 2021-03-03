@@ -25,6 +25,7 @@ import uuid from "react-native-uuid"
 import { usePreventScreenCapture } from "expo-screen-capture"
 import { useIsFocused } from "@react-navigation/native"
 import * as ScreenOrientation from "expo-screen-orientation"
+import { SafeAreaView } from "react-native-safe-area-context"
 import { uploadImage, createPostData } from "../../../../Firebase/PostFunctions"
 import {
   updateUserPosts,
@@ -122,7 +123,7 @@ export default function HomeScreen({ navigation, route }) {
         setProgress(1)
         setTimeout(() => {
           post(false)
-          navigation.popToTop()
+          navigation.navigate("FeedMain")
         }, 100)
         // send back to main screen
         console.log(`url: ${url}`)
@@ -147,84 +148,91 @@ export default function HomeScreen({ navigation, route }) {
   }, [navigation, post])
   const d = description
   return (
-    <KeyboardAvoidingScrollView
-      style={{ ...styles.container, backgroundColor: config.secondaryColor }}
-      showsVerticalScrollIndicator={false}
-      scrollEventThrottle={32}
-      cont
-      stickyFooter={
-        <Text
-          style={{
-            padding: 8,
-            color: config.primaryColor,
-            fontSize: 17,
-            backgroundColor: config.secondaryColor,
-            fontWeight: "bold",
-            textAlign: "center",
-          }}>
-          Posts are only viewable within two days of posting.
-        </Text>
-      }
-      innerRef={(ref) => {
-        scroll = ref
-      }}>
-      <Modal animationType="fade" transparent={true} visible={posting}>
-        <View
-          style={{ ...styles.modal, backgroundColor: config.secondaryColor }}>
-          <View
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: config.secondaryColor }}
+      edges={["bottom"]}>
+      <KeyboardAvoidingScrollView
+        style={{ ...styles.container, backgroundColor: config.secondaryColor }}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={32}
+        cont
+        stickyFooter={
+          <Text
             style={{
-              ...styles.modalTitle,
-              backgroundColor: config.primaryColor,
+              padding: 8,
+              color: config.primaryColor,
+              fontSize: 17,
+              backgroundColor: config.secondaryColor,
+              fontWeight: "bold",
+              textAlign: "center",
             }}>
-            <Text
+            Posts are only viewable within two days of posting.
+          </Text>
+        }
+        innerRef={(ref) => {
+          scroll = ref
+        }}>
+        <Modal animationType="fade" transparent={true} visible={posting}>
+          <View
+            style={{ ...styles.modal, backgroundColor: config.secondaryColor }}>
+            <View
               style={{
-                ...styles.modalTitleText,
-                color: config.secondaryColor,
+                ...styles.modalTitle,
+                backgroundColor: config.primaryColor,
               }}>
-              Posting...
-            </Text>
-            <ActivityIndicator animating={true} color={config.secondaryColor} />
+              <Text
+                style={{
+                  ...styles.modalTitleText,
+                  color: config.secondaryColor,
+                }}>
+                Posting...
+              </Text>
+              <ActivityIndicator
+                animating={true}
+                color={config.secondaryColor}
+              />
+            </View>
+            <View>
+              <Text style={{ ...styles.statusText, color: config.textColor }}>
+                {progressText}
+              </Text>
+              <ProgressBar
+                color={config.primaryColor}
+                progress={progress}
+                style={{ marginLeft: 8, marginRight: 8, marginBottom: 16 }}
+              />
+            </View>
           </View>
-          <View>
-            <Text style={{ ...styles.statusText, color: config.textColor }}>
-              {progressText}
-            </Text>
-            <ProgressBar
-              color={config.primaryColor}
-              progress={progress}
-              style={{ marginLeft: 8, marginRight: 8, marginBottom: 16 }}
-            />
-          </View>
-        </View>
-      </Modal>
-      <View>
+        </Modal>
         <View>
-          {dims && (
-            <Image
-              source={{ uri: image }}
+          <View>
+            {dims && (
+              <Image
+                source={{ uri: image }}
+                style={{
+                  width: dims.width > dims.height ? dims.height : dims.width,
+                  height: dims.width > dims.height ? dims.height : dims.width,
+                }}
+              />
+            )}
+            <Text style={{ padding: 8, color: config.textColor }}>
+              {maxChars - d.split("").length}
+            </Text>
+            <MultilineInput
+              placeholder={"Description"}
+              onChangeText={(text) => onChangeText(text)}
+              value={d}
               style={{
-                width: dims.width > dims.height ? dims.height : dims.width,
-                height: dims.width > dims.height ? dims.height : dims.width,
+                paddingLeft: 8,
+                paddingRight: 8,
+                paddingBottom: 4,
+                borderBottomWidth: 0,
               }}
             />
-          )}
-          <Text style={{ padding: 8, color: config.textColor }}>
-            {maxChars - d.split("").length}
-          </Text>
-          <MultilineInput
-            placeholder={"Description"}
-            onChangeText={(text) => onChangeText(text)}
-            value={d}
-            style={{
-              paddingLeft: 8,
-              paddingRight: 8,
-              paddingBottom: 4,
-              borderBottomWidth: 0,
-            }}
-          />
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingScrollView>
+      </KeyboardAvoidingScrollView>
+    </SafeAreaView>
   )
 }
 

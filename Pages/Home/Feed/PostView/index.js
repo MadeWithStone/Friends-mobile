@@ -35,7 +35,9 @@ import {
   getPost,
   postReference,
   updateReports,
+  deletePost as deletePostFunc,
 } from "../../../../Firebase/PostFunctions"
+import { updateUser } from "../../../../Firebase/UserFunctions"
 import User from "../../../../Data/User"
 import config from "../../../../config"
 
@@ -46,7 +48,8 @@ import config from "../../../../config"
  * @component
  */
 const PostView = ({ route, navigation }) => {
-  const { params } = route
+  let { params } = route
+  params = { ...params }
   const dims = {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
@@ -54,6 +57,8 @@ const PostView = ({ route, navigation }) => {
 
   const scrollview = React.useRef()
   const safeArea = useSafeAreaInsets()
+
+  const postOwner = params.user.id === User.data.id
 
   const [keyboardOpen, setKeyboardOpen] = React.useState(false)
   const [comments, setComments] = React.useState([])
@@ -205,6 +210,17 @@ const PostView = ({ route, navigation }) => {
     }
   }
 
+  const deletePost = () => {
+    deletePostFunc(params.post.id).then(() => {
+      const { posts } = User.data
+      const idx = params.post.id
+      posts.splice(idx, 1)
+      updateUser({ posts }, User.data.id)
+      setShowChooser(false)
+      navigation.goBack()
+    })
+  }
+
   const date = new Date(params.post.date)
   const renderScrollable = (panHandlers) => (
     // Can be anything scrollable
@@ -247,13 +263,17 @@ const PostView = ({ route, navigation }) => {
       <OptionsModal
         showChooser={showChooser}
         setShowChooser={setShowChooser}
-        reportAction={reportPost}
-        reportOptions={[
-          "Report for Sexually Explicit Content",
-          "Report for Copyright Infringement",
-          "Report for Violation of Terms of Service",
-          "Report for Violation of Privacy Policy",
-        ]}
+        reportAction={postOwner ? deletePost : reportPost}
+        reportOptions={
+          postOwner
+            ? ["Delete Post"]
+            : [
+                "Report for Sexually Explicit Content",
+                "Report for Copyright Infringement",
+                "Report for Violation of Terms of Service",
+                "Report for Violation of Privacy Policy",
+              ]
+        }
       />
     </ScrollView>
   )
