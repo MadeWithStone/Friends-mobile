@@ -6,14 +6,17 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "prettier": "prettier ./**/*.js'",
-    "eslint-check": "eslint --print-config .eslintrc",
-    "precommit": "lint-staged",
+    "prettier": "prettier **/*.js --write",
+    "eslint-check": "eslint .eslintrc.js --cache --fix",
+    "precommit": "npx lint-staged",
     "package": "rm -rf dist && expo export --dev --public-url http://127.0.0.1:8000",
     "docs": "jsdoc -c jsdoc.conf.json",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "eslint-init": "eslint --init",
+    "lint": "eslint --ext .js,.jsx **/* --fix"
   },
   "dependencies": {
+    "@expo/vector-icons": "^12.0.3",
     "@flyerhq/react-native-keyboard-accessory-view": "^2.1.1",
     "@react-native-community/checkbox": "^0.5.7",
     "@react-native-community/masked-view": "0.1.10",
@@ -24,11 +27,11 @@
     "@react-navigation/native": "^5.8.10",
     "@react-navigation/stack": "^5.12.8",
     "better-docs": "^2.3.2",
-    "eslint": "^7.20.0",
     "expo": "~40.0.0",
     "expo-barcode-scanner": "~9.1.0",
     "expo-camera": "~9.1.0",
     "expo-checkbox": "~1.0.0",
+    "expo-file-system": "^10.0.0",
     "expo-firebase-analytics": "~2.6.0",
     "expo-image-manipulator": "~8.4.0",
     "expo-image-picker": "~9.2.0",
@@ -41,6 +44,7 @@
     "expo-status-bar": "~1.0.3",
     "firebase": "8.2.7",
     "jsdoc": "^3.6.6",
+    "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
@@ -71,8 +75,14 @@
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.0",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-native": "^3.10.0",
     "husky": "^4.3.6",
     "jsdoc-strip-async-await": "^0.1.0",
     "lint-staged": "^10.5.3",
@@ -83,10 +93,14 @@
     "semi": false,
     "singleQuote": false
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx lint-staged"
+    }
+  },
   "lint-staged": {
     "*.js": [
-      "prettier --write",
-      "git add"
+      "eslint --cache --fix"
     ]
   },
   "jest": {

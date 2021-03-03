@@ -13,6 +13,7 @@ const Stack = createStackNavigator()
 
 export default class Load extends React.Component {
   componentDidMount() {}
+
   render() {
     return (
       <Stack.Navigator

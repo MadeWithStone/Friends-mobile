@@ -1,12 +1,17 @@
 // Modules
 import React from "react"
-import config from "../../../config"
 
 // Components
-import { Text, Dimensions, View, StyleSheet } from "react-native"
-import { IconButton, ProfileImage, CachedImage } from "../../../Components"
+import {
+  Text,
+  Dimensions,
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from "react-native"
 import Entypo from "@expo/vector-icons/Entypo"
-import { TouchableWithoutFeedback } from "react-native"
+import { IconButton, ProfileImage, CachedImage } from "../../../Components"
+import config from "../../../config"
 
 /**
  * Feed list component
@@ -27,15 +32,15 @@ class FeedObject extends React.Component {
   }
 
   render() {
-    let date = new Date(this.props.post.date)
-    let user = this.props.user ? this.props.user : {}
+    const date = new Date(this.props.post.date)
+    const user = this.props.user ? this.props.user : {}
     return (
       <View
         style={{ ...styles.mainView, backroundColor: config.secondaryColor }}>
         <View style={styles.topView}>
           <ProfileImage
             image={user.profileImage}
-            name={user.firstName + " " + user.lastName}
+            name={`${user.firstName} ${user.lastName}`}
             size={40}
             id={user.id}
           />
@@ -95,7 +100,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   profileName: {
-    //color: config.primaryColor,
+    // color: config.primaryColor,
     fontSize: 17,
     fontWeight: "bold",
   },

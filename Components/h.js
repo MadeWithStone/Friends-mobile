@@ -9,13 +9,11 @@ import config from "../config"
  * @prop {string} text title text
  * @prop {object} style style object
  */
-const H1 = (props) => {
-  return (
-    <Text style={{ ...styles.h1, color: config.primaryColor, ...props.style }}>
-      {props.text}
-    </Text>
-  )
-}
+const H1 = (props) => (
+  <Text style={{ ...styles.h1, color: config.primaryColor, ...props.style }}>
+    {props.text}
+  </Text>
+)
 
 const styles = StyleSheet.create({
   h1: {

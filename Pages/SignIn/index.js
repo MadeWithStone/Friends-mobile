@@ -1,16 +1,16 @@
 // Modules
 import React from "react"
 import { CommonActions } from "@react-navigation/native"
+import * as SecureStore from "expo-secure-store"
+import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
+import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 import config from "../../config"
 import User from "../../Data/User"
-import * as SecureStore from "expo-secure-store"
 
 // Data Functions
 import { signIn, loadData, resetPassword } from "../../Firebase/UserFunctions"
 
 // Components
-import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
-import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 import {
   Input,
   H1,
@@ -63,7 +63,7 @@ class SignIn extends React.Component {
       }
     } catch (error) {
       // log error if there is one
-      console.warn("error " + error)
+      console.warn(`error ${error}`)
     }
   }
 
@@ -83,14 +83,14 @@ class SignIn extends React.Component {
   load = async (loading) => {
     if (loading) {
       this.setState({ loading: true, title: "F" }, async () => {
-        let t = "Friends"
+        const t = "Friends"
         while (this.state.loading) {
           for (let i = 1; i < 8; i++) {
-            let promises = []
+            const promises = []
             promises.push(
               new Promise((resolve, reject) => {
                 setTimeout(() => {
-                  let current = (this.state.title += t.substring(i, i + 1))
+                  const current = (this.state.title += t.substring(i, i + 1))
                   this.setState({ title: current })
                   resolve()
                 }, 170)
@@ -208,21 +208,22 @@ class SignIn extends React.Component {
   sendPasswordResetEmail() {
     // run firebase function to send password reset email
     resetPassword(this.state.email)
-      .then(function () {
+      .then(() => {
         // Email sent.
         alert("Pasword reset email sent")
       })
-      .catch(function (error) {
+      .catch((error) => {
         // An error happened.
         alert(error)
       })
   }
 
   render() {
-    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    let disabled = this.state.password.length < 8 || !reg.test(this.state.email)
+    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    const disabled =
+      this.state.password.length < 8 || !reg.test(this.state.email)
     return (
-      <View style={{ width: 100 + "%", height: 100 + "%" }}>
+      <View style={{ width: `${100}%`, height: `${100}%` }}>
         <KeyboardAvoidingView
           behavior={Platform.OS == "ios" ? "padding" : "height"}
           style={{
@@ -307,9 +308,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bodyContainer: {
-    width: 100 + "%",
+    width: `${100}%`,
     padding: 16,
-    height: 100 + "%",
+    height: `${100}%`,
     justifyContent: "center",
   },
   input: {

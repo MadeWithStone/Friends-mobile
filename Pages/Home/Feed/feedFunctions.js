@@ -1,11 +1,9 @@
-import { resolveConfig } from "prettier"
 import {
   getPost,
   getPosts,
   updateReports,
 } from "../../../Firebase/PostFunctions"
-import { getUsers } from "../../../Firebase/UserFunctions"
-import { loadData } from "../../../Firebase/UserFunctions"
+import { getUsers, loadData } from "../../../Firebase/UserFunctions"
 
 /**
  * functions for feed screen
@@ -21,10 +19,11 @@ class FeedFunctions {
    * @param {object} User current user
    * @return {object} {pList, users}
    */
-  static downloadUsers = async (postList, User) => {
-    return new Promise((resolve, reject) => {
+  static downloadUsers = async (postListParam, User) =>
+    new Promise((resolve, reject) => {
       // initialize list of users
-      let userList = []
+      postList = [...postListParam]
+      const userList = []
 
       // if the current user has friends
       if (User.data.friends) {
@@ -38,17 +37,17 @@ class FeedFunctions {
         reject()
       } else {
         // get copy of postList
-        let pList = [...postList]
+        const pList = [...postList]
 
         // run firestore function to get user objects from list
         getUsers(userList).then(async (result) => {
           // initialize list of users
-          let u = {}
+          const u = {}
 
           // loop through downloaded user objects
           result.forEach((user) => {
             // add user data to list of users
-            let userData = user.data()
+            const userData = user.data()
             u[userData.id] = userData
 
             // get the latest two posts from the current user and add them to pList
@@ -63,7 +62,7 @@ class FeedFunctions {
           })
 
           // get length of current user's list of posts
-          let userPostsLength = User.data.posts ? User.data.posts.length : 0
+          const userPostsLength = User.data.posts ? User.data.posts.length : 0
 
           // loop through user posts
           for (let i = 0; i < 2 && i < userPostsLength; i++) {
@@ -72,21 +71,21 @@ class FeedFunctions {
           }
 
           // filter pList to remove duplicate items
-          let arr1 = pList.filter(
+          const arr1 = pList.filter(
             (item, index) => pList.indexOf(item) === index
-          ) //removeDups(pList)
+          ) // removeDups(pList)
 
           // determine if this is a new user
-          let newUser = User.data.posts ? false : false
+          const newUser = false
 
           // user newUser and post list length to determine whether to reset
-          let reset = arr1.length < postList.length || newUser
+          const reset = arr1.length < postList.length || newUser
 
           // if reset
           if (reset) {
-            /*console.log(
+            /* console.log(
               "reseting: " + (arr1.length < postList.length) + newUser
-            )*/
+            ) */
 
             // reset postList
             postList = []
@@ -96,7 +95,7 @@ class FeedFunctions {
           }
 
           // remove posts that are already downloaded
-          let arr = await this.removeDups(Object.assign(arr1), [...postList])
+          const arr = await this.removeDups(Object.assign(arr1), [...postList])
 
           // initialize list of indexes to remove
           let removeIndexes = []
@@ -126,11 +125,10 @@ class FeedFunctions {
           u[User.data.id] = User.data
 
           // resolve data
-          resolve({ pList: arr, u: u })
+          resolve({ pList: arr, u })
         })
       }
     })
-  }
 
   /**
    * removes all instances of duplicate posts
@@ -142,17 +140,17 @@ class FeedFunctions {
    * @param {array} postList list of current post ids
    * @return {array} list of new posts
    */
-  static removeDups = (pList, postList) => {
+  static removeDups = (pList, postList) =>
     // create new asynchronous promise
-    return new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {
       // console.log("postList in remove dups: " + JSON.stringify(postList))
 
       // initialize new array
-      let arr = []
+      const arr = []
       // console.log("### removing dups")
 
       // get length of pList
-      let len = pList.length
+      const len = pList.length
 
       // initialize index
       let i = 0
@@ -172,7 +170,6 @@ class FeedFunctions {
       // resolve promise with list of new posts
       resolve(arr)
     })
-  }
 
   /**
    * download post data from list of posts
@@ -185,8 +182,8 @@ class FeedFunctions {
    * @param {array} postList list of current post ids
    * @return {array} list of post objects
    */
-  static downloadPosts = async (pList, postList) => {
-    return new Promise((resolve, reject) => {
+  static downloadPosts = async (pList, postList) =>
+    new Promise((resolve, reject) => {
       // if there are posts to download
       if (pList.length > 0) {
         // run firebase function to get posts from list
@@ -202,20 +199,20 @@ class FeedFunctions {
 
           // sort the list of posts in date descending order
           p.sort((a, b) => {
-            let dA = new Date(a.date)
-            let dB = new Date(b.date)
+            const dA = new Date(a.date)
+            const dB = new Date(b.date)
             return dA <= dB
           })
 
           // initialize cuttof date object
-          let cuttOff = new Date()
+          const cuttOff = new Date()
 
           // set cuttoff date to one day before the current date
           cuttOff.setDate(cuttOff.getDate() - 2)
 
           // filter all the posts to make sure they are no later than the cuttoff date
           p = p.filter((item, index) => {
-            let d = new Date(item.date)
+            const d = new Date(item.date)
             return p.indexOf(item) === index && d >= cuttOff
           })
 
@@ -247,28 +244,27 @@ class FeedFunctions {
         resolve([])
       }
     })
-  }
 
   /**
    * removes duplicate instances of posts
    *
    * @param {array} pList list of post objects
    */
-  static cleanOldPosts = (pList) => {
-    return new Promise((resolve, reject) => {
+  static cleanOldPosts = (pList) =>
+    new Promise((resolve, reject) => {
       // make copy of pList
-      let p = [...pList]
+      const p = [...pList]
 
       // initialize array
-      let dict = []
+      const dict = []
 
       // initialize array
-      let people = []
+      const people = []
 
       // sort p into ascending order
       p.sort((a, b) => {
-        let dB = new Date(a.date)
-        let dA = new Date(b.date)
+        const dB = new Date(a.date)
+        const dA = new Date(b.date)
         return dA <= dB
       })
 
@@ -280,7 +276,7 @@ class FeedFunctions {
           p.splice(i, 1)
         } else {
           // find user in people array
-          let idx = people.indexOf(p[i].userID)
+          const idx = people.indexOf(p[i].userID)
 
           // user is not in people array
           if (idx == -1) {
@@ -289,27 +285,24 @@ class FeedFunctions {
 
             // add a 1 to dict array
             dict.push(1)
-          } else {
+          } else if (dict[idx] >= 2) {
             // if person has more than two posts
-            if (dict[idx] >= 2) {
-              // delete new posts
-              p.splice(i, 1)
-            } else dict[idx]++ // increment number of posts for person
-          }
+            // delete new posts
+            p.splice(i, 1)
+          } else dict[idx]++ // increment number of posts for person
         }
       }
 
       // sort in descending order again
       p.sort((a, b) => {
-        let dA = new Date(a.date)
-        let dB = new Date(b.date)
+        const dA = new Date(a.date)
+        const dB = new Date(b.date)
         return dA <= dB
       })
 
       // update post state
       resolve(p)
     })
-  }
 }
 
 export default FeedFunctions

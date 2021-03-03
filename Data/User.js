@@ -2,7 +2,7 @@
 import * as SecureStore from "expo-secure-store"
 import { firebase } from "../Firebase/config"
 
-//import functions for getting cloud data
+// import functions for getting cloud data
 import {
   createEmailUser,
   signOut as signOutFunc,
@@ -63,6 +63,7 @@ class User {
    * @static
    */
   static signOut() {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       this.data = null
       console.log("deleted userdata")
@@ -83,7 +84,7 @@ class User {
    * @method
    */
   static async setCurrentUser() {
-    console.log("current user data: " + this.data)
+    console.log(`current user data: ${this.data}`)
     await SecureStore.setItemAsync("currentUser", JSON.stringify(this.data))
     await SecureStore.setItemAsync("currentAuth", JSON.stringify(this.auth))
   }
@@ -94,8 +95,11 @@ class User {
    * @static
    * @async
    * @param {function} callback called after data loaded
+   *
    */
+
   static async loadCurrentUser(callback) {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       let savedData = await SecureStore.getItemAsync("currentUser")
       try {
@@ -105,7 +109,7 @@ class User {
           callback()
         }
       } catch (error) {
-        console.log("error " + error)
+        console.log(`error ${error}`)
       }
       let authData = await SecureStore.getItemAsync("currentAuth")
       try {
@@ -115,7 +119,7 @@ class User {
           callback()
         }
       } catch (error) {
-        console.log("error " + error)
+        console.log(`error ${error}`)
       }
       resolve(this)
     })
@@ -147,7 +151,7 @@ class User {
    * @static
    */
   static generateFriendCode() {
-    let date = new Date()
+    const date = new Date()
     let ms = date.getTime()
     let code = []
     for (let i = 0; i < 7; i++) {
@@ -160,7 +164,7 @@ class User {
       code[i] = lookUP[code[i] % 35]
     }
     code = code.join("")
-    console.log("new friend code: " + code)
+    console.log(`new friend code: ${code}`)
     return code
   }
 }

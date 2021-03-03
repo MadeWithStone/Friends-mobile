@@ -14,44 +14,46 @@ import User from "../../Data/User"
  */
 const uploadImage = (image, postID, stateUpdate, complete) => {
   uriToBlob(image).then((blob) => {
-    let uid = firebase.auth().currentUser.uid
-    let reference = firebase
+    const { uid } = firebase.auth().currentUser
+    const reference = firebase
       .storage()
       .ref()
-      .child(uid + "/" + postID + ".jpg")
+      .child(`${uid}/${postID}.jpg`)
       .put(blob)
     reference.on(
       firebase.storage.TaskEvent.STATE_CHANGED,
-      function (snapshot) {
+      (snapshot) => {
         // Observe state change events such as progress, pause, and resume
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         stateUpdate(snapshot)
       },
-      function (error) {
+      (error) => {
         // A full list of error codes is available at
         // https://firebase.google.com/docs/storage/web/handle-errors
         switch (error.code) {
           case "storage/unauthorized":
             // User doesn't have permission to access the object
-            //console.log("user does not have permission")
+            // console.log("user does not have permission")
             break
 
           case "storage/canceled":
             // User canceled the upload
-            //console.log("upload canceled")
+            // console.log("upload canceled")
             break
 
           case "storage/unknown":
             // Unknown error occurred, inspect error.serverResponse
-            //console.log("unkown error")
+            // console.log("unkown error")
             break
+          default:
+            console.log("all good")
         }
       },
-      function () {
+      () => {
         // Handle successful uploads on complete
         // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-        reference.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-          //console.log("File available at", downloadURL)
+        reference.snapshot.ref.getDownloadURL().then((downloadURL) => {
+          // console.log("File available at", downloadURL)
           complete(downloadURL)
         })
       }
@@ -66,15 +68,15 @@ const uploadImage = (image, postID, stateUpdate, complete) => {
  * @method
  * @param {string} uri uri to local image
  */
-uriToBlob = (uri) => {
-  return new Promise((resolve, reject) => {
+uriToBlob = (uri) =>
+  new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.onload = function () {
+    xhr.onload = () => {
       // return the blob
       resolve(xhr.response)
     }
 
-    xhr.onerror = function () {
+    xhr.onerror = () => {
       // something went wrong
       reject(new Error("uriToBlob failed"))
     }
@@ -84,7 +86,6 @@ uriToBlob = (uri) => {
 
     xhr.send(null)
   })
-}
 
 /**
  * create post in firestore
@@ -94,10 +95,9 @@ uriToBlob = (uri) => {
  * @param {object} data object containing post data
  * @param {string} postID post id to use
  */
-const createPostData = (data, postID) => {
-  data.userID = firebase.auth().currentUser.uid
-  data.id = postID
-  //console.log("description: " + data.description)
+const createPostData = (dataParam, postID) => {
+  data = { userID: firebase.auth().currentUser.uid, id: postID, ...dataParam }
+  // console.log("description: " + data.description)
   const postsRef = firebase.firestore().collection("posts")
   return postsRef.doc(postID).set(data)
 }
@@ -122,9 +122,9 @@ const getPost = (postID) => {
  * @param {array} postList
  */
 const getPosts = async (postList) => {
-  let postPromises = []
+  const postPromises = []
   postList.forEach((post) => {
-    //console.log("adding getPost promise")
+    // console.log("adding getPost promise")
     postPromises.push(getPost(post))
   })
   return Promise.all(postPromises)
@@ -137,19 +137,19 @@ const getPosts = async (postList) => {
  * @async
  * @param {array} comments array of comments from a post
  */
-const getCommentUsers = async (comments) => {
-  return new Promise(async (resolve, reject) => {
-    let userList = []
+const getCommentUsers = async (comments) =>
+  new Promise((resolve, reject) => {
+    const userList = []
     comments.forEach((comment) => userList.push(comment.userID))
-    let users = await getUsers(userList)
-    let u = []
-    users.forEach((user) => {
-      u.push(user.data())
+    getUsers(userList).then((users) => {
+      const u = []
+      users.forEach((user) => {
+        u.push(user.data())
+      })
+      // console.log("comment users: " + JSON.stringify(u[0]))
+      resolve(u)
     })
-    //console.log("comment users: " + JSON.stringify(u[0]))
-    resolve(u)
   })
-}
 
 /**
  * get post reference for post id
@@ -172,7 +172,7 @@ const postReference = (id) => {
  */
 const addComment = async (comments, postID) => {
   const postRef = firebase.firestore().collection("posts").doc(postID)
-  return postRef.update({ comments: comments })
+  return postRef.update({ comments })
 }
 
 /**
@@ -185,7 +185,7 @@ const addComment = async (comments, postID) => {
  */
 const updateReports = async (postID, reports) => {
   const postRef = firebase.firestore().collection("posts").doc(postID)
-  return postRef.update({ reports: reports })
+  return postRef.update({ reports })
 }
 
 /**
@@ -197,15 +197,12 @@ const updateReports = async (postID, reports) => {
  */
 const deletePost = async (postID) => {
   const postRef = firebase.firestore().collection("posts").doc(postID)
-  let deleted = await deleteImage(User.data.id, postID)
+  const deleted = await deleteImage(User.data.id, postID)
   return postRef.delete()
 }
 
 const deleteImage = async (uid, postID) => {
-  const reference = firebase
-    .storage()
-    .ref()
-    .child(uid + "/" + postID + ".jpg")
+  const reference = firebase.storage().ref().child(`${uid}/${postID}.jpg`)
   return reference.delete()
 }
 

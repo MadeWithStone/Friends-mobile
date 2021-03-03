@@ -8,14 +8,20 @@ import {
   TouchableOpacity,
   Dimensions,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from "react-native"
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5"
-import Feather from "react-native-vector-icons/Feather"
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
+import Feather from "@expo/vector-icons/Feather"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import { Button as Btn } from "react-native-elements"
-import config from "../../../../config"
-import { KeyboardAvoidingView } from "react-native"
+
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
+import { ScreenStackHeaderConfig } from "react-native-screens"
+import * as ImageManipulator from "expo-image-manipulator"
+import * as ImagePicker from "expo-image-picker"
+import { Camera } from "expo-camera"
+import User from "../../../../Data/User"
+import config from "../../../../config"
 import {
   Button,
   Input,
@@ -23,11 +29,6 @@ import {
   TextButton,
   IconButton,
 } from "../../../../Components"
-import User from "../../../../Data/User"
-import { ScreenStackHeaderConfig } from "react-native-screens"
-import * as ImageManipulator from "expo-image-manipulator"
-import * as ImagePicker from "expo-image-picker"
-import { Camera } from "expo-camera"
 import {
   removeProfileImage,
   updateUser,
@@ -35,15 +36,15 @@ import {
 import { uploadImage } from "../../../../Firebase/PostFunctions"
 
 const EditProfile = ({ navigation, route }) => {
-  let [image, setImage] = useState("")
-  let [_img, setImg] = useState("")
-  let [firstName, setFirstName] = useState("")
-  let [lastName, setLastName] = useState("")
-  let [showChooser, setShowChooser] = useState(false)
-  let [showCamera, setShowCamera] = useState(false)
-  let [camType, setCamType] = useState(Camera.Constants.Type.back)
-  let [saveData, setSaveData] = useState(false)
-  let dims = {
+  const [image, setImage] = useState("")
+  const [_img, setImg] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [showChooser, setShowChooser] = useState(false)
+  const [showCamera, setShowCamera] = useState(false)
+  const [camType, setCamType] = useState(Camera.Constants.Type.back)
+  const [saveData, setSaveData] = useState(false)
+  const dims = {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   }
@@ -58,7 +59,7 @@ const EditProfile = ({ navigation, route }) => {
     setLastName(User.data.lastName)
   }, [])
   React.useEffect(() => {
-    console.log("updated image: " + image)
+    console.log(`updated image: ${image}`)
   }, [image])
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -97,7 +98,7 @@ const EditProfile = ({ navigation, route }) => {
   const snap = async () => {
     try {
       if (camera) {
-        let photo = await camera.takePictureAsync()
+        const photo = await camera.takePictureAsync()
         setShowCamera(false)
         compressImage(photo)
       }
@@ -114,14 +115,15 @@ const EditProfile = ({ navigation, route }) => {
       height: photo.height,
     }
     if (photo.width !== photo.height) {
-      let width = photo.width > photo.height ? photo.height : photo.width
-      let originY =
+      const width = photo.width > photo.height ? photo.height : photo.width
+      const originY =
         photo.width > photo.height ? 0 : photo.height / 2 - width / 2
-      let originX = photo.width > photo.height ? photo.width / 2 - width / 2 : 0
+      const originX =
+        photo.width > photo.height ? photo.width / 2 - width / 2 : 0
       options = {
-        originX: originX,
-        originY: originY,
-        width: width,
+        originX,
+        originY,
+        width,
         height: width,
       }
     }
@@ -132,15 +134,15 @@ const EditProfile = ({ navigation, route }) => {
         [{ crop: options }],
         { compress: 0.05, format: ImageManipulator.SaveFormat.JPEG }
       )
-      let uri = manipResult.uri
+      const { uri } = manipResult
       setImage(uri)
     } catch (err) {
-      console.log("err: " + err)
+      console.log(`err: ${err}`)
     }
   }
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [1, 1],
@@ -159,66 +161,64 @@ const EditProfile = ({ navigation, route }) => {
   }
 
   const saveEdits = async () => {
-    console.log("firstname: " + firstName)
+    console.log(`firstname: ${firstName}`)
     if (firstName.length <= 0) {
       alert("You must enter a first name")
-    } else {
-      if (User.data != null) {
-        let imgURL = User.data.profileImage
-        if (image != null && image.length > 0 && image != imgURL) {
-          imgURL = await uploadUserImg()
-        } else if (image == "" && imgURL != image) {
-          imgURL = ""
-          await removeProfileImage(User.data.id)
-        }
-        setImage(imgURL)
-        console.log("firstname: " + firstName)
-        let newData = {
-          firstName: firstName.valueOf(),
-          lastName: lastName.valueOf(),
-          profileImage: imgURL.valueOf(),
-        }
-
-        console.log("new data: " + JSON.stringify(newData))
-        updateUser(newData, User.data.id).then(async () => {
-          navigation.goBack()
-        })
+    } else if (User.data != null) {
+      let imgURL = User.data.profileImage
+      if (image != null && image.length > 0 && image != imgURL) {
+        imgURL = await uploadUserImg()
+      } else if (image == "" && imgURL != image) {
+        imgURL = ""
+        await removeProfileImage(User.data.id)
       }
+      setImage(imgURL)
+      console.log(`firstname: ${firstName}`)
+      const newData = {
+        firstName: firstName.valueOf(),
+        lastName: lastName.valueOf(),
+        profileImage: imgURL.valueOf(),
+      }
+
+      console.log(`new data: ${JSON.stringify(newData)}`)
+      updateUser(newData, User.data.id).then(async () => {
+        navigation.goBack()
+      })
     }
   }
   const uploadUserImg = async () => {
     let imgUrl = ""
     console.log("uploading image")
-    //updateProgressText("Uploading Image")
+    // updateProgressText("Uploading Image")
     const uploadUri =
       Platform.OS === "ios" ? image.replace("file://", "") : image
     return new Promise((resolve, reject) => {
       uploadImage(
         uploadUri,
         User.data.id,
-        function (snapshot) {
-          /*setProgress(
+        (snapshot) => {
+          /* setProgress(
             Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 0.5
-          )*/
+          ) */
           console.log(
             Math.round(snapshot.bytesTransferred / snapshot.totalBytes)
           )
         },
-        async function (url) {
+        async (url) => {
           imgUrl = url
           resolve(imgUrl)
-          //wait for data to upload
-          //setProgress(0.51)
-          //updateProgressText("Uploading Post Data")
+          // wait for data to upload
+          // setProgress(0.51)
+          // updateProgressText("Uploading Post Data")
         }
       )
-    }) //wait for image to upload
+    }) // wait for image to upload
   }
   return (
     <KeyboardAvoidingScrollView
       containerStyle={{ backgroundColor: config.secondaryColor }}>
       <Modal visible={showChooser} animationType="fade" transparent={true}>
-        <View style={{ justifyContent: "flex-end", height: 100 + "%" }}>
+        <View style={{ justifyContent: "flex-end", height: `${100}%` }}>
           <View style={{ marginBottom: 100 }}>
             <View
               style={{
@@ -357,7 +357,7 @@ const EditProfile = ({ navigation, route }) => {
             <ProfileImage
               image={image}
               size={120}
-              name={firstName + " " + lastName}
+              name={`${firstName} ${lastName}`}
               style={{ alignSelf: "center" }}
               id={image}
               noCache
@@ -386,18 +386,18 @@ const EditProfile = ({ navigation, route }) => {
             }}>
             <Input
               placeholder="First Name"
-              style={{ width: 100 + "%" }}
+              style={{ width: `${100}%` }}
               placeholderColor={config.primaryColor}
               value={firstName}
               onChangeText={(d) => {
                 setFirstName(d)
 
-                console.log("updating first name" + firstName)
+                console.log(`updating first name${firstName}`)
               }}
             />
             <Input
               placeholder="Last Name"
-              style={{ width: 100 + "%", marginTop: 8 }}
+              style={{ width: `${100}%`, marginTop: 8 }}
               placeholderColor={config.primaryColor}
               value={lastName}
               onChangeText={(d) => setLastName(d)}
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     margin: 20,
     justifyContent: "space-around",
-    width: 100 + "%",
+    width: `${100}%`,
   },
   round: {
     width: 70,

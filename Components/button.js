@@ -5,8 +5,8 @@ import {
   TouchableOpacity,
 } from "react-native-gesture-handler"
 import { Button as Btn } from "react-native-elements"
-import config from "../config"
 import { ActivityIndicator } from "react-native-paper"
+import config from "../config"
 
 /**
  * filled button
@@ -19,17 +19,13 @@ import { ActivityIndicator } from "react-native-paper"
  * @prop {boolean} spinning determines whether the loading spinner is spinning
  */
 const Button = (props) => {
-  let btnContStyle = props.disabled
+  const btnContStyle = props.disabled
     ? styles.buttonContainerDisabled
     : styles.buttonContainer
   return (
     <TouchableWithoutFeedback
       onPress={
-        props.onPressAction
-          ? !props.disabled
-            ? props.onPressAction
-            : () => {}
-          : () => {}
+        props.onPressAction && !props.disabled ? props.onPressAction : () => {}
       }
       style={{
         ...btnContStyle,
@@ -66,21 +62,19 @@ const Button = (props) => {
  * @prop {string} text title text
  * @prop {function} onPressAction called when pressed
  */
-const TextButton = (props) => {
-  return (
-    <TouchableWithoutFeedback
-      onPress={props.onPressAction ? props.onPressAction : () => {}}>
-      <Text
-        style={{
-          ...styles.textButton,
-          color: config.primaryColor,
-          ...props.textStyle,
-        }}>
-        {props.text}
-      </Text>
-    </TouchableWithoutFeedback>
-  )
-}
+const TextButton = (props) => (
+  <TouchableWithoutFeedback
+    onPress={props.onPressAction ? props.onPressAction : () => {}}>
+    <Text
+      style={{
+        ...styles.textButton,
+        color: config.primaryColor,
+        ...props.textStyle,
+      }}>
+      {props.text}
+    </Text>
+  </TouchableWithoutFeedback>
+)
 
 /**
  * clickable icon
@@ -91,16 +85,14 @@ const TextButton = (props) => {
  * @prop {function} onPressAction called when pressed
  * @prop {object} style custom style object
  */
-const IconButton = (props) => {
-  return (
-    <Btn
-      icon={props.icon}
-      type="clear"
-      style={props.style}
-      onPress={props.onPressAction}
-    />
-  )
-}
+const IconButton = (props) => (
+  <Btn
+    icon={props.icon}
+    type="clear"
+    style={props.style}
+    onPress={props.onPressAction}
+  />
+)
 
 /**
  * cancel button

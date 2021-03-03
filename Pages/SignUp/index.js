@@ -1,19 +1,16 @@
 // Modules
 import React from "react"
-import config from "../../config"
-import User from "../../Data/User"
 import * as SecureStore from "expo-secure-store"
 import * as Linking from "expo-linking"
 import * as ScreenCapture from "expo-screen-capture"
 
 // Data Functions
-import {
-  createEmailUser,
-  setUserData,
-  verifyEmail,
-} from "../../Firebase/UserFunctions"
 
 // Components
+import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
+import { CheckBox } from "react-native-elements"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
+import KeyboardListener from "react-native-keyboard-listener"
 import {
   Input,
   H1,
@@ -22,10 +19,13 @@ import {
   DismissKeyboardView,
   LogoHorizontal,
 } from "../../Components"
-import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
-import { CheckBox } from "react-native-elements"
-import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
-import KeyboardListener from "react-native-keyboard-listener"
+import {
+  createEmailUser,
+  setUserData,
+  verifyEmail,
+} from "../../Firebase/UserFunctions"
+import User from "../../Data/User"
+import config from "../../config"
 
 /**
  * Handles sign up UI for the app
@@ -48,11 +48,12 @@ class SignUp extends React.Component {
       ageVerification: false,
       keyboardOpen: false,
     }
+    this.componentDidMount = this.componentDidMount.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     // prevent screen capture
-    await ScreenCapture.preventScreenCaptureAsync()
+    ScreenCapture.preventScreenCaptureAsync()
   }
 
   /** handles text field input change */
@@ -137,8 +138,8 @@ class SignUp extends React.Component {
   }
 
   render() {
-    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    let disabled =
+    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    const disabled =
       this.state.confirmPassword !== this.state.password ||
       this.state.password.length < 8 ||
       this.state.firstName.length <= 1 ||
@@ -146,10 +147,10 @@ class SignUp extends React.Component {
       !this.state.tos ||
       !this.state.ageVerification
 
-    let { problemMessage, problem } = this.problemMessage()
+    const { problemMessage, problem } = this.problemMessage()
 
     return (
-      <View style={{ width: 100 + "%", height: 100 + "%" }}>
+      <View style={{ width: `${100}%`, height: `${100}%` }}>
         <KeyboardAvoidingScrollView
           scrollEventThrottle={32}
           behavior={Platform.OS == "ios" ? "padding" : "height"}
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   problemText: {
-    width: 100 + "%",
+    width: `${100}%`,
     fontSize: 17,
     color: config.primaryColor,
     textAlign: "center",

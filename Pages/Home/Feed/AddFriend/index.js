@@ -6,26 +6,27 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Share,
+  KeyboardAvoidingView,
 } from "react-native"
-import config from "../../../../config"
 import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
 import { ScrollView } from "react-native-gesture-handler"
 import { BarCodeScanner } from "expo-barcode-scanner"
-import { Button, Input, CancelButton, IconButton } from "../../../../Components"
-import User from "../../../../Data/User"
 import Feather from "@expo/vector-icons/Feather"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
+
+import { ceil, set } from "react-native-reanimated"
+import { Button as Btn } from "react-native-elements"
+import * as Linking from "expo-linking"
+import { usePreventScreenCapture } from "expo-screen-capture"
 import {
   findUserWithFriendCode,
   sendFriendRequest,
   updateUser,
 } from "../../../../Firebase/UserFunctions"
-import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
-import { KeyboardAvoidingView } from "react-native"
-import { ceil, set } from "react-native-reanimated"
-import { Button as Btn } from "react-native-elements"
-import * as Linking from "expo-linking"
-import { usePreventScreenCapture } from "expo-screen-capture"
+import User from "../../../../Data/User"
+import { Button, Input, CancelButton, IconButton } from "../../../../Components"
+import config from "../../../../config"
 
 const AddFriend = ({ navigation, route }) => {
   const [friendCode, setFriendCode] = React.useState("")
@@ -70,7 +71,7 @@ const AddFriend = ({ navigation, route }) => {
   }
 
   const resetFriendCode = () => {
-    let newFriendCode = User.generateFriendCode()
+    const newFriendCode = User.generateFriendCode()
     updateUser({ friendCode: newFriendCode }, User.data.id).then(() => {
       User.data.friendCode = newFriendCode
       setCurrentUserFC(newFriendCode)
@@ -78,8 +79,8 @@ const AddFriend = ({ navigation, route }) => {
   }
 
   const onChangeText = (e, name) => {
-    let d = e.toUpperCase()
-    let states = {
+    const d = e.toUpperCase()
+    const states = {
       friendCode: setFriendCode,
       addBtnDis: setAddBtnDis,
       currentUserFC: setCurrentUserFC,
@@ -88,12 +89,9 @@ const AddFriend = ({ navigation, route }) => {
     }
     states[name](d)
     console.log(
-      "AddFriend.onChangeText: " +
-        d +
-        " not " +
-        User.data.friendCode +
-        ": " +
-        (d != User.data.friendCode.toUpperCase())
+      `AddFriend.onChangeText: ${d} not ${User.data.friendCode}: ${
+        d != User.data.friendCode.toUpperCase()
+      }`
     )
     if (d.length == 7 && d != User.data.friendCode.toUpperCase()) {
       setAddBtnDis(false)
@@ -103,19 +101,19 @@ const AddFriend = ({ navigation, route }) => {
   }
 
   const sendRequest = () => {
-    let take = this
+    const take = this
     if (friendCode.length == 7) {
-      //find user
+      // find user
       console.log("finding user")
       findUserWithFriendCode(friendCode)
         .then((querySnapshot) => {
           let count = 0
-          querySnapshot.forEach(function (doc) {
+          querySnapshot.forEach((doc) => {
             if (count == 0) {
               // doc.data() is never undefined for query doc snapshots
               console.log(doc.id, " => ", doc.data())
-              let userData = doc.data()
-              let friend = { data: userData }
+              const userData = doc.data()
+              const friend = { data: userData }
               let alreadyRequested = false
               if (
                 friend.data.friendRequests != null &&
@@ -146,7 +144,7 @@ const AddFriend = ({ navigation, route }) => {
         .catch((err) => {
           console.warn(err)
         })
-      //send request
+      // send request
     }
   }
 
@@ -157,15 +155,11 @@ const AddFriend = ({ navigation, route }) => {
   }, [share])
 
   const shareFriendCode = async () => {
-    let url =
-      "https://friendsmobile.org/friendRedirect.html?code=" + currentUserFC
+    const url = `https://friendsmobile.org/friendRedirect.html?code=${currentUserFC}`
     try {
       const result = await Share.share({
-        url: url,
-        message:
-          "Add me on Friends - Private Network. My code is " +
-          currentUserFC +
-          ".",
+        url,
+        message: `Add me on Friends - Private Network. My code is ${currentUserFC}.`,
       })
       if (result.action === Share.sharedAction) {
         if (result.activityType) {

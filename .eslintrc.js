@@ -1,0 +1,41 @@
+module.exports = {
+  env: {
+    es6: true,
+    browser: true,
+    es2021: true,
+  },
+
+  extends: ["airbnb-base", "plugin:react/recommended", "prettier"],
+  parserOptions: {
+    ecmaVersion: 12,
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+      modules: true,
+    },
+  },
+  parser: "babel-eslint",
+  rules: {
+    "prettier/prettier": "error",
+    "react/prop-types": "off",
+    "no-unused-vars": 0,
+    "no-use-before-define": "off",
+    eqeqeq: 0,
+    "react/display-name": 0,
+    "import/no-named-as-default": 0,
+    "import/no-named-as-default-member": 0,
+    "import/prefer-default-export": 0,
+    "class-methods-use-this": 0,
+    "no-alert": 0,
+    "no-undef": 0,
+    "no-useless-escape": 0,
+    "no-console": "off",
+    "no-plusplus": 0,
+    "no-multi-assign": 0,
+    "no-await-in-loop": 0,
+    "react/no-unescaped-entities": 0,
+    "no-underscore-dangle": 0,
+    "no-shadow": 0,
+  },
+  plugins: ["react", "react-native", "prettier"],
+}

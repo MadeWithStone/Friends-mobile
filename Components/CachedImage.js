@@ -52,7 +52,7 @@ const CachedImage = (props) => {
     return () => {
       componentIsMounted.current = false
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Image

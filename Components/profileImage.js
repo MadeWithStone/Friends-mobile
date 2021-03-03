@@ -15,18 +15,14 @@ import CachedImage from "./CachedImage"
  * @prop {boolean} noCache determines whether to use caching or not
  */
 class ProfileImage extends PureComponent {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
-    let name = this.props.name
-    let words = name.split(" ")
+    const { name } = this.props
+    const words = name.split(" ")
     let initials = ""
     words.forEach((word) => {
       initials += word.charAt(0)
     })
-    let useImage = this.props.image != null && this.props.image.length > 0
+    const useImage = this.props.image != null && this.props.image.length > 0
     return (
       <View
         style={{
@@ -65,56 +61,51 @@ class ProfileImage extends PureComponent {
   }
 }
 
-const CachedImageView = (props) => {
-  return (
-    <CachedImage
-      source={{ uri: props.image ? props.image : "" }}
-      cacheKey={props.id ? props.id + props.image : ""}
-      style={{ ...styles.circleView, borderRadius: props.radius }}
-    />
-  )
-}
+const CachedImageView = (props) => (
+  <CachedImage
+    source={{ uri: props.image ? props.image : "" }}
+    cacheKey={props.id ? props.id + props.image : ""}
+    style={{ ...styles.circleView, borderRadius: props.radius }}
+  />
+)
 
-const ImageView = (props) => {
-  return (
-    <Image
-      source={{ uri: props.image ? props.image : "" }}
-      style={{ ...styles.circleView, borderRadius: props.radius }}
-    />
-  )
-}
+const ImageView = (props) => (
+  <Image
+    source={{ uri: props.image ? props.image : "" }}
+    style={{ ...styles.circleView, borderRadius: props.radius }}
+  />
+)
 
-const NameView = (props) => {
-  return (
-    <View
-      style={{
-        ...styles.circleView,
-        backgroundColor: stringToHslColor(props.name, 80, 80),
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        borderRadius: props.radius,
-      }}
-      key={props.image + props.name}>
-      <Text style={{ ...styles.initialText, fontSize: props.radius * 0.9 }}>
-        {props.initials}
-      </Text>
-    </View>
-  )
-}
+const NameView = (props) => (
+  <View
+    style={{
+      ...styles.circleView,
+      backgroundColor: stringToHslColor(props.name, 80, 80),
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: props.radius,
+    }}
+    key={props.image + props.name}>
+    <Text style={{ ...styles.initialText, fontSize: props.radius * 0.9 }}>
+      {props.initials}
+    </Text>
+  </View>
+)
 
+/* eslint no-bitwise: 0 */
 const stringToHslColor = (str, s, l) => {
-  var hash = 0
-  for (var i = 0; i < str.length; i++) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash)
   }
 
-  var h = hash % 360
+  const h = hash % 360
   return hslToHex(h, s, l)
 }
 
-const hslToHex = (h, s, l) => {
-  l /= 100
+const hslToHex = (h, s, lParam) => {
+  l = lParam / 100
   const a = (s * Math.min(l, 1 - l)) / 100
   const f = (n) => {
     const k = (n + h / 30) % 12
@@ -133,8 +124,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   circleView: {
-    width: 100 + "%",
-    height: 100 + "%",
+    width: `${100}%`,
+    height: `${100}%`,
   },
   initialText: {
     color: config.secondaryColor,

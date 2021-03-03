@@ -11,48 +11,48 @@ import {
   TouchableHighlight,
   ActivityIndicator,
   KeyboardAvoidingView,
+  SegmentedControlIOSComponent,
 } from "react-native"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
 import * as ImagePicker from "expo-image-picker"
 import Ionicons from "@expo/vector-icons/Ionicons"
-import { IconButton, MultilineInput } from "../../../../Components"
 import Feather from "@expo/vector-icons/Feather"
-import config from "../../../../config"
 import { Button as Btn } from "react-native-elements"
 import { ProgressBar, Colors } from "react-native-paper"
+import uuid from "react-native-uuid"
+import { usePreventScreenCapture } from "expo-screen-capture"
+import { useIsFocused } from "@react-navigation/native"
+import * as ScreenOrientation from "expo-screen-orientation"
 import { uploadImage, createPostData } from "../../../../Firebase/PostFunctions"
 import {
   updateUserPosts,
   userReference,
 } from "../../../../Firebase/UserFunctions"
-import uuid from "react-native-uuid"
 import User from "../../../../Data/User"
 import FeedPage from "../../Feed"
-import { usePreventScreenCapture } from "expo-screen-capture"
-import { useIsFocused } from "@react-navigation/native"
 
-import * as ScreenOrientation from "expo-screen-orientation"
-import { SegmentedControlIOSComponent } from "react-native"
+import config from "../../../../config"
+import { IconButton, MultilineInput } from "../../../../Components"
 
-let _this = null
+const _this = null
 let desc = ""
 export default function HomeScreen({ navigation, route }) {
   const [posting, post] = useState(false)
-  let [image, setImage] = useState(route.params.image)
-  let [description, setDescription] = useState("")
-  let [progress, setProgress] = useState(0)
-  let [progressText, updateProgressText] = useState("")
+  const [image, setImage] = useState(route.params.image)
+  const [description, setDescription] = useState("")
+  const [progress, setProgress] = useState(0)
+  const [progressText, updateProgressText] = useState("")
   let scroll = null
-  let maxChars = 140
+  const maxChars = 140
   const [dims, setDims] = React.useState({
     width: Dimensions.get("screen").width,
     height: Dimensions.get("screen").height,
   })
 
   usePreventScreenCapture()
-  let focused = useIsFocused()
+  const focused = useIsFocused()
 
   React.useEffect(() => {
     if (focused && User.data.posts && User.data.posts.length >= 6) {
@@ -81,34 +81,34 @@ export default function HomeScreen({ navigation, route }) {
   }
 
   const uploadPost = async () => {
-    console.warn("description: " + desc)
+    console.warn(`description: ${desc}`)
     post(true)
-    let postID = uuid.v1()
+    const postID = uuid.v1()
     let imgUrl = ""
     updateProgressText("Uploading Image")
     const uploadUri =
       Platform.OS === "ios" ? image.replace("file://", "") : image
-    let task = uploadImage(
+    const task = uploadImage(
       uploadUri,
       postID,
-      function (snapshot) {
+      (snapshot) => {
         setProgress(
           Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 0.5
         )
       },
-      async function (url) {
+      async (url) => {
         imgUrl = url
-        //wait for data to upload
+        // wait for data to upload
         setProgress(0.51)
         updateProgressText("Uploading Post Data")
-        let date = new Date()
-        let postData = {
+        const date = new Date()
+        const postData = {
           image: imgUrl,
           date: date.toISOString(),
           comments: [],
         }
         postData.description = desc
-        let createPost = await createPostData(postData, postID)
+        const createPost = await createPostData(postData, postID)
         setProgress(0.8)
         updateProgressText("Sharing with Friends")
         let postList = User.data.posts
@@ -118,16 +118,16 @@ export default function HomeScreen({ navigation, route }) {
         } else {
           postList.unshift(postID)
         }
-        let updatePostsResult = await updateUserPosts(postList)
+        const updatePostsResult = await updateUserPosts(postList)
         setProgress(1)
         setTimeout(() => {
           post(false)
           navigation.popToTop()
         }, 100)
-        //send back to main screen
-        console.log("url: " + url)
+        // send back to main screen
+        console.log(`url: ${url}`)
       }
-    ) //wait for image to upload
+    ) // wait for image to upload
   }
 
   React.useLayoutEffect(() => {
@@ -145,7 +145,7 @@ export default function HomeScreen({ navigation, route }) {
       ),
     })
   }, [navigation, post])
-  let d = description
+  const d = description
   return (
     <KeyboardAvoidingScrollView
       style={{ ...styles.container, backgroundColor: config.secondaryColor }}
@@ -270,10 +270,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     margin: 20,
     justifyContent: "space-around",
-    width: 100 + "%",
+    width: `${100}%`,
   },
   button: {
-    //flex: 0.1,
+    // flex: 0.1,
     alignSelf: "flex-end",
     alignItems: "center",
     width: 60,

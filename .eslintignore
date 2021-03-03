@@ -1,0 +1,25 @@
+node_modules/**/*
+dist/*
+.expo/*
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+*.svg
+*.json
+*.png
+*.log
+*.config.js
+web-build/
+docs/
+cache/
+_tests_/*
+config.js
+
+Gemfile
+
+# macOS
+.DS_Store

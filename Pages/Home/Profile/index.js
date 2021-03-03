@@ -9,11 +9,15 @@ import {
   Modal,
   TouchableOpacity,
   StatusBar,
+  DeviceEventEmitter,
 } from "react-native"
 import { createStackNavigator } from "@react-navigation/stack"
 import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5"
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
+import { useIsFocused } from "@react-navigation/native"
+import { usePreventScreenCapture } from "expo-screen-capture"
 import config from "../../../config"
 import User from "../../../Data/User"
 import {
@@ -25,7 +29,6 @@ import {
   IconButton,
   OptionsModal,
 } from "../../../Components"
-import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import {
   acceptFriendRequest,
   declineFriendRequest,
@@ -39,34 +42,31 @@ import {
 } from "../../../Firebase/PostFunctions"
 import EditProfile from "./EditProfile"
 import Settings from "./Settings"
-import { useIsFocused } from "@react-navigation/native"
 import FriendsList from "./FriendsList"
-import { usePreventScreenCapture } from "expo-screen-capture"
-import { DeviceEventEmitter } from "react-native"
 
 let pList = []
 const Profile = ({ navigation, route }) => {
-  let [friendRequests, setFriendRequests] = React.useState([])
-  let [usersList, setUsersList] = React.useState([])
-  let [posts, setPosts] = React.useState([])
-  let [refreshing, setRefreshing] = React.useState(false)
-  let [showModel, setShowModel] = React.useState(false)
-  let [currentPost, setCurrentPost] = React.useState("")
+  const [friendRequests, setFriendRequests] = React.useState([])
+  const [usersList, setUsersList] = React.useState([])
+  const [posts, setPosts] = React.useState([])
+  const [refreshing, setRefreshing] = React.useState(false)
+  const [showModel, setShowModel] = React.useState(false)
+  const [currentPost, setCurrentPost] = React.useState("")
 
-  let focused = useIsFocused()
+  const focused = useIsFocused()
   let listener
 
   usePreventScreenCapture()
 
   React.useEffect(() => {
-    //console.log("running use effect")
+    // console.log("running use effect")
   }, [focused])
 
   React.useEffect(() => {
     if (focused) {
       updateData()
       listener = userReference(User.data.id).onSnapshot((doc) => {
-        //console.log("snap data: " + JSON.stringify(doc.data()))
+        // console.log("snap data: " + JSON.stringify(doc.data()))
         User.data = doc.data()
         getFriendRequests()
         getUserPosts()
@@ -77,12 +77,12 @@ const Profile = ({ navigation, route }) => {
   }, [focused])
 
   getFriendRequests = () => {
-    let freReqs =
+    const freReqs =
       User.data.friendRequests != null ? User.data.friendRequests : []
-    let uList = []
+    const uList = []
     freReqs.forEach((req) => uList.push(req.userID))
     getUsers(uList).then((res) => {
-      //console.log("getting users")
+      // console.log("getting users")
       data = []
       res.forEach((r) => {
         data.push(r.data())
@@ -90,29 +90,29 @@ const Profile = ({ navigation, route }) => {
       setUsersList(data)
       setFriendRequests(freReqs)
       console.log("Profile.getFriendRequests: badge count emitted")
-      /*DeviceEventEmitter.emit("friendBadgeCount", {
+      /* DeviceEventEmitter.emit("friendBadgeCount", {
         val: freReqs.length,
-      })*/
+      }) */
       setRefreshing(false)
     })
   }
 
   getUserPosts = () => {
-    let postList = User.data.posts != null ? User.data.posts : []
-    //console.warn("getting posts")
-    let equal = arraysEqual(postList, pList)
-    /*console.log(
+    const postList = User.data.posts != null ? User.data.posts : []
+    // console.warn("getting posts")
+    const equal = arraysEqual(postList, pList)
+    /* console.log(
       "postList: " +
         JSON.stringify(postList) +
         "; \npList: " +
         JSON.stringify(pList) +
         "; Equal: " +
         equal
-    )*/
+    ) */
     if (!equal) {
       pList = postList
       getPosts(postList).then((result) => {
-        let p = []
+        const p = []
         result.forEach((post) => {
           p.push(post.data())
         })
@@ -133,7 +133,7 @@ const Profile = ({ navigation, route }) => {
     // Please note that calling sort on an array will modify that array.
     // you might want to clone your array first.
 
-    for (var i = 0; i < a.length; ++i) {
+    for (let i = 0; i < a.length; ++i) {
       if (a[i] !== b[i]) return false
     }
     return true
@@ -145,9 +145,9 @@ const Profile = ({ navigation, route }) => {
         .then(() => {
           // complete
           alert(
-            "Added " +
-              users.find((x) => x.id === req.userID).firstName +
-              " as a friend"
+            `Added ${
+              users.find((x) => x.id === req.userID).firstName
+            } as a friend`
           )
           updateData()
         })
@@ -172,11 +172,11 @@ const Profile = ({ navigation, route }) => {
         .then((data) => {
           User.data = data
           User.getUpdatedData().then(() => {
-            //console.log("### done getData")
+            // console.log("### done getData")
             navigation.setOptions({
               title:
                 User.data != null
-                  ? User.data.firstName + " " + User.data.lastName
+                  ? `${User.data.firstName} ${User.data.lastName}`
                   : "Profile",
               headerLeft: () => (
                 <Btn
@@ -199,7 +199,7 @@ const Profile = ({ navigation, route }) => {
           })
         })
         .catch((err) => {
-          //console.log("err: " + err)
+          // console.log("err: " + err)
         })
     }
   }
@@ -211,10 +211,10 @@ const Profile = ({ navigation, route }) => {
 
   const deletePost = () => {
     deletePostFunc(currentPost).then(() => {
-      let posts = User.data.posts
-      let idx = posts.findIndex((x) => x === currentPost)
+      const { posts } = User.data
+      const idx = posts.findIndex((x) => x === currentPost)
       posts.splice(idx, 1)
-      updateUser({ posts: posts }, User.data.id)
+      updateUser({ posts }, User.data.id)
       setShowModel(false)
     })
   }
@@ -223,7 +223,7 @@ const Profile = ({ navigation, route }) => {
     navigation.setOptions({
       title:
         User.data != null
-          ? User.data.firstName + " " + User.data.lastName
+          ? `${User.data.firstName} ${User.data.lastName}`
           : "Profile",
       headerLeft: () => (
         <Btn
@@ -262,7 +262,7 @@ const Profile = ({ navigation, route }) => {
         />
       )}
       <PostsView
-        posts={posts ? posts : []}
+        posts={posts || []}
         openModal={(id) => {
           setShowModel(true)
           setCurrentPost(id)
@@ -284,66 +284,60 @@ const Profile = ({ navigation, route }) => {
   )
 }
 
-const ProfileDataView = (props) => {
-  return (
-    <View style={dvStyles.container}>
-      <ProfileImage
-        image={props.user.data.profileImage}
-        size={100}
-        name={props.user.data.firstName + " " + props.user.data.lastName}
-        id={props.user.data.id}
-      />
-      <Text style={{ ...dvStyles.text, color: config.textColor }}>
-        {props.user.data.firstName + " " + props.user.data.lastName}
-      </Text>
-    </View>
-  )
-}
+const ProfileDataView = (props) => (
+  <View style={dvStyles.container}>
+    <ProfileImage
+      image={props.user.data.profileImage}
+      size={100}
+      name={`${props.user.data.firstName} ${props.user.data.lastName}`}
+      id={props.user.data.id}
+    />
+    <Text style={{ ...dvStyles.text, color: config.textColor }}>
+      {`${props.user.data.firstName} ${props.user.data.lastName}`}
+    </Text>
+  </View>
+)
 
-const FriendRequestView = (props) => {
-  return (
-    <View>
-      <SectionHeader title={"Friend Requests"} />
-      <View style={{ paddingTop: 4 }}></View>
-      {props.users != null &&
-        props.friendRequests.map((req) => (
-          <FriendRequestObj
-            request={req}
-            user={props.users.find((x) => x.id === req.userID)}
-            key={req.userID}
-            callback={props.callback}
+const FriendRequestView = (props) => (
+  <View>
+    <SectionHeader title={"Friend Requests"} />
+    <View style={{ paddingTop: 4 }}></View>
+    {props.users != null &&
+      props.friendRequests.map((req) => (
+        <FriendRequestObj
+          request={req}
+          user={props.users.find((x) => x.id === req.userID)}
+          key={req.userID}
+          callback={props.callback}
+        />
+      ))}
+  </View>
+)
+
+const FriendRequestObj = (props) => (
+  <View>
+    {props.user && (
+      <View style={frStyles.requestOBJContainer}>
+        <Text style={{ fontSize: 17, color: config.textColor }}>
+          {props.user.firstName} {props.user.lastName}
+        </Text>
+        <View style={frStyles.buttonContainer}>
+          <Button
+            text={"Accept"}
+            style={{ marginRight: 8 }}
+            textStyle={{ fontSize: 17, fontWeight: "bold", padding: 6 }}
+            onPressAction={() => props.callback(true, props.request)}
           />
-        ))}
-    </View>
-  )
-}
-
-const FriendRequestObj = (props) => {
-  return (
-    <View>
-      {props.user && (
-        <View style={frStyles.requestOBJContainer}>
-          <Text style={{ fontSize: 17, color: config.textColor }}>
-            {props.user.firstName} {props.user.lastName}
-          </Text>
-          <View style={frStyles.buttonContainer}>
-            <Button
-              text={"Accept"}
-              style={{ marginRight: 8 }}
-              textStyle={{ fontSize: 17, fontWeight: "bold", padding: 6 }}
-              onPressAction={() => props.callback(true, props.request)}
-            />
-            <TextButton
-              text={"Decline"}
-              textStyle={{ fontSize: 17, color: "gray", fontWeight: "bold" }}
-              onPressAction={() => props.callback(false, props.request)}
-            />
-          </View>
+          <TextButton
+            text={"Decline"}
+            textStyle={{ fontSize: 17, color: "gray", fontWeight: "bold" }}
+            onPressAction={() => props.callback(false, props.request)}
+          />
         </View>
-      )}
-    </View>
-  ) //return a friend request object with callback for accept and decline
-}
+      </View>
+    )}
+  </View>
+) // return a friend request object with callback for accept and decline
 
 const PostOptionsModal = (props) => {
   const reportOptions = ["Delete Post"]
@@ -384,75 +378,92 @@ const frStyles = StyleSheet.create({
   },
 })
 
-const PostsView = (props) => {
-  //console.log("posts: " + JSON.stringify(props.posts))
-  return (
-    <View style={{ marginTop: 8 }}>
-      <SectionHeader title={"Posts"} />
-      {props.posts != null && props.posts.length > 0 && (
-        <View
-          style={{
-            float: "left",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            marginTop: -1,
-          }}>
-          {props.posts.map((post, index) => {
-            return (
-              <TouchableOpacity
-                onPress={() => props.openModal(post.id)}
-                key={post.id}
-                activeOpacity={0.6}>
-                <PostViewObj post={post} index={index} />
-              </TouchableOpacity>
-            )
-          })}
-        </View>
-      )}
+const PostsView = (props) => (
+  // console.log("posts: " + JSON.stringify(props.posts))
+  <View style={{ marginTop: 8 }}>
+    <SectionHeader title={"Posts"} />
+    {props.posts != null && props.posts.length > 0 && (
       <View
         style={{
+          float: "left",
           flexDirection: "row",
+          flexWrap: "wrap",
+          marginTop: -1,
+        }}>
+        {props.posts.map((post, index) => (
+          <TouchableOpacity
+            onPress={() => props.openModal(post.id)}
+            key={post.id}
+            activeOpacity={0.6}>
+            <PostViewObj post={post} index={index} />
+          </TouchableOpacity>
+        ))}
+      </View>
+    )}
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        margin: 8,
+      }}>
+      <Text
+        style={{
+          color: config.textColor,
+          fontSize: 17,
+          textAlign: "center",
           justifyContent: "center",
           alignItems: "center",
-          margin: 8,
         }}>
-        <Text
-          style={{
-            color: config.textColor,
-            fontSize: 17,
-            textAlign: "center",
-            justifyContent: "center",
-            alignItems: "center",
-          }}>
-          go to the
-        </Text>
-        <IconButton
-          icon={
-            <Feather
-              name="plus-square"
-              size={config.iconFocused}
-              color={config.primaryColor}
-              style={{
-                alignSelf: "center",
-              }}
-            />
-          }
-          style={{
-            margin: -4,
-          }}
-          onPressAction={() => props.navigation.navigate("Post")}
-        />
-        <Text
-          style={{
-            color: config.textColor,
-            fontSize: 17,
-            textAlign: "center",
-            justifyContent: "center",
-            alignItems: "center",
-          }}>
-          tab to create a post
-        </Text>
-      </View>
+        go to the
+      </Text>
+      <IconButton
+        icon={
+          <Feather
+            name="plus-square"
+            size={config.iconFocused}
+            color={config.primaryColor}
+            style={{
+              alignSelf: "center",
+            }}
+          />
+        }
+        style={{
+          margin: -4,
+        }}
+        onPressAction={() => props.navigation.navigate("Post")}
+      />
+      <Text
+        style={{
+          color: config.textColor,
+          fontSize: 17,
+          textAlign: "center",
+          justifyContent: "center",
+          alignItems: "center",
+        }}>
+        tab to create a post
+      </Text>
+    </View>
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        margin: 8,
+        marginTop: 0,
+      }}>
+      <Text
+        style={{
+          color: config.textColor,
+          fontSize: 17,
+          textAlign: "center",
+          justifyContent: "center",
+          alignItems: "center",
+        }}>
+        purple posts are not viewable by other users
+      </Text>
+    </View>
+    {props.posts.length >= 6 && (
       <View
         style={{
           flexDirection: "row",
@@ -463,49 +474,28 @@ const PostsView = (props) => {
         }}>
         <Text
           style={{
-            color: config.textColor,
+            color: config.primaryColor,
             fontSize: 17,
+            fontWeight: "bold",
             textAlign: "center",
             justifyContent: "center",
             alignItems: "center",
           }}>
-          purple posts are not viewable by other users
+          {"You have hit your post maximum of 6\nSelect posts to delete them"}
         </Text>
       </View>
-      {props.posts.length >= 6 && (
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            margin: 8,
-            marginTop: 0,
-          }}>
-          <Text
-            style={{
-              color: config.primaryColor,
-              fontSize: 17,
-              fontWeight: "bold",
-              textAlign: "center",
-              justifyContent: "center",
-              alignItems: "center",
-            }}>
-            {"You have hit your post maximum of 6\nSelect posts to delete them"}
-          </Text>
-        </View>
-      )}
-    </View>
-  )
-}
+    )}
+  </View>
+)
 
 const PostViewObj = (props) => {
   // initialize cuttof date object
-  let cuttOff = new Date()
+  const cuttOff = new Date()
 
   // set cuttoff date to one day before the current date
   cuttOff.setDate(cuttOff.getDate() - 2)
 
-  let currentDate = new Date(props.post.date)
+  const currentDate = new Date(props.post.date)
 
   return (
     <View
@@ -528,7 +518,7 @@ const PostViewObj = (props) => {
 
           opacity: currentDate <= cuttOff || props.index > 1 ? 0.5 : 1,
           borderColor: config.primaryColor,
-          //borderWidth: currentDate > cuttOff && props.index <= 1 ? 3 : 0,
+          // borderWidth: currentDate > cuttOff && props.index <= 1 ? 3 : 0,
         }}
       />
     </View>
@@ -550,119 +540,113 @@ const dvStyles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
-const ProfilePage = ({ navigation }) => {
-  return (
-    <Stack.Navigator
-      options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
-      <Stack.Screen
-        name="ProfileMain"
-        component={Profile}
-        options={{
-          headerRight: () => (
-            <Btn
-              icon={
-                <Feather
-                  name="settings"
-                  size={28}
-                  color={config.primaryColor}
-                />
-              }
-              type="clear"
-              onPress={() => navigation.navigate("Settings")}
-            />
-          ),
-          title: "Profile",
-          headerStyle: {
-            backgroundColor: config.secondaryColor,
-            shadowOffset: { height: 0, width: 0 },
-          },
-          headerTintColor: config.primaryColor,
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 30,
-          },
-        }}
-      />
-      <Stack.Screen
-        name="EditProfile"
-        component={EditProfile}
-        options={{
-          title: "Edit Profile",
-          headerStyle: {
-            backgroundColor: config.secondaryColor,
-            shadowOffset: { height: 0, width: 0 },
-          },
-          headerTintColor: config.primaryColor,
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 30,
-          },
-        }}
-      />
-      <Stack.Screen
-        name="Settings"
-        component={Settings}
-        options={{
-          headerLeft: () => (
-            <Btn
-              onPress={() => {
-                navigation.goBack()
-              }}
-              icon={
-                <FontAwesome5
-                  name="chevron-left"
-                  size={30}
-                  color={config.primaryColor}
-                />
-              }
-              type="clear"
-            />
-          ),
-          title: "Settings",
-          headerStyle: {
-            backgroundColor: config.secondaryColor,
-            shadowOffset: { height: 0, width: 0 },
-          },
-          headerTintColor: config.primaryColor,
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 30,
-          },
-        }}
-      />
-      <Stack.Screen
-        name="YourFriends"
-        component={FriendsList}
-        options={{
-          headerLeft: () => (
-            <Btn
-              onPress={() => {
-                navigation.goBack()
-              }}
-              icon={
-                <FontAwesome5
-                  name="chevron-left"
-                  size={30}
-                  color={config.primaryColor}
-                />
-              }
-              type="clear"
-            />
-          ),
-          title: "Your Friends",
-          headerStyle: {
-            backgroundColor: config.secondaryColor,
-            shadowOffset: { height: 0, width: 0 },
-          },
-          headerTintColor: config.primaryColor,
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 30,
-          },
-        }}
-      />
-    </Stack.Navigator>
-  )
-}
+const ProfilePage = ({ navigation }) => (
+  <Stack.Navigator
+    options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
+    <Stack.Screen
+      name="ProfileMain"
+      component={Profile}
+      options={{
+        headerRight: () => (
+          <Btn
+            icon={
+              <Feather name="settings" size={28} color={config.primaryColor} />
+            }
+            type="clear"
+            onPress={() => navigation.navigate("Settings")}
+          />
+        ),
+        title: "Profile",
+        headerStyle: {
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
+        },
+        headerTintColor: config.primaryColor,
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 30,
+        },
+      }}
+    />
+    <Stack.Screen
+      name="EditProfile"
+      component={EditProfile}
+      options={{
+        title: "Edit Profile",
+        headerStyle: {
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
+        },
+        headerTintColor: config.primaryColor,
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 30,
+        },
+      }}
+    />
+    <Stack.Screen
+      name="Settings"
+      component={Settings}
+      options={{
+        headerLeft: () => (
+          <Btn
+            onPress={() => {
+              navigation.goBack()
+            }}
+            icon={
+              <FontAwesome5
+                name="chevron-left"
+                size={30}
+                color={config.primaryColor}
+              />
+            }
+            type="clear"
+          />
+        ),
+        title: "Settings",
+        headerStyle: {
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
+        },
+        headerTintColor: config.primaryColor,
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 30,
+        },
+      }}
+    />
+    <Stack.Screen
+      name="YourFriends"
+      component={FriendsList}
+      options={{
+        headerLeft: () => (
+          <Btn
+            onPress={() => {
+              navigation.goBack()
+            }}
+            icon={
+              <FontAwesome5
+                name="chevron-left"
+                size={30}
+                color={config.primaryColor}
+              />
+            }
+            type="clear"
+          />
+        ),
+        title: "Your Friends",
+        headerStyle: {
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
+        },
+        headerTintColor: config.primaryColor,
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 30,
+        },
+      }}
+    />
+  </Stack.Navigator>
+)
 
 export default ProfilePage

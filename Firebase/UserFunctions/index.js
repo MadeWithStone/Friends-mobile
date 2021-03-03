@@ -8,9 +8,8 @@ import { firebase } from "../config"
  * @param {string} email user email
  * @param {string} password user password
  */
-const createEmailUser = (email, password) => {
-  return firebase.auth().createUserWithEmailAndPassword(email, password)
-}
+const createEmailUser = (email, password) =>
+  firebase.auth().createUserWithEmailAndPassword(email, password)
 
 /**
  * set user firestore data
@@ -20,8 +19,8 @@ const createEmailUser = (email, password) => {
  * @param {string} uid user id
  * @param {object} data user data object
  */
-const setUserData = (uid, data) => {
-  data.id = uid
+const setUserData = (uid, dataParam) => {
+  const data = { ...dataParam, id: uid }
   const usersRef = firebase.firestore().collection("users")
   return usersRef.doc(uid).set(data)
 }
@@ -33,9 +32,8 @@ const setUserData = (uid, data) => {
  * @param {string} email user email
  * @param {string} password user password
  */
-const signIn = async (email, password) => {
-  return firebase.auth().signInWithEmailAndPassword(email, password)
-}
+const signIn = async (email, password) =>
+  firebase.auth().signInWithEmailAndPassword(email, password)
 
 /**
  * sign out user
@@ -43,9 +41,7 @@ const signIn = async (email, password) => {
  * @memberof Firebase
  * @async
  */
-const signOut = () => {
-  return firebase.auth().signOut()
-}
+const signOut = () => firebase.auth().signOut()
 
 /**
  * send email verification email
@@ -65,9 +61,7 @@ const verifyEmail = () => {
  * @async
  * @param {string} email user email
  */
-const resetPassword = (email) => {
-  return firebase.auth().sendPasswordResetEmail(email) // pass in {url: 'url'} to set redirect url
-}
+const resetPassword = (email) => firebase.auth().sendPasswordResetEmail(email) // pass in {url: 'url'} to set redirect url
 
 /**
  * update current users's list of posts
@@ -92,25 +86,25 @@ const updateUserPosts = (postList) => {
  * @param {array} _friends list of current user's friends
  */
 const acceptFriendRequest = async (userID, friendRequests, _friends) => {
-  let reqID = friendRequests.findIndex((x) => x.userID === userID)
-  //console.log("reqID: " + reqID)
-  let request = friendRequests[reqID]
-  //console.log("request: " + JSON.stringify(request))
+  const reqID = friendRequests.findIndex((x) => x.userID === userID)
+  // console.log("reqID: " + reqID)
+  const request = friendRequests[reqID]
+  // console.log("request: " + JSON.stringify(request))
   friendRequests.splice(reqID, 1)
-  let date = new Date()
-  let friends = _friends != null ? _friends : []
-  friends.push({ userID: userID, date: date.toISOString() })
+  const date = new Date()
+  const friends = _friends != null ? _friends : []
+  friends.push({ userID, date: date.toISOString() })
   const usersRef = firebase.firestore().collection("users")
   const doc = usersRef.doc(firebase.auth().currentUser.uid)
-  let updatePromises = []
+  const updatePromises = []
   updatePromises.push(
     doc.update({
-      friends: friends,
-      friendRequests: friendRequests,
+      friends,
+      friendRequests,
     })
   )
-  let friendData = await loadData(request.userID)
-  let friendFriends =
+  const friendData = await loadData(request.userID)
+  const friendFriends =
     friendData.data().friends != null ? friendData.data().friends : []
   friendFriends.push({
     userID: firebase.auth().currentUser.uid,
@@ -131,11 +125,11 @@ const acceptFriendRequest = async (userID, friendRequests, _friends) => {
  * @param {array} friendRequests list of current user's friend requests
  */
 const declineFriendRequest = (userID, friendRequests) => {
-  let reqID = friendRequests.findIndex((x) => x.userID === userID)
+  const reqID = friendRequests.findIndex((x) => x.userID === userID)
   friendRequests.splice(reqID, 1)
   const usersRef = firebase.firestore().collection("users")
   const doc = usersRef.doc(firebase.auth().currentUser.uid)
-  return doc.update({ friendRequests: friendRequests })
+  return doc.update({ friendRequests })
 }
 
 /**
@@ -145,10 +139,9 @@ const declineFriendRequest = (userID, friendRequests) => {
  * @async
  * @param {string} uid user's id
  */
-const loadData = async (uid) => {
+const loadData = async (uid) =>
   // fetch data from database
-  return firebase.firestore().collection("users").doc(uid).get()
-}
+  firebase.firestore().collection("users").doc(uid).get()
 
 /**
  * get user objects from list of user ids
@@ -157,19 +150,16 @@ const loadData = async (uid) => {
  * @async
  * @param {array} userList list of user ids (strings)
  */
-const getUsers = async (userList) => {
-  return new Promise(async (resolve, reject) => {
-    let userPromises = []
+const getUsers = (userList) =>
+  new Promise((resolve, reject) => {
+    const userPromises = []
     userList.forEach((user) => {
-      //console.log("adding getUser promise")
+      // console.log("adding getUser promise")
       userPromises.push(loadData(user))
     })
-    //console.log("awaiting promises")
-    let res = await Promise.all(userPromises)
-    //console.log("got users in getUsers")
-    resolve(res)
+    // console.log("awaiting promises")
+    Promise.all(userPromises).then((res) => resolve(res))
   })
-}
 
 /**
  * get firestore reference for user id
@@ -191,7 +181,7 @@ const userReference = (id) => {
  * @param {string} code friend code
  */
 const findUserWithFriendCode = async (code) => {
-  let usersRef = firebase.firestore().collection("users")
+  const usersRef = firebase.firestore().collection("users")
   return usersRef.where("friendCode", "==", code).get()
 }
 
@@ -204,15 +194,12 @@ const findUserWithFriendCode = async (code) => {
  * @param {string} uid id of user to update
  */
 const updateUser = async (data, uid) => {
-  let usersRef = firebase.firestore().collection("users")
+  const usersRef = firebase.firestore().collection("users")
   return usersRef.doc(uid).update(data)
 }
 
 const removeProfileImage = async (uid) => {
-  const reference = firebase
-    .storage()
-    .ref()
-    .child(uid + "/" + uid + ".jpg")
+  const reference = firebase.storage().ref().child(`${uid}/${uid}.jpg`)
   return reference.delete()
 }
 
@@ -228,7 +215,7 @@ const sendFriendRequest = async (user) => {
   if (_friendRequests == null) {
     _friendRequests = []
   }
-  let date = new Date()
+  const date = new Date()
   _friendRequests.push({
     userID: firebase.auth().currentUser.uid,
     date: date.toISOString(),

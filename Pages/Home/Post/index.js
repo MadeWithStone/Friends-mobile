@@ -1,16 +1,12 @@
 // Modules
 import React from "react"
 import * as ImagePicker from "expo-image-picker"
-import User from "../../../Data/User"
-import config from "../../../config"
 import * as ImageManipulator from "expo-image-manipulator"
 import * as ScreenOrientation from "expo-screen-orientation"
 import { DeviceMotion } from "expo-sensors"
 
 // Navigation
 import { createStackNavigator } from "@react-navigation/stack"
-import CreatePost from "./CreatePost"
-import Feed from "../Feed"
 
 // Hooks
 import {
@@ -32,13 +28,16 @@ import {
 import GestureRecognizer, { swipeDirections } from "react-native-swipe-gestures"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { Camera } from "expo-camera"
-import { IconButton } from "../../../Components"
 import { Button as Btn } from "react-native-elements"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import Ionicons from "@expo/vector-icons/Ionicons"
 import Feather from "@expo/vector-icons/Feather"
 import Slider from "@react-native-community/slider"
-import { SafeAreaView } from "react-native"
+import { IconButton } from "../../../Components"
+import Feed from "../Feed"
+import CreatePost from "./CreatePost"
+import config from "../../../config"
+import User from "../../../Data/User"
 
 /**
  * screen to choose or take pictures to post
@@ -68,11 +67,11 @@ const Post = ({ route, navigation }) => {
     if (focused) {
       ScreenOrientation.unlockAsync().then(() => {
         DeviceMotion.addListener((data) => {
-          //setOrientation(data.orientation)
+          // setOrientation(data.orientation)
 
-          let map = { 0: 1, 90: 2, 180: 3, "-90": 4 }
-          let newOrientation = map[String(data.orientation)]
-          let newDimensions = {
+          const map = { 0: 1, 90: 2, 180: 3, "-90": 4 }
+          const newOrientation = map[String(data.orientation)]
+          const newDimensions = {
             width: Dimensions.get("screen").width,
             height: Dimensions.get("screen").height,
           }
@@ -87,14 +86,12 @@ const Post = ({ route, navigation }) => {
           })
           setDims(newDimensions)
           console.log(
-            "Post.deviceMotionListener.listener: orientation updated: " +
-              data.orientation
+            `Post.deviceMotionListener.listener: orientation updated: ${data.orientation}`
           )
         })
-        DeviceMotion
         ScreenOrientation.getOrientationLockAsync().then((o) => {
           console.log(
-            "Post.startOrientationListener: unlocked: " + JSON.stringify(o)
+            `Post.startOrientationListener: unlocked: ${JSON.stringify(o)}`
           )
         })
       })
@@ -108,7 +105,7 @@ const Post = ({ route, navigation }) => {
 
   const removeOrientationListeners = () => {
     ScreenOrientation.removeOrientationChangeListeners()
-    //DeviceMotion.removeAllListeners()
+    // DeviceMotion.removeAllListeners()
   }
 
   const startOrientationListener = () => {
@@ -116,7 +113,7 @@ const Post = ({ route, navigation }) => {
   }
 
   React.useEffect(() => {
-    //switchOrientation(orientation)
+    // switchOrientation(orientation)
     if (focused) {
       setDims({
         width: Dimensions.get("screen").width,
@@ -124,24 +121,6 @@ const Post = ({ route, navigation }) => {
       })
     }
   }, [orientation, focused])
-
-  const switchOrientation = (orientation) => {
-    switch (orientation) {
-      case 1:
-
-      case 2:
-
-      case 3:
-        ScreenOrientation.lockAsync(
-          ScreenOrientation.OrientationLock.PORTRAIT_DOWN
-        )
-
-      case 4:
-        ScreenOrientation.lockAsync(
-          ScreenOrientation.OrientationLock.LANDSCAPE_LEFT
-        )
-    }
-  }
 
   React.useEffect(() => {
     if (focused && hasPermission == false) {
@@ -185,7 +164,7 @@ const Post = ({ route, navigation }) => {
     // if we have a camera reference
     if (camera) {
       // take a photo
-      let photo = await camera.takePictureAsync()
+      const photo = await camera.takePictureAsync()
 
       // compress the photo
       compressImage(photo)
@@ -210,20 +189,21 @@ const Post = ({ route, navigation }) => {
     if (photo.width !== photo.height) {
       // find the intended width of square image
 
-      let width = photo.width > photo.height ? photo.height : photo.width
+      const width = photo.width > photo.height ? photo.height : photo.width
 
       // find the y origin of the cropped image
-      let originY =
+      const originY =
         photo.width > photo.height ? 0 : photo.height / 2 - width / 2
 
       // find the x origin of the cropped image
-      let originX = photo.width > photo.height ? photo.width / 2 - width / 2 : 0
+      const originX =
+        photo.width > photo.height ? photo.width / 2 - width / 2 : 0
 
       // update options object
       options = {
-        originX: originX,
-        originY: originY,
-        width: width,
+        originX,
+        originY,
+        width,
         height: width,
       }
     }
@@ -240,10 +220,7 @@ const Post = ({ route, navigation }) => {
       // update the image state
       setImage(manipResult.uri)
       console.log(
-        "Post.compressImage: photoDimensions: width: " +
-          manipResult.width +
-          " height: " +
-          manipResult.height
+        `Post.compressImage: photoDimensions: width: ${manipResult.width} height: ${manipResult.height}`
       )
       // navigate to the CreatePost screen
       await ScreenOrientation.lockAsync(
@@ -254,7 +231,7 @@ const Post = ({ route, navigation }) => {
       })
     } catch (err) {
       // if error
-      console.log("Post.compressImage: catch error: " + err)
+      console.log(`Post.compressImage: catch error: ${err}`)
     }
   }
 
@@ -267,7 +244,7 @@ const Post = ({ route, navigation }) => {
     // try to pick the image
     try {
       // use ImagePicker module to get an image
-      let result = await ImagePicker.launchImageLibraryAsync({
+      const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
@@ -297,17 +274,17 @@ const Post = ({ route, navigation }) => {
       marginBottom: "auto",
       borderRadius: 5,
       margin: 8,
-      //backgroundColor: "blue",
+      // backgroundColor: "blue",
     },
     viewRight: {
       borderColor: config.primaryColor,
       borderWidth: 2,
 
       marginLeft: (dims.width - dims.height - 16) / 2 - 16,
-      //marginRight: "auto",
+      // marginRight: "auto",
       margin: 8,
       borderRadius: 5,
-      //backgroundColor: "blue",
+      // backgroundColor: "blue",
     },
   })
   return (
@@ -340,7 +317,7 @@ const Post = ({ route, navigation }) => {
                     orientation == 1 || orientation == 3 || orientation == 0
                       ? "column"
                       : "row",
-                  //backgroundColor: "red",
+                  // backgroundColor: "red",
                   width: dims.width,
                   height: dims.height,
                 }}
@@ -392,7 +369,7 @@ const Post = ({ route, navigation }) => {
                             marginBottom: "auto",
                             borderRadius: 5,
                             margin: 8,
-                            //backgroundColor: "blue",
+                            // backgroundColor: "blue",
                           }
                         : {
                             width: dims.height - 16,
@@ -528,11 +505,11 @@ const Post = ({ route, navigation }) => {
                       <IconButton
                         style={styles.button}
                         onPressAction={() => {
-                          setType((t) => {
-                            return t === Camera.Constants.Type.back
+                          setType((t) =>
+                            t === Camera.Constants.Type.back
                               ? Camera.Constants.Type.front
                               : Camera.Constants.Type.back
-                          })
+                          )
                         }}
                         icon={
                           <Ionicons
@@ -583,7 +560,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   button: {
-    //flex: 0.1,
+    // flex: 0.1,
     alignSelf: "flex-end",
     alignItems: "center",
     width: 60,
@@ -606,73 +583,67 @@ const styles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
-const PostPage = ({ route, navigation }) => {
-  return (
-    <Stack.Navigator
-      options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
-      <Stack.Screen
-        name="PostStack"
-        component={Post}
-        options={{
-          headerShown: false,
-          tabBarVisible: false,
-          headerLeft: () => null,
-          headerRight: () => (
-            <Btn
-              icon={
-                <Feather
-                  name="user-plus"
-                  size={30}
-                  color={config.primaryColor}
-                />
-              }
-              type="clear"
-              onPress={() => navigation.navigate("AddFriend")}
-            />
-          ),
-          title: "Friends",
-          headerStyle: {
-            backgroundColor: config.secondaryColor,
-            shadowOffset: { height: 0, width: 0 },
-          },
-          headerTintColor: config.primaryColor,
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 30,
-          },
-        }}
-      />
-      <Stack.Screen
-        name="CreatePost"
-        component={CreatePost}
-        options={{
-          headerLeft: () => (
-            <Btn
-              icon={
-                <FontAwesome5
-                  name="chevron-left"
-                  size={30}
-                  color={config.primaryColor}
-                />
-              }
-              type="clear"
-              onPress={() => navigation.navigate("PostStack")}
-            />
-          ),
-          title: "Create Post",
-          headerStyle: {
-            backgroundColor: config.secondaryColor,
-            shadowOffset: { height: 0, width: 0 },
-          },
-          headerTintColor: config.primaryColor,
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 30,
-          },
-        }}
-      />
-    </Stack.Navigator>
-  )
-}
+const PostPage = ({ route, navigation }) => (
+  <Stack.Navigator
+    options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
+    <Stack.Screen
+      name="PostStack"
+      component={Post}
+      options={{
+        headerShown: false,
+        tabBarVisible: false,
+        headerLeft: () => null,
+        headerRight: () => (
+          <Btn
+            icon={
+              <Feather name="user-plus" size={30} color={config.primaryColor} />
+            }
+            type="clear"
+            onPress={() => navigation.navigate("AddFriend")}
+          />
+        ),
+        title: "Friends",
+        headerStyle: {
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
+        },
+        headerTintColor: config.primaryColor,
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 30,
+        },
+      }}
+    />
+    <Stack.Screen
+      name="CreatePost"
+      component={CreatePost}
+      options={{
+        headerLeft: () => (
+          <Btn
+            icon={
+              <FontAwesome5
+                name="chevron-left"
+                size={30}
+                color={config.primaryColor}
+              />
+            }
+            type="clear"
+            onPress={() => navigation.navigate("PostStack")}
+          />
+        ),
+        title: "Create Post",
+        headerStyle: {
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
+        },
+        headerTintColor: config.primaryColor,
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 30,
+        },
+      }}
+    />
+  </Stack.Navigator>
+)
 
 export default PostPage
