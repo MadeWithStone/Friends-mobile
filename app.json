@@ -3,7 +3,7 @@
     "name": "Friends",
     "slug": "Friends-mobile",
     "version": "1.0.0",
-    "orientation": "default",
+    "orientation": "portrait",
     "scheme": "friends",
     "icon": "./assets/Friends-purple.png",
     "splash": {

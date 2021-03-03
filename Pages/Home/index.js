@@ -5,7 +5,7 @@ import {
   getFocusedRouteNameFromRoute,
   NavigationContainer,
 } from "@react-navigation/native"
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs"
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs"
 
 import Ionicons from "@expo/vector-icons/Ionicons"
 import Fontisto from "@expo/vector-icons/Fontisto"
@@ -19,7 +19,7 @@ import Profile from "./Profile"
 import { usePreventScreenCapture } from "expo-screen-capture"
 import * as ScreenOrientation from "expo-screen-orientation"
 
-const Tab = createMaterialTopTabNavigator()
+const Tab = createMaterialBottomTabNavigator()
 /**
  * home tab navigator
  *
@@ -79,7 +79,7 @@ class Home extends React.Component {
       <Tab.Navigator
         activeColor={config.primaryColor}
         inactiveColor={"gray"}
-        barStyle={{ backgroundColor: config.secondaryColor }}
+        barStyle={{ backgroundColor: config.secondaryColor, height: 80 }}
         size={40}
         shifting
         labeled={false}

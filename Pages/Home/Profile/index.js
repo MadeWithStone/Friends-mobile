@@ -490,7 +490,7 @@ const PostsView = (props) => {
               justifyContent: "center",
               alignItems: "center",
             }}>
-            You have hit your post maximum of 6
+            {"You have hit your post maximum of 6\nSelect posts to delete them"}
           </Text>
         </View>
       )}
@@ -521,7 +521,9 @@ const PostViewObj = (props) => {
         source={{ uri: props.post.image }}
         cacheKey={props.post.id}
         style={{
-          width: Dimensions.get("window").width / 3 - 0.7,
+          width:
+            Dimensions.get("window").width / 3 -
+            (props.index % 3 == 0 || (props.index + 1) % 3 == 0 ? 1.07 : 0.7),
           height: Dimensions.get("window").width / 3,
 
           opacity: currentDate <= cuttOff || props.index > 1 ? 0.5 : 1,
