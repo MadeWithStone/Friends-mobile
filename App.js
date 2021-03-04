@@ -16,6 +16,7 @@ import SignUp from "./Pages/SignUp"
 import Home from "./Pages/Home"
 import Load from "./Load"
 import PostView from "./Pages/Home/Feed/PostView"
+import AddFriend from "./Pages/Home/Feed/AddFriend"
 import FriendsList from "./Pages/Home/Profile/FriendsList"
 import EditProfile from "./Pages/Home/Profile/EditProfile"
 import Settings from "./Pages/Home/Profile/Settings"
@@ -181,6 +182,49 @@ export default class App extends React.Component {
                 />
               ),
               title: "Create Post",
+              headerStyle: {
+                backgroundColor: config.secondaryColor,
+                shadowOffset: { height: 0, width: 0 },
+              },
+              headerTintColor: config.primaryColor,
+              headerTitleStyle: {
+                fontWeight: "bold",
+                fontSize: 30,
+              },
+              headerShown: true,
+            })}
+          />
+          <Stack.Screen
+            name="AddFriend"
+            component={AddFriend}
+            options={({ route, navigation }) => ({
+              headerLeft: () => (
+                <Btn
+                  icon={
+                    <FontAwesome5
+                      name="chevron-left"
+                      size={30}
+                      color={config.primaryColor}
+                    />
+                  }
+                  type="clear"
+                  onPress={() => navigation.goBack()}
+                />
+              ),
+              headerRight: () => (
+                <Btn
+                  icon={
+                    <Feather
+                      name="user-plus"
+                      size={30}
+                      color={config.primaryColor}
+                    />
+                  }
+                  type="clear"
+                  onPress={() => navigation.navigate("AddFriend")}
+                />
+              ),
+              title: "Add Friend",
               headerStyle: {
                 backgroundColor: config.secondaryColor,
                 shadowOffset: { height: 0, width: 0 },

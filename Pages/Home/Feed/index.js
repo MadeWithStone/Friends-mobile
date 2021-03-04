@@ -442,44 +442,6 @@ const FeedPage = ({ navigation, route }) => (
         },
       }}
     />
-    <Stack.Screen
-      name="AddFriend"
-      component={AddFriend}
-      options={{
-        headerLeft: () => (
-          <Btn
-            icon={
-              <FontAwesome5
-                name="chevron-left"
-                size={30}
-                color={config.primaryColor}
-              />
-            }
-            type="clear"
-            onPress={() => navigation.navigate("FeedMain")}
-          />
-        ),
-        headerRight: () => (
-          <Btn
-            icon={
-              <Feather name="user-plus" size={30} color={config.primaryColor} />
-            }
-            type="clear"
-            onPress={() => navigation.navigate("AddFriend")}
-          />
-        ),
-        title: "Add Friend",
-        headerStyle: {
-          backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
-        },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
-      }}
-    />
   </Stack.Navigator>
 )
 

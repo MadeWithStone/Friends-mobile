@@ -99,46 +99,18 @@ const Profile = ({ navigation, route }) => {
 
   getUserPosts = () => {
     const postList = User.data.posts != null ? User.data.posts : []
-    // console.warn("getting posts")
-    const equal = arraysEqual(postList, pList)
-    /* console.log(
-      "postList: " +
-        JSON.stringify(postList) +
-        "; \npList: " +
-        JSON.stringify(pList) +
-        "; Equal: " +
-        equal
-    ) */
-    if (!equal) {
-      pList = postList
-      console.log(`Profile.getUserPosts: postList: ${postList}`)
-      getPosts(postList).then((result) => {
-        const p = []
-        result.forEach((post) => {
-          p.push(post.data())
-        })
-        console.log(`Profile.getUserPosts: p: ${JSON.stringify(p)}`)
-        setPosts(p)
-
-        setRefreshing(false)
+    pList = postList
+    console.log(`Profile.getUserPosts: postList: ${postList}`)
+    getPosts(postList).then((result) => {
+      const p = []
+      result.forEach((post) => {
+        p.push(post.data())
       })
-    }
-  }
+      console.log(`Profile.getUserPosts: p: ${JSON.stringify(p)}`)
+      setPosts(p)
 
-  function arraysEqual(a, b) {
-    if (a === b) return true
-    if (a == null || b == null) return false
-    if (a.length !== b.length) return false
-
-    // If you don't care about the order of the elements inside
-    // the array, you should sort both arrays here.
-    // Please note that calling sort on an array will modify that array.
-    // you might want to clone your array first.
-
-    for (let i = 0; i < a.length; ++i) {
-      if (a[i] !== b[i]) return false
-    }
-    return true
+      setRefreshing(false)
+    })
   }
 
   friendRequestCallback = (accept, req) => {

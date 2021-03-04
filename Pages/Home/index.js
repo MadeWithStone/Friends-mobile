@@ -14,6 +14,10 @@ import Feather from "@expo/vector-icons/Feather"
 import { StyleSheet, Text, View, DeviceEventEmitter } from "react-native"
 import { usePreventScreenCapture } from "expo-screen-capture"
 import * as ScreenOrientation from "expo-screen-orientation"
+import {
+  SafeAreaInsetsContext,
+  initialWindowMetrics,
+} from "react-native-safe-area-context"
 import config from "../../config"
 import Feed from "./Feed"
 import Post from "./Post"
@@ -80,7 +84,10 @@ class Home extends React.Component {
       <Tab.Navigator
         activeColor={config.primaryColor}
         inactiveColor={"gray"}
-        barStyle={{ backgroundColor: config.secondaryColor, height: 80 }}
+        barStyle={{
+          backgroundColor: config.secondaryColor,
+          height: 50 + initialWindowMetrics.insets.bottom,
+        }}
         size={40}
         shifting
         labeled={false}
