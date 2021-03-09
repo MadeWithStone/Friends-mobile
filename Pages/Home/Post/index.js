@@ -82,26 +82,32 @@ const Post = ({ route, navigation }) => {
   React.useEffect(() => {
     Animated.spring(heightAnim, {
       toValue: y,
-      duration: 50,
-      easing: Easing.linear,
+      duration: 0,
       useNativeDriver: false,
-    }).start(({ finished }) => {
-      if (y == 0) {
+    }).start(({ finished }) => {})
+  }, [y])
+
+  React.useEffect(() => {
+    heightAnim.addListener(({ value }) => {
+      console.log(`value: ${value}`)
+      if (Math.abs(value) <= 2) {
         console.log(`maxVY: ${maxVY}; maxVT: ${maxVT}`)
         if (maxVY < -1500 && maxVT < -100) {
-          setY(0)
+          maxVT = 0
+          maxVY = 0
+          heightAnim.stopAnimation()
           navigation.jumpTo("Feed")
           console.log("exiting")
         }
+        maxVT = 0
+        maxVY = 0
       }
     })
-  }, [y])
+  }, [])
 
   React.useEffect(() => {
     if (panHandlerState === State.END) {
       setY(0)
-      maxVT = 0
-      maxVY = 0
     }
   }, [panHandlerState])
 
@@ -157,11 +163,14 @@ const Post = ({ route, navigation }) => {
         width: Dimensions.get("screen").width,
         height: Dimensions.get("screen").height,
       })
+      setY(0)
+      maxVT = 0
+      maxVY = 0
     }
   }, [orientation, focused])
 
   React.useEffect(() => {
-    if (focused && hasPermission == false) {
+    if (focused && hasPermission === false) {
       setUpPermisions()
     }
     if (focused) {
@@ -359,13 +368,13 @@ const Post = ({ route, navigation }) => {
                 transform: [
                   {
                     scaleY: heightAnim.interpolate({
-                      inputRange: [-1000, 0],
+                      inputRange: [-500, 0],
                       outputRange: [0.4, 1],
                     }),
                   },
                   {
                     scaleX: heightAnim.interpolate({
-                      inputRange: [-1000, 0],
+                      inputRange: [-500, 0],
                       outputRange: [0.4, 1],
                     }),
                   },
@@ -395,9 +404,9 @@ const Post = ({ route, navigation }) => {
                     <GestureRecognizer
                       style={{
                         flexDirection:
-                          orientation == 1 ||
-                          orientation == 3 ||
-                          orientation == 0
+                          orientation === 1 ||
+                          orientation === 3 ||
+                          orientation === 0
                             ? "column"
                             : "row",
                         // backgroundColor: "red",
@@ -408,9 +417,9 @@ const Post = ({ route, navigation }) => {
                       onSwipeRight={(state) => console.log("right")}>
                       <View
                         style={
-                          orientation == 1 ||
-                          orientation == 3 ||
-                          orientation == 0
+                          orientation === 1 ||
+                          orientation === 3 ||
+                          orientation === 0
                             ? {
                                 position: "absolute",
                                 width: dims.width,
@@ -441,13 +450,13 @@ const Post = ({ route, navigation }) => {
                           onPressAction={() => navigation.jumpTo("Feed")}
                         />
                       </View>
-                      {dims.height !== 0 && dims.width != 0 && (
+                      {dims.height !== 0 && dims.width !== 0 && (
                         <View
                           style={
-                            orientation == 1 ||
-                            orientation == 3 ||
-                            orientation == 0 ||
-                            orientation == 0
+                            orientation === 1 ||
+                            orientation === 3 ||
+                            orientation === 0 ||
+                            orientation === 0
                               ? {
                                   width: dims.width - 16,
                                   height: dims.width - 16,
@@ -481,9 +490,9 @@ const Post = ({ route, navigation }) => {
                           ...StyleSheet.absoluteFill,
                           justifyContent: "flex-end",
                           flexDirection:
-                            orientation == 1 ||
-                            orientation == 3 ||
-                            orientation == 0
+                            orientation === 1 ||
+                            orientation === 3 ||
+                            orientation === 0
                               ? "column"
                               : "row",
 
@@ -491,43 +500,43 @@ const Post = ({ route, navigation }) => {
                         }}>
                         <View
                           style={
-                            orientation == 1 ||
-                            orientation == 3 ||
-                            orientation == 0
+                            orientation === 1 ||
+                            orientation === 3 ||
+                            orientation === 0
                               ? styles.buttonContainerUp
                               : styles.buttonContainerLeft
                           }>
                           <Slider
                             style={{
                               width:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? dims.width - 64
                                   : dims.height - 64,
                               height: 30,
                               transform: [
                                 {
                                   rotate:
-                                    orientation == 1 ||
-                                    orientation == 3 ||
-                                    orientation == 0
+                                    orientation === 1 ||
+                                    orientation === 3 ||
+                                    orientation === 0
                                       ? "0deg"
                                       : "-90deg",
                                 },
                                 {
                                   translateX:
-                                    orientation == 1 ||
-                                    orientation == 3 ||
-                                    orientation == 0
+                                    orientation === 1 ||
+                                    orientation === 3 ||
+                                    orientation === 0
                                       ? 0
                                       : (-1 * dims.height) / 2,
                                 },
                               ],
                               alignSelf:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? "center"
                                   : "flex-end",
                             }}
@@ -542,40 +551,40 @@ const Post = ({ route, navigation }) => {
                           <View
                             style={{
                               flexDirection:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? "row"
                                   : "column-reverse",
                               alignSelf:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? "center"
                                   : "center",
                               justifyContent:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? "space-around"
                                   : "space-around",
                               width:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? dims.width - 16
                                   : 70,
                               height:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? 70
                                   : dims.height - 16,
                               margin: 8,
                               transform:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
+                                orientation === 1 ||
+                                orientation === 3 ||
+                                orientation === 0
                                   ? []
                                   : [{ translateY: -16 }],
                             }}>

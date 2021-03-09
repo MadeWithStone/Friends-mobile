@@ -153,7 +153,7 @@ class SignUp extends React.Component {
       <View style={{ width: `${100}%`, height: `${100}%` }}>
         <KeyboardAvoidingScrollView
           scrollEventThrottle={32}
-          behavior={Platform.OS == "ios" ? "padding" : "height"}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           horizontal={false}
           showsVerticalScrollIndicator={false}
           style={{ backgroundColor: "100%" }}

@@ -131,7 +131,7 @@ const PostView = ({ route, navigation }) => {
     })
     listener = postReference(params.post.id).onSnapshot((doc) => {
       params.post = doc.data()
-      if (params.post == undefined) {
+      if (params.post === undefined) {
         navigation.goBack()
       } else {
         setComments(params.post.comments)
@@ -191,7 +191,7 @@ const PostView = ({ route, navigation }) => {
     reports = reports || []
 
     // check if user has already reported
-    if (reports.findIndex((x) => x.userID === User.data.id) == -1) {
+    if (reports.findIndex((x) => x.userID === User.data.id) === -1) {
       // add new report if not already reported
       reports.push({
         userID: User.data.id,
@@ -211,11 +211,11 @@ const PostView = ({ route, navigation }) => {
   }
 
   const deletePost = () => {
-    deletePostFunc(params.post.id).then(() => {
-      const { posts } = User.data
-      const idx = params.post.id
+    deletePostFunc(params.post.id).then(async () => {
+      const posts = [...User.data.posts]
+      const idx = posts.findIndex((x) => x === params.post.id)
       posts.splice(idx, 1)
-      updateUser({ posts }, User.data.id)
+      await updateUser({ posts }, User.data.id)
       setShowChooser(false)
       navigation.goBack()
     })
@@ -253,7 +253,7 @@ const PostView = ({ route, navigation }) => {
               return (
                 <CommentObj
                   comment={obj}
-                  user={users.find((x) => x.id == obj.userID)}
+                  user={users.find((x) => x.id === obj.userID)}
                   key={obj.date}
                 />
               )

@@ -454,8 +454,8 @@ const PostViewObj = (props) => {
     <View
       style={{
         backgroundColor: config.primaryColor,
-        marginRight: props.index % 3 == 0 ? 1 : 0,
-        marginLeft: (props.index + 1) % 3 == 0 ? 1 : 0,
+        marginRight: props.index % 3 === 0 ? 1 : 0,
+        marginLeft: (props.index + 1) % 3 === 0 ? 1 : 0,
         marginBottom: 1,
         opacity: currentDate <= cuttOff || props.index > 1 ? 0.8 : 1,
       }}>
@@ -466,7 +466,7 @@ const PostViewObj = (props) => {
         style={{
           width:
             Dimensions.get("window").width / 3 -
-            (props.index % 3 == 0 || (props.index + 1) % 3 == 0 ? 1.07 : 0.7),
+            (props.index % 3 === 0 || (props.index + 1) % 3 === 0 ? 1.07 : 0.7),
           height: Dimensions.get("window").width / 3,
 
           opacity: currentDate <= cuttOff || props.index > 1 ? 0.5 : 1,

@@ -20,7 +20,7 @@ module.exports = {
     "react/prop-types": "off",
     "no-unused-vars": 0,
     "no-use-before-define": "off",
-    eqeqeq: 0,
+    eqeqeq: 2,
     "react/display-name": 0,
     "import/no-named-as-default": 0,
     "import/no-named-as-default-member": 0,

@@ -59,7 +59,7 @@ class Home extends React.Component {
   }
 
   updateOrientaiton = (val) => {
-    if (val == 1 || val == 3) {
+    if (val === 1 || val === 3) {
       this.setState({ barLocation: "bottom" })
       console.log("Home.updateOrientation: barLocation: bottom")
       this.forceUpdate()

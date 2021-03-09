@@ -269,13 +269,13 @@ const Feed = ({ route, navigation }) => {
    */
   const reportPost = (type) => {
     // find current post in list of posts
-    let reports = posts.find((x) => x.id == currentPost)
+    let reports = posts.find((x) => x.id === currentPost)
 
     // get reports array for post
     reports = reports.reports ? reports.reports : []
 
     // check if user has not already reported the post
-    if (reports.findIndex((x) => x.userID === User.data.id) == -1) {
+    if (reports.findIndex((x) => x.userID === User.data.id) === -1) {
       // add new report
       reports.push({
         userID: User.data.id,

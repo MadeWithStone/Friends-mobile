@@ -45,15 +45,15 @@ const OptionsModal = (props) => {
 
                   backgroundColor: config.primaryColor,
                   borderBottomWidth:
-                    index != reportOptions.length - 1
+                    index !== reportOptions.length - 1
                       ? StyleSheet.hairlineWidth
                       : 0,
                   borderBottomLeftRadius:
-                    index == reportOptions.length - 1 ? 10 : 0,
+                    index === reportOptions.length - 1 ? 10 : 0,
                   borderBottomRightRadius:
-                    index == reportOptions.length - 1 ? 10 : 0,
-                  borderTopLeftRadius: index == 0 ? 10 : 0,
-                  borderTopRightRadius: index == 0 ? 10 : 0,
+                    index === reportOptions.length - 1 ? 10 : 0,
+                  borderTopLeftRadius: index === 0 ? 10 : 0,
+                  borderTopRightRadius: index === 0 ? 10 : 0,
                 }}>
                 <Text
                   style={{ ...styles.button, color: config.secondaryColor }}>

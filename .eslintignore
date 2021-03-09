@@ -13,6 +13,7 @@ npm-debug.*
 *.png
 *.log
 *.config.js
+*.plist
 web-build/
 docs/
 cache/

@@ -9,6 +9,9 @@ import {
   KeyboardAvoidingView,
   Animated,
   Dimensions,
+  Modal,
+  LayoutAnimation,
+  StatusBar,
 } from "react-native"
 import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
@@ -48,8 +51,7 @@ const AddFriend = ({ navigation, route }) => {
   React.useEffect(() => {
     Animated.timing(heightAnim, {
       toValue: showCode ? 100 : 0,
-      duration: 150,
-      easing: Easing.linear,
+      duration: 100,
       useNativeDriver: false,
     }).start()
   }, [showCode])
@@ -80,10 +82,16 @@ const AddFriend = ({ navigation, route }) => {
   }
 
   const scanFriendCode = () => {
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(300, "easeInEaseOut", "opacity")
+    )
     setScan(true)
   }
 
   const handleCodeScanned = ({ type, data }) => {
+    LayoutAnimation.configureNext(
+      LayoutAnimation.create(200, "easeInEaseOut", "opacity")
+    )
     setScan(false)
     onChangeText(data, "friendCode")
   }
@@ -108,10 +116,10 @@ const AddFriend = ({ navigation, route }) => {
     states[name](d)
     console.log(
       `AddFriend.onChangeText: ${d} not ${User.data.friendCode}: ${
-        d != User.data.friendCode.toUpperCase()
+        d !== User.data.friendCode.toUpperCase()
       }`
     )
-    if (d.length == 7 && d != User.data.friendCode.toUpperCase()) {
+    if (d.length === 7 && d !== User.data.friendCode.toUpperCase()) {
       setAddBtnDis(false)
     } else {
       setAddBtnDis(true)
@@ -120,21 +128,21 @@ const AddFriend = ({ navigation, route }) => {
 
   const sendRequest = () => {
     const take = this
-    if (friendCode.length == 7) {
+    if (friendCode.length === 7) {
       // find user
       console.log("finding user")
       findUserWithFriendCode(friendCode)
         .then((querySnapshot) => {
           let count = 0
           querySnapshot.forEach((doc) => {
-            if (count == 0) {
+            if (count === 0) {
               // doc.data() is never undefined for query doc snapshots
               console.log(doc.id, " => ", doc.data())
               const userData = doc.data()
               const friend = { data: userData }
               let alreadyRequested = false
               if (
-                friend.data.friendRequests != null &&
+                friend.data.friendRequests !== null &&
                 friend.data.friendRequests.length > 0
               ) {
                 friend.data.friendRequests.forEach((request) => {
@@ -214,8 +222,18 @@ const AddFriend = ({ navigation, route }) => {
                   style={{ flex: 8, marginRight: 4, height: 40 }}
                   onChangeText={(text) => onChangeText(text, "friendCode")}
                   value={friendCode}
-                  onFocus={() => setShowCode(false)}
-                  onEndEditing={() => setShowCode(true)}
+                  onFocus={() => {
+                    LayoutAnimation.configureNext(
+                      LayoutAnimation.create(300, "easeInEaseOut", "opacity")
+                    )
+                    setShowCode(false)
+                  }}
+                  onEndEditing={() => {
+                    LayoutAnimation.configureNext(
+                      LayoutAnimation.create(300, "easeInEaseOut", "opacity")
+                    )
+                    setShowCode(true)
+                  }}
                 />
                 <Button
                   text="Add"
@@ -226,71 +244,66 @@ const AddFriend = ({ navigation, route }) => {
               </View>
               <Button text="Scan Friend Code" onPressAction={scanFriendCode} />
             </View>
-            <Animated.View
-              style={{
-                alignItems: "center",
-                opacity: heightAnim.interpolate({
-                  inputRange: [0, 100],
-                  outputRange: [0, 1],
-                }),
-                height: heightAnim.interpolate({
-                  inputRange: [0, 100],
-                  outputRange: [
-                    0,
-                    initialWindowMetrics.frame.height -
-                      initialWindowMetrics.insets.top -
-                      400,
-                  ],
-                }),
-                flexShrink: 1,
-                flexGrow: 1,
-              }}>
-              <QRCode
-                value={
-                  currentUserFC != null && currentUserFC != ""
-                    ? currentUserFC
-                    : "0"
-                }
-                size={300}
-                backgroundColor="transparent"
-                color={config.primaryColor}
-              />
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text
-                  style={{
-                    ...styles.codeText,
-                    color: config.primaryColor,
-                  }}>
-                  {currentUserFC}
-                </Text>
-                <IconButton
-                  onPressAction={() => resetFriendCode()}
-                  icon={
-                    <Feather
-                      name="refresh-cw"
-                      size={30}
-                      color={config.primaryColor}
-                    />
+            {showCode && (
+              <View
+                style={{
+                  alignItems: "center",
+                }}>
+                <QRCode
+                  value={
+                    currentUserFC !== null && currentUserFC !== ""
+                      ? currentUserFC
+                      : "0"
                   }
+                  size={300}
+                  backgroundColor="transparent"
+                  color={config.primaryColor}
                 />
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Text
+                    style={{
+                      ...styles.codeText,
+                      color: config.primaryColor,
+                    }}>
+                    {currentUserFC}
+                  </Text>
+                  <IconButton
+                    onPressAction={() => resetFriendCode()}
+                    icon={
+                      <Feather
+                        name="refresh-cw"
+                        size={30}
+                        color={config.primaryColor}
+                      />
+                    }
+                  />
+                </View>
               </View>
-            </Animated.View>
+            )}
           </SafeAreaView>
         </View>
         {scan && (
-          <BarCodeScanner
-            onBarCodeScanned={handleCodeScanned}
-            style={StyleSheet.absoluteFill}>
-            <CancelButton
-              title={"Cancel"}
-              callback={() => setScan(false)}
-              style={{
-                alignSelf: "flex-end",
-                margin: 16,
-              }}
-            />
-          </BarCodeScanner>
+          <Modal>
+            <BarCodeScanner
+              onBarCodeScanned={handleCodeScanned}
+              style={StyleSheet.absoluteFill}>
+              <CancelButton
+                title={"Cancel"}
+                callback={() => {
+                  LayoutAnimation.configureNext(
+                    LayoutAnimation.create(200, "easeInEaseOut", "opacity")
+                  )
+                  setScan(false)
+                }}
+                style={{
+                  alignSelf: "flex-end",
+                  margin: 32,
+                }}
+              />
+            </BarCodeScanner>
+          </Modal>
         )}
+        <StatusBar hidden={scan} />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   )

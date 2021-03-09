@@ -32,7 +32,7 @@ class FeedFunctions {
       }
 
       // if there are no users to download
-      if (userList == null) {
+      if (userList === null) {
         // end function
         reject()
       } else {
@@ -158,7 +158,7 @@ class FeedFunctions {
       // loop through pList
       while (i < len) {
         // check if the post is in the list of current posts
-        if (postList.indexOf(pList[i]) == -1) {
+        if (postList.indexOf(pList[i]) === -1) {
           // if it isnt add it the list of new posts
           arr.push(pList[i])
         }
@@ -282,7 +282,7 @@ class FeedFunctions {
           const idx = people.indexOf(p[i].userID)
 
           // user is not in people array
-          if (idx == -1) {
+          if (idx === -1) {
             // add user to people array
             people.push(p[i].userID)
 

@@ -225,7 +225,7 @@ class SignIn extends React.Component {
     return (
       <View style={{ width: `${100}%`, height: `${100}%` }}>
         <KeyboardAvoidingView
-          behavior={Platform.OS == "ios" ? "padding" : "height"}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{
             ...styles.mainContainer,
             backgroundColor: config.secondaryColor,

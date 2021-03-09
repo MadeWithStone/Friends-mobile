@@ -164,11 +164,11 @@ const EditProfile = ({ navigation, route }) => {
     console.log(`firstname: ${firstName}`)
     if (firstName.length <= 0) {
       alert("You must enter a first name")
-    } else if (User.data != null) {
+    } else if (User.data !== null) {
       let imgURL = User.data.profileImage
-      if (image != null && image.length > 0 && image != imgURL) {
+      if (image !== null && image.length > 0 && image !== imgURL) {
         imgURL = await uploadUserImg()
-      } else if (image == "" && imgURL != image) {
+      } else if (image === "" && imgURL !== image) {
         imgURL = ""
         await removeProfileImage(User.data.id)
       }
@@ -344,7 +344,7 @@ const EditProfile = ({ navigation, route }) => {
           </View>
         </Camera>
       </Modal>
-      {User != null && (
+      {User !== null && (
         <View style={{}}>
           <View
             style={{
