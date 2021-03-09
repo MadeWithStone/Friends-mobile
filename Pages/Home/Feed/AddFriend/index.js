@@ -7,6 +7,8 @@ import {
   TouchableWithoutFeedback,
   Share,
   KeyboardAvoidingView,
+  Animated,
+  Dimensions,
 } from "react-native"
 import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
@@ -15,10 +17,15 @@ import { BarCodeScanner } from "expo-barcode-scanner"
 import Feather from "@expo/vector-icons/Feather"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 
-import { ceil, set } from "react-native-reanimated"
+import { ceil, Easing, set } from "react-native-reanimated"
 import { Button as Btn } from "react-native-elements"
 import * as Linking from "expo-linking"
 import { usePreventScreenCapture } from "expo-screen-capture"
+import {
+  SafeAreaView,
+  useSafeAreaFrame,
+  initialWindowMetrics,
+} from "react-native-safe-area-context"
 import {
   findUserWithFriendCode,
   sendFriendRequest,
@@ -35,6 +42,17 @@ const AddFriend = ({ navigation, route }) => {
   const [scan, setScan] = React.useState(false)
   const [showCode, setShowCode] = React.useState(true)
   const [share, setShare] = React.useState(false)
+
+  const heightAnim = React.useRef(new Animated.Value(100)).current
+
+  React.useEffect(() => {
+    Animated.timing(heightAnim, {
+      toValue: showCode ? 100 : 0,
+      duration: 150,
+      easing: Easing.linear,
+      useNativeDriver: false,
+    }).start()
+  }, [showCode])
 
   usePreventScreenCapture()
 
@@ -185,7 +203,10 @@ const AddFriend = ({ navigation, route }) => {
           backgroundColor: config.secondaryColor,
         }}>
         <View styles={styles.mainView}>
-          <View style={styles.code} onPress={() => Keyboard.dismiss()}>
+          <SafeAreaView
+            style={styles.code}
+            onPress={() => Keyboard.dismiss()}
+            edges={["top", "bottom"]}>
             <View style={styles.addView}>
               <View style={styles.verifyView}>
                 <Input
@@ -205,40 +226,56 @@ const AddFriend = ({ navigation, route }) => {
               </View>
               <Button text="Scan Friend Code" onPressAction={scanFriendCode} />
             </View>
-            {showCode && (
-              <View style={{ alignItems: "center" }}>
-                <QRCode
-                  value={
-                    currentUserFC != null && currentUserFC != ""
-                      ? currentUserFC
-                      : "0"
+            <Animated.View
+              style={{
+                alignItems: "center",
+                opacity: heightAnim.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [0, 1],
+                }),
+                height: heightAnim.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [
+                    0,
+                    initialWindowMetrics.frame.height -
+                      initialWindowMetrics.insets.top -
+                      400,
+                  ],
+                }),
+                flexShrink: 1,
+                flexGrow: 1,
+              }}>
+              <QRCode
+                value={
+                  currentUserFC != null && currentUserFC != ""
+                    ? currentUserFC
+                    : "0"
+                }
+                size={300}
+                backgroundColor="transparent"
+                color={config.primaryColor}
+              />
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text
+                  style={{
+                    ...styles.codeText,
+                    color: config.primaryColor,
+                  }}>
+                  {currentUserFC}
+                </Text>
+                <IconButton
+                  onPressAction={() => resetFriendCode()}
+                  icon={
+                    <Feather
+                      name="refresh-cw"
+                      size={30}
+                      color={config.primaryColor}
+                    />
                   }
-                  size={300}
-                  backgroundColor="transparent"
-                  color={config.primaryColor}
                 />
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text
-                    style={{
-                      ...styles.codeText,
-                      color: config.primaryColor,
-                    }}>
-                    {currentUserFC}
-                  </Text>
-                  <IconButton
-                    onPressAction={() => resetFriendCode()}
-                    icon={
-                      <Feather
-                        name="refresh-cw"
-                        size={30}
-                        color={config.primaryColor}
-                      />
-                    }
-                  />
-                </View>
               </View>
-            )}
-          </View>
+            </Animated.View>
+          </SafeAreaView>
         </View>
         {scan && (
           <BarCodeScanner

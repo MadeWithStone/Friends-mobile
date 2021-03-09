@@ -330,8 +330,11 @@ const Feed = ({ route, navigation }) => {
         horizontal={false}
         data={posts
           .filter((item, index) => {
-            const date = new Date(item.date)
-            return date >= cuttOff && posts.indexOf(item) === index
+            if (item) {
+              const date = new Date(item.date)
+              return date >= cuttOff && posts.indexOf(item) === index
+            }
+            return false
           })
           .sort((a, b) => {
             const dA = new Date(a.date)
@@ -346,20 +349,26 @@ const Feed = ({ route, navigation }) => {
           />
         }
         ListEmptyComponent={
-          <Text style={{ ...styles.starterText, color: config.textColor }}>
-            Share your{" "}
-            <TextButton
-              text="Friend Code"
-              textStyle={{
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: -3,
-                fontWeight: "bold",
-              }}
-              onPressAction={() => navigation.navigate("AddFriend")}
-            />{" "}
-            to make friends
-          </Text>
+          <View>
+            <Text style={{ ...styles.starterText, color: config.textColor }}>
+              Here's where you can see your friends' posts. Unfortunately there
+              aren't any right now.
+            </Text>
+            <Text style={{ ...styles.starterText, color: config.textColor }}>
+              Share your{" "}
+              <TextButton
+                text="Friend Code"
+                textStyle={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: -3,
+                  fontWeight: "bold",
+                }}
+                onPressAction={() => navigation.navigate("AddFriend")}
+              />{" "}
+              to make friends
+            </Text>
+          </View>
         }
         renderItem={({ item, index, separators }) => {
           const post = item

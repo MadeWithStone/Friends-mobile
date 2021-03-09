@@ -212,8 +212,11 @@ class FeedFunctions {
 
           // filter all the posts to make sure they are no later than the cuttoff date
           p = p.filter((item, index) => {
-            const d = new Date(item.date)
-            return p.indexOf(item) === index && d >= cuttOff
+            if (item) {
+              const d = new Date(item.date)
+              return p.indexOf(item) === index && d >= cuttOff
+            }
+            return false
           })
 
           // list of post indexes to remove

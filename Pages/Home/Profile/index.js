@@ -341,14 +341,16 @@ const PostsView = (props) => (
           flexWrap: "wrap",
           marginTop: -1,
         }}>
-        {props.posts.map((post, index) => (
-          <TouchableOpacity
-            onPress={() => props.openModal(post)}
-            key={post.id}
-            activeOpacity={0.6}>
-            <PostViewObj post={post} index={index} />
-          </TouchableOpacity>
-        ))}
+        {props.posts
+          .filter((item, index) => item)
+          .map((post, index) => (
+            <TouchableOpacity
+              onPress={() => props.openModal(post)}
+              key={post.id}
+              activeOpacity={0.6}>
+              <PostViewObj post={post} index={index} />
+            </TouchableOpacity>
+          ))}
       </View>
     )}
     <View
