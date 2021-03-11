@@ -339,7 +339,7 @@ const CommentObj = (props) => {
           size={30}
         />
       )}
-      <Text style={styles.textView}>
+      <Text style={{ ...styles.textView, color: config.textColor }}>
         <Text
           style={{
             ...styles.pName,

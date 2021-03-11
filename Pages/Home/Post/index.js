@@ -340,291 +340,279 @@ const Post = ({ route, navigation }) => {
         ...styles.container,
         backgroundColor: "#000",
       }}>
-      <Modal
-        visible={focused}
-        transparent={false}
-        supportedOrientations={["portrait", "landscape"]}
-        style={{ backgroundColor: "#000" }}>
-        <View style={{ ...StyleSheet.absoluteFill, backgroundColor: "#000" }}>
-          <PanGestureHandler
-            maxPointers={1}
-            onGestureEvent={onGestureEvent}
-            onHandlerStateChange={({ nativeEvent }) =>
-              setPanHandlerState(nativeEvent.state)
-            }>
-            <Animated.View
+      <View style={{ ...StyleSheet.absoluteFill, backgroundColor: "#000" }}>
+        <PanGestureHandler
+          maxPointers={1}
+          onGestureEvent={onGestureEvent}
+          onHandlerStateChange={({ nativeEvent }) =>
+            setPanHandlerState(nativeEvent.state)
+          }>
+          <Animated.View
+            style={{
+              ...StyleSheet.absoluteFill,
+              height: dims.height,
+              transform: [
+                {
+                  scaleY: heightAnim.interpolate({
+                    inputRange: [-1000, 0],
+                    outputRange: [0.4, 1],
+                  }),
+                },
+                {
+                  scaleX: heightAnim.interpolate({
+                    inputRange: [-1000, 0],
+                    outputRange: [0.4, 1],
+                  }),
+                },
+              ],
+              backgroundColor: "#000",
+            }}>
+            <View
               style={{
                 ...StyleSheet.absoluteFill,
-                height: dims.height,
-                transform: [
-                  {
-                    scaleY: heightAnim.interpolate({
-                      inputRange: [-1000, 0],
-                      outputRange: [0.4, 1],
-                    }),
-                  },
-                  {
-                    scaleX: heightAnim.interpolate({
-                      inputRange: [-1000, 0],
-                      outputRange: [0.4, 1],
-                    }),
-                  },
-                ],
-                backgroundColor: "#000",
+                borderRadius: 44,
+                overflow: "hidden",
               }}>
-              <View
-                style={{
-                  ...StyleSheet.absoluteFill,
-                  borderRadius: 44,
-                  overflow: "hidden",
-                }}>
-                {focused && hasPermission && dims !== {} && (
-                  <Camera
+              {focused && hasPermission && dims !== {} && (
+                <Camera
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  type={type}
+                  zoom={zoom}
+                  focusDepth={focusDepth}
+                  useCamera2Api
+                  ref={(ref) => {
+                    camera = ref
+                  }}>
+                  <GestureRecognizer
                     style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      alignItems: "center",
+                      flexDirection:
+                        orientation == 1 || orientation == 3 || orientation == 0
+                          ? "column"
+                          : "row",
+                      // backgroundColor: "red",
+                      width: dims.width,
+                      height: dims.height,
                     }}
-                    type={type}
-                    zoom={zoom}
-                    focusDepth={focusDepth}
-                    useCamera2Api
-                    ref={(ref) => {
-                      camera = ref
-                    }}>
-                    <GestureRecognizer
+                    onSwipeLeft={(state) => console.log("left")}
+                    onSwipeRight={(state) => console.log("right")}>
+                    <View
+                      style={
+                        orientation == 1 || orientation == 3 || orientation == 0
+                          ? {
+                              position: "absolute",
+                              width: dims.width,
+                              height: 50,
+                              top: 30,
+                              flexDirection: "row",
+                              alignItems: "flex-start",
+                              zIndex: 10,
+                            }
+                          : {
+                              position: "absolute",
+                              width: 50,
+                              height: dims.height,
+                              left: 30,
+                              flexDirection: "column",
+                              alignItems: "flex-end",
+                              zIndex: 10,
+                            }
+                      }>
+                      <IconButton
+                        icon={
+                          <Feather
+                            name="x"
+                            size={36}
+                            color={config.primaryColor}
+                          />
+                        }
+                        onPressAction={() => navigation.jumpTo("Feed")}
+                      />
+                    </View>
+                    {dims.height !== 0 && dims.width != 0 && (
+                      <View
+                        style={
+                          orientation == 1 ||
+                          orientation == 3 ||
+                          orientation == 0 ||
+                          orientation == 0
+                            ? {
+                                width: dims.width - 16,
+                                height: dims.width - 16,
+                                borderColor: config.primaryColor,
+                                borderWidth: 2,
+                                marginTop: (dims.height - dims.width + 16) / 2,
+
+                                marginBottom: "auto",
+                                borderRadius: 5,
+                                margin: 8,
+                                // backgroundColor: "blue",
+                              }
+                            : {
+                                width: dims.height - 16,
+                                height: dims.height - 16,
+                                borderColor: config.primaryColor,
+                                borderWidth: 2,
+
+                                marginLeft: (dims.width - dims.height + 16) / 2,
+                                marginRight: "auto",
+                                margin: 8,
+                                borderRadius: 5,
+                              }
+                        }
+                      />
+                    )}
+                    <View
                       style={{
+                        ...StyleSheet.absoluteFill,
+                        justifyContent: "flex-end",
                         flexDirection:
                           orientation == 1 ||
                           orientation == 3 ||
                           orientation == 0
                             ? "column"
                             : "row",
-                        // backgroundColor: "red",
-                        width: dims.width,
-                        height: dims.height,
-                      }}
-                      onSwipeLeft={(state) => console.log("left")}
-                      onSwipeRight={(state) => console.log("right")}>
+
+                        position: "absolute",
+                      }}>
                       <View
                         style={
                           orientation == 1 ||
                           orientation == 3 ||
                           orientation == 0
-                            ? {
-                                position: "absolute",
-                                width: dims.width,
-                                height: 50,
-                                top: 30,
-                                flexDirection: "row",
-                                alignItems: "flex-start",
-                                zIndex: 10,
-                              }
-                            : {
-                                position: "absolute",
-                                width: 50,
-                                height: dims.height,
-                                left: 30,
-                                flexDirection: "column",
-                                alignItems: "flex-end",
-                                zIndex: 10,
-                              }
+                            ? styles.buttonContainerUp
+                            : styles.buttonContainerLeft
                         }>
-                        <IconButton
-                          icon={
-                            <Feather
-                              name="x"
-                              size={36}
-                              color={config.primaryColor}
-                            />
-                          }
-                          onPressAction={() => navigation.jumpTo("Feed")}
+                        <Slider
+                          style={{
+                            width:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? dims.width - 64
+                                : dims.height - 64,
+                            height: 30,
+                            transform: [
+                              {
+                                rotate:
+                                  orientation == 1 ||
+                                  orientation == 3 ||
+                                  orientation == 0
+                                    ? "0deg"
+                                    : "-90deg",
+                              },
+                              {
+                                translateX:
+                                  orientation == 1 ||
+                                  orientation == 3 ||
+                                  orientation == 0
+                                    ? 0
+                                    : (-1 * dims.height) / 2,
+                              },
+                            ],
+                            alignSelf:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? "center"
+                                : "flex-end",
+                          }}
+                          minimumValue={0}
+                          maximumValue={0.5}
+                          minimumTrackTintColor={config.primaryColor}
+                          maximumTrackTintColor="transparent"
+                          thumbTintColor={config.primaryColor}
+                          value={zoom}
+                          onValueChange={(val) => setZoom(val)}
                         />
-                      </View>
-                      {dims.height !== 0 && dims.width != 0 && (
                         <View
-                          style={
-                            orientation == 1 ||
-                            orientation == 3 ||
-                            orientation == 0 ||
-                            orientation == 0
-                              ? {
-                                  width: dims.width - 16,
-                                  height: dims.width - 16,
-                                  borderColor: config.primaryColor,
-                                  borderWidth: 2,
-                                  marginTop:
-                                    (dims.height - dims.width + 16) / 2,
-
-                                  marginBottom: "auto",
-                                  borderRadius: 5,
-                                  margin: 8,
-                                  // backgroundColor: "blue",
-                                }
-                              : {
-                                  width: dims.height - 16,
-                                  height: dims.height - 16,
-                                  borderColor: config.primaryColor,
-                                  borderWidth: 2,
-
-                                  marginLeft:
-                                    (dims.width - dims.height + 16) / 2,
-                                  marginRight: "auto",
-                                  margin: 8,
-                                  borderRadius: 5,
-                                }
-                          }
-                        />
-                      )}
-                      <View
-                        style={{
-                          ...StyleSheet.absoluteFill,
-                          justifyContent: "flex-end",
-                          flexDirection:
-                            orientation == 1 ||
-                            orientation == 3 ||
-                            orientation == 0
-                              ? "column"
-                              : "row",
-
-                          position: "absolute",
-                        }}>
-                        <View
-                          style={
-                            orientation == 1 ||
-                            orientation == 3 ||
-                            orientation == 0
-                              ? styles.buttonContainerUp
-                              : styles.buttonContainerLeft
-                          }>
-                          <Slider
-                            style={{
-                              width:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? dims.width - 64
-                                  : dims.height - 64,
-                              height: 30,
-                              transform: [
-                                {
-                                  rotate:
-                                    orientation == 1 ||
-                                    orientation == 3 ||
-                                    orientation == 0
-                                      ? "0deg"
-                                      : "-90deg",
-                                },
-                                {
-                                  translateX:
-                                    orientation == 1 ||
-                                    orientation == 3 ||
-                                    orientation == 0
-                                      ? 0
-                                      : (-1 * dims.height) / 2,
-                                },
-                              ],
-                              alignSelf:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? "center"
-                                  : "flex-end",
-                            }}
-                            minimumValue={0}
-                            maximumValue={0.5}
-                            minimumTrackTintColor={config.primaryColor}
-                            maximumTrackTintColor="transparent"
-                            thumbTintColor={config.primaryColor}
-                            value={zoom}
-                            onValueChange={(val) => setZoom(val)}
+                          style={{
+                            flexDirection:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? "row"
+                                : "column-reverse",
+                            alignSelf:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? "center"
+                                : "center",
+                            justifyContent:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? "space-around"
+                                : "space-around",
+                            width:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? dims.width - 16
+                                : 70,
+                            height:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? 70
+                                : dims.height - 16,
+                            margin: 8,
+                            transform:
+                              orientation == 1 ||
+                              orientation == 3 ||
+                              orientation == 0
+                                ? []
+                                : [{ translateY: -16 }],
+                          }}>
+                          <IconButton
+                            style={styles.button}
+                            onPressAction={pickImage}
+                            icon={
+                              <Ionicons
+                                name="ios-images-outline"
+                                size={45}
+                                color={config.primaryColor}
+                              />
+                            }
                           />
-                          <View
+                          <TouchableOpacity
                             style={{
-                              flexDirection:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? "row"
-                                  : "column-reverse",
-                              alignSelf:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? "center"
-                                  : "center",
-                              justifyContent:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? "space-around"
-                                  : "space-around",
-                              width:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? dims.width - 16
-                                  : 70,
-                              height:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? 70
-                                  : dims.height - 16,
-                              margin: 8,
-                              transform:
-                                orientation == 1 ||
-                                orientation == 3 ||
-                                orientation == 0
-                                  ? []
-                                  : [{ translateY: -16 }],
-                            }}>
-                            <IconButton
-                              style={styles.button}
-                              onPressAction={pickImage}
-                              icon={
-                                <Ionicons
-                                  name="ios-images-outline"
-                                  size={45}
-                                  color={config.primaryColor}
-                                />
-                              }
-                            />
-                            <TouchableOpacity
-                              style={{
-                                ...styles.round,
-                                backgroundColor: config.primaryColor,
-                              }}
-                              onPress={snap}
-                            />
-                            <IconButton
-                              style={styles.button}
-                              onPressAction={() => {
-                                setType((t) =>
-                                  t === Camera.Constants.Type.back
-                                    ? Camera.Constants.Type.front
-                                    : Camera.Constants.Type.back
-                                )
-                              }}
-                              icon={
-                                <Ionicons
-                                  name="camera-reverse-outline"
-                                  size={45}
-                                  color={config.primaryColor}
-                                />
-                              }
-                            />
-                          </View>
+                              ...styles.round,
+                              backgroundColor: config.primaryColor,
+                            }}
+                            onPress={snap}
+                          />
+                          <IconButton
+                            style={styles.button}
+                            onPressAction={() => {
+                              setType((t) =>
+                                t === Camera.Constants.Type.back
+                                  ? Camera.Constants.Type.front
+                                  : Camera.Constants.Type.back
+                              )
+                            }}
+                            icon={
+                              <Ionicons
+                                name="camera-reverse-outline"
+                                size={45}
+                                color={config.primaryColor}
+                              />
+                            }
+                          />
                         </View>
                       </View>
-                    </GestureRecognizer>
-                  </Camera>
-                )}
-              </View>
-            </Animated.View>
-          </PanGestureHandler>
-        </View>
-      </Modal>
+                    </View>
+                  </GestureRecognizer>
+                </Camera>
+              )}
+            </View>
+          </Animated.View>
+        </PanGestureHandler>
+      </View>
       {focused && (
         <StatusBar
           style={config.secondaryColor === "#000" ? "light" : "dark"}
@@ -683,38 +671,81 @@ const styles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
-const PostPage = ({ route, navigation }) => (
-  <Stack.Navigator
-    options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
-    <Stack.Screen
-      name="PostStack"
-      component={Post}
-      options={{
-        headerShown: false,
-        tabBarVisible: false,
-        headerLeft: () => null,
-        headerRight: () => (
-          <Btn
-            icon={
-              <Feather name="user-plus" size={30} color={config.primaryColor} />
-            }
-            type="clear"
-            onPress={() => navigation.navigate("AddFriend")}
-          />
-        ),
-        title: "Friends",
-        headerStyle: {
-          backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
-        },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
-      }}
-    />
-  </Stack.Navigator>
-)
+const PostPage = ({ route, navigation }) => {
+  const focused = useIsFocused()
+  return (
+    <Modal
+      visible={focused}
+      transparent={false}
+      supportedOrientations={["portrait", "landscape"]}
+      style={{ backgroundColor: "#000" }}>
+      <Stack.Navigator
+        options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
+        <Stack.Screen
+          name="PostStack"
+          component={Post}
+          options={{
+            headerShown: false,
+            tabBarVisible: false,
+            headerLeft: () => null,
+            headerRight: () => (
+              <Btn
+                icon={
+                  <Feather
+                    name="user-plus"
+                    size={30}
+                    color={config.primaryColor}
+                  />
+                }
+                type="clear"
+                onPress={() => navigation.navigate("AddFriend")}
+              />
+            ),
+            title: "Friends",
+            headerStyle: {
+              backgroundColor: config.secondaryColor,
+              shadowOffset: { height: 0, width: 0 },
+            },
+            headerTintColor: config.primaryColor,
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 30,
+            },
+          }}
+        />
+        <Stack.Screen
+          name="CreatePost"
+          component={CreatePost}
+          options={({ route, navigation }) => ({
+            headerLeft: () => (
+              <Btn
+                icon={
+                  <FontAwesome5
+                    name="chevron-left"
+                    size={30}
+                    color={config.primaryColor}
+                  />
+                }
+                type="clear"
+                onPress={() => navigation.navigate("PostStack")}
+              />
+            ),
+            title: "Create Post",
+            headerStyle: {
+              backgroundColor: config.secondaryColor,
+              shadowOffset: { height: 0, width: 0 },
+            },
+            headerTintColor: config.primaryColor,
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 30,
+            },
+            headerShown: true,
+          })}
+        />
+      </Stack.Navigator>
+    </Modal>
+  )
+}
 
 export default PostPage
