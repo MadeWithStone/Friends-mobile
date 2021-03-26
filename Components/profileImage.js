@@ -27,6 +27,7 @@ class ProfileImage extends PureComponent {
       <View
         style={{
           ...styles.container,
+          ...(this.props.style ? this.props.style : {}),
           width: this.props.size != null ? this.props.size : 40,
           height: this.props.size != null ? this.props.size : 40,
           borderRadius: this.props.size != null ? this.props.size / 2 : 20,

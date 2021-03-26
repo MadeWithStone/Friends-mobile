@@ -423,7 +423,13 @@ const styles = StyleSheet.create({
 const Stack = createStackNavigator()
 const FeedPage = ({ navigation, route }) => (
   <Stack.Navigator
-    options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
+    options={{
+      headerStyle: { borderbottomColor: config.primaryColor },
+      cardStyle: { backgroundColor: config.secondaryColor },
+    }}
+    screenOptions={{
+      animationEnabled: false,
+    }}>
     <Stack.Screen
       name="FeedMain"
       component={Feed}

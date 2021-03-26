@@ -1,4 +1,4 @@
-import "react-native-gesture-handler"
+import { TouchableOpacity } from "react-native-gesture-handler"
 import { StatusBar } from "expo-status-bar"
 import React from "react"
 import {
@@ -11,7 +11,7 @@ import Ionicons from "@expo/vector-icons/Ionicons"
 import Fontisto from "@expo/vector-icons/Fontisto"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
 import Feather from "@expo/vector-icons/Feather"
-import { StyleSheet, Text, View, DeviceEventEmitter } from "react-native"
+import { StyleSheet, Text, View, DeviceEventEmitter, Modal } from "react-native"
 import { usePreventScreenCapture } from "expo-screen-capture"
 import * as ScreenOrientation from "expo-screen-orientation"
 import {
@@ -22,6 +22,9 @@ import config from "../../config"
 import Feed from "./Feed"
 import Post from "./Post"
 import Profile from "./Profile"
+import User from "../../Data/User"
+
+import { ProfileImage } from "../../Components"
 
 const Tab = createMaterialBottomTabNavigator()
 /**
@@ -33,7 +36,7 @@ class Home extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      friendRequestCount: 0,
+      friendRequestCount: 2,
       barLocation: "bottom",
     }
   }
@@ -84,13 +87,15 @@ class Home extends React.Component {
       <Tab.Navigator
         activeColor={config.primaryColor}
         inactiveColor={"gray"}
+        lazy={false}
+        sceneContainerStyle={{ backgroundColor: "#000" }}
         barStyle={{
           backgroundColor: config.secondaryColor,
-          height: 50 + initialWindowMetrics.insets.bottom,
+          height: 40 + initialWindowMetrics.insets.bottom,
         }}
         size={40}
         shifting
-        labeled={false}
+        labeled={true}
         backBehavior="none"
         tabBarPosition={this.state.barLocation}
         swipeEnabled
@@ -98,7 +103,7 @@ class Home extends React.Component {
           showIcon: true,
           activeTintColor: config.primaryColor,
           inactiveTintColor: "gray",
-          pressOpacity: 1,
+          pressOpacity: 0.5,
           indicatorStyle: {
             backgroundColor: config.primaryColor,
           },
@@ -160,7 +165,7 @@ class Home extends React.Component {
               : false,
           }}
           options={{
-            title: "",
+            title: "Friends",
             tabBarIcon: ({ focused, color }) => (
               <Feather
                 name={"users"}
@@ -175,6 +180,7 @@ class Home extends React.Component {
           component={Profile}
           options={{
             title: "",
+            badge: this.state.friendRequestCount,
             tabBarIcon: ({ focused, color }) => (
               <View style={styles.badgeIconView}>
                 {this.state.friendRequestCount > 0 && (
@@ -187,10 +193,18 @@ class Home extends React.Component {
                     {this.state.friendRequestCount}
                   </Text>
                 )}
-                <Feather
-                  name={"user"}
+                <ProfileImage
+                  image={User.data.profileImage}
                   size={focused ? config.iconFocused : config.icon}
-                  color={color}
+                  name={`${User.data.firstName} ${User.data.lastName}`}
+                  id={User.data.id}
+                  style={{
+                    borderColor: config.primaryColor,
+                    borderWidth: focused ? 1 : 0,
+                    borderStyle: "solid",
+                    padding: focused ? 1 : 0,
+                    margin: "auto",
+                  }}
                 />
               </View>
             ),

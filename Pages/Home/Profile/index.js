@@ -90,9 +90,9 @@ const Profile = ({ navigation, route }) => {
       setUsersList(data)
       setFriendRequests(freReqs)
       console.log("Profile.getFriendRequests: badge count emitted")
-      /* DeviceEventEmitter.emit("friendBadgeCount", {
+      DeviceEventEmitter.emit("friendBadgeCount", {
         val: freReqs.length,
-      }) */
+      })
       setRefreshing(false)
     })
   }
@@ -189,6 +189,9 @@ const Profile = ({ navigation, route }) => {
           type="clear"
         />
       ),
+      headerStyle: {
+        backgroundColor: config.secondaryColor,
+      },
     })
   }, [navigation])
   return (
@@ -493,113 +496,71 @@ const dvStyles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
-const ProfilePage = ({ navigation }) => (
-  <Stack.Navigator
-    options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
-    <Stack.Screen
-      name="ProfileMain"
-      component={Profile}
-      options={{
-        headerRight: () => (
-          <Btn
-            icon={
-              <Feather name="settings" size={28} color={config.primaryColor} />
-            }
-            type="clear"
-            onPress={() => navigation.navigate("Settings")}
-          />
-        ),
-        title: "Profile",
+const ProfilePage = ({ navigation }) => {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title:
+        User.data != null
+          ? `${User.data.firstName} ${User.data.lastName}`
+          : "Profile",
+      headerLeft: () => (
+        <Btn
+          onPress={() => {
+            navigation.navigate("EditProfile", {
+              user: { data: User.data, auth: User.auth },
+            })
+          }}
+          icon={<Feather name="edit" size={30} color={config.primaryColor} />}
+          type="clear"
+        />
+      ),
+      headerStyle: {
+        backgroundColor: config.secondaryColor,
+      },
+    })
+  }, [navigation])
+  return (
+    <Stack.Navigator
+      options={({ navigation }) => ({
         headerStyle: {
+          borderbottomColor: config.primaryColor,
           backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
         },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
-      }}
-    />
-    <Stack.Screen
-      name="EditProfile"
-      component={EditProfile}
-      options={{
-        title: "Edit Profile",
-        headerStyle: {
-          backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
-        },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
-      }}
-    />
-    <Stack.Screen
-      name="Settings"
-      component={Settings}
-      options={{
-        headerLeft: () => (
-          <Btn
-            onPress={() => {
-              navigation.goBack()
-            }}
-            icon={
-              <FontAwesome5
-                name="chevron-left"
-                size={30}
-                color={config.primaryColor}
-              />
-            }
-            type="clear"
-          />
-        ),
-        title: "Settings",
-        headerStyle: {
-          backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
-        },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
-      }}
-    />
-    <Stack.Screen
-      name="YourFriends"
-      component={FriendsList}
-      options={{
-        headerLeft: () => (
-          <Btn
-            onPress={() => {
-              navigation.goBack()
-            }}
-            icon={
-              <FontAwesome5
-                name="chevron-left"
-                size={30}
-                color={config.primaryColor}
-              />
-            }
-            type="clear"
-          />
-        ),
-        title: "Your Friends",
-        headerStyle: {
-          backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
-        },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
-      }}
-    />
-  </Stack.Navigator>
-)
+      })}
+      screenOptions={{
+        animationEnabled: false,
+      }}>
+      <Stack.Screen
+        name="ProfileMain"
+        component={Profile}
+        options={{
+          headerRight: () => (
+            <Btn
+              icon={
+                <Feather
+                  name="settings"
+                  size={28}
+                  color={config.primaryColor}
+                />
+              }
+              type="clear"
+              onPress={() => navigation.navigate("Settings")}
+            />
+          ),
+          title: "Profile",
+          headerStyle: {
+            backgroundColor: config.secondaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.primaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+    </Stack.Navigator>
+  )
+}
 
 export default ProfilePage
