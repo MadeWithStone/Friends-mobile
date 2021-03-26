@@ -36,6 +36,7 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "no-underscore-dangle": 0,
     "no-shadow": 0,
+    "global-require": 0,
   },
   plugins: ["react", "react-native", "prettier"],
 }
