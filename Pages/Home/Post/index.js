@@ -349,11 +349,11 @@ const Post = ({ route, navigation }) => {
     }
   }
   return (
-    <Modal
-      visible={focused}
-      transparent={false}
-      supportedOrientations={modalOs}
-      style={{ backgroundColor: "#000" }}>
+    <View
+      style={{
+        ...styles.container,
+        backgroundColor: "#000",
+      }}>
       <View style={{ ...StyleSheet.absoluteFill, backgroundColor: "#000" }}>
         <PanGestureHandler
           maxPointers={1}
@@ -368,13 +368,13 @@ const Post = ({ route, navigation }) => {
               transform: [
                 {
                   scaleY: heightAnim.interpolate({
-                    inputRange: [-500, 0],
+                    inputRange: [-1000, 0],
                     outputRange: [0.4, 1],
                   }),
                 },
                 {
                   scaleX: heightAnim.interpolate({
-                    inputRange: [-500, 0],
+                    inputRange: [-1000, 0],
                     outputRange: [0.4, 1],
                   }),
                 },
@@ -637,7 +637,7 @@ const Post = ({ route, navigation }) => {
           hidden
         />
       )}
-    </Modal>
+    </View>
   )
 }
 
@@ -689,39 +689,81 @@ const styles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
-const PostPage = ({ route, navigation }) => (
-  <Stack.Navigator
-    options={{ headerStyle: { borderbottomColor: config.primaryColor } }}
-    mode="modal">
-    <Stack.Screen
-      name="PostStack"
-      component={Post}
-      options={{
-        headerShown: false,
-        tabBarVisible: false,
-        headerLeft: () => null,
-        headerRight: () => (
-          <Btn
-            icon={
-              <Feather name="user-plus" size={30} color={config.primaryColor} />
-            }
-            type="clear"
-            onPress={() => navigation.navigate("AddFriend")}
-          />
-        ),
-        title: "Friends",
-        headerStyle: {
-          backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
-        },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
-      }}
-    />
-  </Stack.Navigator>
-)
+const PostPage = ({ route, navigation }) => {
+  const focused = useIsFocused()
+  return (
+    <Modal
+      visible={focused}
+      transparent={false}
+      supportedOrientations={["portrait", "landscape"]}
+      style={{ backgroundColor: "#000" }}>
+      <Stack.Navigator
+        options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
+        <Stack.Screen
+          name="PostStack"
+          component={Post}
+          options={{
+            headerShown: false,
+            tabBarVisible: false,
+            headerLeft: () => null,
+            headerRight: () => (
+              <Btn
+                icon={
+                  <Feather
+                    name="user-plus"
+                    size={30}
+                    color={config.primaryColor}
+                  />
+                }
+                type="clear"
+                onPress={() => navigation.navigate("AddFriend")}
+              />
+            ),
+            title: "Friends",
+            headerStyle: {
+              backgroundColor: config.secondaryColor,
+              shadowOffset: { height: 0, width: 0 },
+            },
+            headerTintColor: config.primaryColor,
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 30,
+            },
+          }}
+        />
+        <Stack.Screen
+          name="CreatePost"
+          component={CreatePost}
+          options={({ route, navigation }) => ({
+            headerLeft: () => (
+              <Btn
+                icon={
+                  <FontAwesome5
+                    name="chevron-left"
+                    size={30}
+                    color={config.primaryColor}
+                  />
+                }
+                type="clear"
+                onPress={() => navigation.navigate("PostStack")}
+              />
+            ),
+            title: "Create Post",
+            headerStyle: {
+              backgroundColor: config.secondaryColor,
+              shadowOffset: { height: 0, width: 0 },
+            },
+            headerTintColor: config.primaryColor,
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 30,
+            },
+            headerShown: true,
+          })}
+        />
+      </Stack.Navigator>
+    </Modal>
+  )
+}
 
 export default PostPage
