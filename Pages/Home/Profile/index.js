@@ -18,7 +18,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { useIsFocused } from "@react-navigation/native"
 import { usePreventScreenCapture } from "expo-screen-capture"
-import config from "../../../config"
+import config, { configHook } from "../../../config"
 import User from "../../../Data/User"
 import {
   Button,
@@ -54,6 +54,7 @@ const Profile = ({ navigation, route }) => {
   const [currentPost, setCurrentPost] = React.useState("")
 
   const focused = useIsFocused()
+  const cHook = configHook()
   let listener
 
   usePreventScreenCapture()
@@ -185,13 +186,10 @@ const Profile = ({ navigation, route }) => {
               user: { data: User.data, auth: User.auth },
             })
           }}
-          icon={<Feather name="edit" size={30} color={config.primaryColor} />}
+          icon={<Feather name="edit" size={30} color={cHook.primaryColor} />}
           type="clear"
         />
       ),
-      headerStyle: {
-        backgroundColor: config.secondaryColor,
-      },
     })
   }, [navigation])
   return (
@@ -497,6 +495,12 @@ const dvStyles = StyleSheet.create({
 
 const Stack = createStackNavigator()
 const ProfilePage = ({ navigation }) => {
+  const cHook = configHook()
+
+  React.useEffect(() => {
+    console.log(`ProfilePage: configHook changed: ${cHook.secondaryColor}`)
+  }, [cHook])
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title:
@@ -510,23 +514,18 @@ const ProfilePage = ({ navigation }) => {
               user: { data: User.data, auth: User.auth },
             })
           }}
-          icon={<Feather name="edit" size={30} color={config.primaryColor} />}
+          icon={<Feather name="edit" size={30} color={cHook.primaryColor} />}
           type="clear"
         />
       ),
       headerStyle: {
-        backgroundColor: config.secondaryColor,
+        backgroundColor: cHook.secondaryColor,
       },
     })
   }, [navigation])
   return (
     <Stack.Navigator
-      options={({ navigation }) => ({
-        headerStyle: {
-          borderbottomColor: config.primaryColor,
-          backgroundColor: config.secondaryColor,
-        },
-      })}
+      options={({ navigation }) => ({})}
       screenOptions={{
         animationEnabled: false,
       }}>
@@ -537,11 +536,7 @@ const ProfilePage = ({ navigation }) => {
           headerRight: () => (
             <Btn
               icon={
-                <Feather
-                  name="settings"
-                  size={28}
-                  color={config.primaryColor}
-                />
+                <Feather name="settings" size={28} color={cHook.primaryColor} />
               }
               type="clear"
               onPress={() => navigation.navigate("Settings")}
@@ -549,10 +544,10 @@ const ProfilePage = ({ navigation }) => {
           ),
           title: "Profile",
           headerStyle: {
-            backgroundColor: config.secondaryColor,
+            backgroundColor: cHook.secondaryColor,
             shadowOffset: { height: 0, width: 0 },
           },
-          headerTintColor: config.primaryColor,
+          headerTintColor: cHook.primaryColor,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 30,

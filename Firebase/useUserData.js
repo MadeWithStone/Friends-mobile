@@ -4,7 +4,7 @@ import User from "../Data/User"
 import {} from "./PostFunctions"
 
 const useUserData = () => {
-  const [data, setData] = useEffect({})
+  const [data, setData] = useState(User.data)
   let listener
 
   useEffect(() => {

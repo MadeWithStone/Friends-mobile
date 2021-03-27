@@ -93,7 +93,7 @@ const PostView = ({ route, navigation }) => {
             id={params.user.id}
             size={40}
           />
-          <Text style={{ ...styles.profileName }}>
+          <Text style={{ ...styles.profileName, color: config.primaryColor }}>
             {params.user.firstName} {params.user.lastName}
           </Text>
         </View>

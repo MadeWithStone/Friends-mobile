@@ -1,4 +1,6 @@
 import * as SecureStore from "expo-secure-store"
+import { func } from "prop-types"
+import React from "react"
 /*const config = {
   primaryColor: "#b16cd9",
   secondaryColor: "#000",
@@ -7,12 +9,29 @@ import * as SecureStore from "expo-secure-store"
   iconFocused: 24,
 }*/
 
+const configHook = () => {
+  const [d, setD] = React.useState(config.toObj())
+
+  React.useEffect(() => {
+    config.listener = (obj) => {
+      setD(obj)
+    }
+  }, [])
+
+  return d
+}
+
+export { configHook }
+
 export default class config {
   static _primaryColor = "#b16cd9"
   static _secondaryColor = "#fff"
   static _textColor = "#515151"
   static _icon = 22
   static _iconFocused = 24
+
+  static listenFunc
+
   constructor(primaryColor, secondaryColor, textColor, icon, iconFocused) {
     _primaryColor = primaryColor
     _secondaryColor = secondaryColor
@@ -35,6 +54,24 @@ export default class config {
   }
   static get iconFocused() {
     return this._iconFocused
+  }
+
+  static set listener(func) {
+    this.listenFunc = func
+  }
+
+  static changed() {
+    this.listenFunc(this.toObj())
+  }
+
+  static toObj() {
+    return {
+      primaryColor: this._primaryColor,
+      secondaryColor: this._secondaryColor,
+      textColor: this._textColor,
+      icon: this._icon,
+      iconFocused: this._iconFocused,
+    }
   }
 
   /**

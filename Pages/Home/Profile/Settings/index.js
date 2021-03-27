@@ -33,6 +33,16 @@ const Settings = ({ navigation, route }) => {
       primaryColor: "#b16cd9",
       textColor: "#fff",
     },
+    {
+      secondaryColor: "#fff",
+      primaryColor: "#89cff0",
+      textColor: "#515151",
+    },
+    {
+      secondaryColor: "#000",
+      primaryColor: "#89cff0",
+      textColor: "#fff",
+    },
   ]
   const [sel, setSel] = useState(0)
   React.useEffect(() => {
@@ -67,6 +77,7 @@ const Settings = ({ navigation, route }) => {
     setSel(idx)
     config.configData = colors
     config.save()
+    config.changed()
     navigation.goBack()
   }
   const signOutUser = async () => {
@@ -103,6 +114,20 @@ const Settings = ({ navigation, route }) => {
           width={palletWidth}
           index={1}
           callback={() => setColorPallet(colorList[1], 1)}
+        />
+        <ColorPallet
+          colors={colorList[2]}
+          selected={sel === 2}
+          width={palletWidth}
+          index={2}
+          callback={() => setColorPallet(colorList[2], 2)}
+        />
+        <ColorPallet
+          colors={colorList[3]}
+          selected={sel === 3}
+          width={palletWidth}
+          index={3}
+          callback={() => setColorPallet(colorList[3], 3)}
         />
       </View>
       <View style={{ margin: 8 }}>

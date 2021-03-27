@@ -27,7 +27,7 @@ const LogoHorizontal = (props) => (
       }}>
       {props.title}
     </Text>
-    <View style={styles.image}>
+    <View style={{ ...styles.image, backgroundColor: config.primaryColor }}>
       <Logo size={props.size ? props.size : 30} color={config.secondaryColor} />
     </View>
   </View>

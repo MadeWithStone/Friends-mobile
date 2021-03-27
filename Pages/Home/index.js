@@ -26,38 +26,30 @@ import User from "../../Data/User"
 
 import { ProfileImage } from "../../Components"
 
+import useUserData from "../../Firebase/useUserData"
+
 const Tab = createMaterialBottomTabNavigator()
 /**
  * home tab navigator
  *
  * @component
  */
-class Home extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      friendRequestCount: 2,
-      barLocation: "bottom",
-    }
-  }
+const Home = ({ route, navigation }) => {
+  const userData = useUserData()
 
-  componentDidMount() {
-    console.log(`home params: ${JSON.stringify(this.props.route.params)}`)
+  React.useEffect(() => {
+    console.log(`home params: ${JSON.stringify(route.params)}`)
     // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
-    DeviceEventEmitter.addListener(
-      "friendBadgeCount",
-      this.updateBadgeCount.bind(this)
-    )
     ScreenOrientation.addOrientationChangeListener((data) => {
       console.log(
         `Home.motionListener: orientation: ${data.orientationInfo.orientation}`
       )
       this.updateOrientaiton(data.orientationInfo.orientation)
     })
-  }
+  }, [])
 
-  updateBadgeCount(c) {
-    this.setState({ friendRequestCount: c.val })
+  const updateBadgeCount = (c) => {
+    setFriendRequestCount(c.val)
     console.log(`Home.updateBadgeCount: update: ${c.val}`)
   }
 
@@ -74,7 +66,6 @@ class Home extends React.Component {
 
   getTabBarVisibility = (route) => {
     const routeName = route.name ? route.name : ""
-    console.log(`Home.getTabBarVisibility: routeName: ${routeName}`)
     if (routeName === "Post") {
       return false
     }
@@ -82,43 +73,42 @@ class Home extends React.Component {
     return true
   }
 
-  render() {
-    return (
-      <Tab.Navigator
-        activeColor={config.primaryColor}
-        inactiveColor={"gray"}
-        lazy={false}
-        sceneContainerStyle={{ backgroundColor: "#000" }}
-        barStyle={{
+  return (
+    <Tab.Navigator
+      activeColor={config.primaryColor}
+      inactiveColor={"gray"}
+      lazy={false}
+      sceneContainerStyle={{ backgroundColor: "#000" }}
+      barStyle={{
+        backgroundColor: config.secondaryColor,
+        height: 40 + initialWindowMetrics.insets.bottom,
+      }}
+      size={40}
+      shifting
+      labeled={true}
+      backBehavior="none"
+      tabBarPosition={"bottom3"}
+      swipeEnabled
+      tabBarOptions={{
+        showIcon: true,
+        activeTintColor: config.primaryColor,
+        inactiveTintColor: "gray",
+        pressOpacity: 0.5,
+        indicatorStyle: {
+          backgroundColor: config.primaryColor,
+        },
+        indicatorContainerStyle: {
+          zIndex: 1,
+        },
+        tabStyle: {
           backgroundColor: config.secondaryColor,
-          height: 40 + initialWindowMetrics.insets.bottom,
-        }}
-        size={40}
-        shifting
-        labeled={true}
-        backBehavior="none"
-        tabBarPosition={this.state.barLocation}
-        swipeEnabled
-        tabBarOptions={{
-          showIcon: true,
-          activeTintColor: config.primaryColor,
-          inactiveTintColor: "gray",
-          pressOpacity: 0.5,
-          indicatorStyle: {
-            backgroundColor: config.primaryColor,
-          },
-          indicatorContainerStyle: {
-            zIndex: 1,
-          },
-          tabStyle: {
-            backgroundColor: config.secondaryColor,
-            zIndex: 0,
-          },
-        }}
-        options={({ route }) => ({
-          tabBarVisible: this.getTabBarVisibility(route),
-        })}
-        /* screenOptions={({ route }) => ({
+          zIndex: 0,
+        },
+      }}
+      options={({ route }) => ({
+        tabBarVisible: this.getTabBarVisibility(route),
+      })}
+      /* screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName
             let icon
@@ -139,80 +129,77 @@ class Home extends React.Component {
             return icon
           },
         })} */
-        initialRouteName={"Feed"}>
-        <Tab.Screen
-          name="Post"
-          component={Post}
-          options={({ route }) => ({
-            title: "",
-            tabBarIcon: ({ focused, color }) => (
-              <Feather
-                name={"plus-square"}
-                size={focused ? config.iconFocused : config.icon}
-                color={color}
-              />
-            ),
-            tabBarVisible: this.getTabBarVisibility(route),
-          })}
-        />
-        <Tab.Screen
-          name="Feed"
-          component={Feed}
-          initialParams={{
-            code: this.props.route.params ? this.props.route.params.code : "",
-            refresh: this.props.route.params
-              ? this.props.route.params.refresh
-              : false,
-          }}
-          options={{
-            title: "Friends",
-            tabBarIcon: ({ focused, color }) => (
-              <Feather
-                name={"users"}
-                size={focused ? config.iconFocused : config.icon}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={Profile}
-          options={{
-            title: "",
-            badge: this.state.friendRequestCount,
-            tabBarIcon: ({ focused, color }) => (
-              <View style={styles.badgeIconView}>
-                {this.state.friendRequestCount > 0 && (
-                  <Text
-                    style={{
-                      ...styles.badge,
-                      color,
-                      fontWeight: "bold",
-                    }}>
-                    {this.state.friendRequestCount}
-                  </Text>
-                )}
-                <ProfileImage
-                  image={User.data.profileImage}
-                  size={focused ? config.iconFocused : config.icon}
-                  name={`${User.data.firstName} ${User.data.lastName}`}
-                  id={User.data.id}
+      initialRouteName={"Feed"}>
+      <Tab.Screen
+        name="Post"
+        component={Post}
+        options={({ route }) => ({
+          title: "",
+          tabBarIcon: ({ focused, color }) => (
+            <Feather
+              name={"plus-square"}
+              size={focused ? config.iconFocused : config.icon}
+              color={color}
+            />
+          ),
+          tabBarVisible: this.getTabBarVisibility(route),
+        })}
+      />
+      <Tab.Screen
+        name="Feed"
+        component={Feed}
+        initialParams={{
+          code: route.params ? route.params.code : "",
+          refresh: route.params ? route.params.refresh : false,
+        }}
+        options={{
+          title: "Friends",
+          tabBarIcon: ({ focused, color }) => (
+            <Feather
+              name={"users"}
+              size={focused ? config.iconFocused : config.icon}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          title: "",
+          badge: userData.friendRequests ? userData.friendRequests.length : 0,
+          tabBarIcon: ({ focused, color }) => (
+            <View style={styles.badgeIconView}>
+              {userData.friendRequests.length > 0 && (
+                <Text
                   style={{
-                    borderColor: config.primaryColor,
-                    borderWidth: focused ? 1 : 0,
-                    borderStyle: "solid",
-                    padding: focused ? 1 : 0,
-                    margin: "auto",
-                  }}
-                />
-              </View>
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    )
-  }
+                    ...styles.badge,
+                    color,
+                    fontWeight: "bold",
+                  }}>
+                  {userData.friendRequests ? userData.friendRequests.length : 0}
+                </Text>
+              )}
+              <ProfileImage
+                image={User.data.profileImage}
+                size={focused ? config.iconFocused : config.icon}
+                name={`${User.data.firstName} ${User.data.lastName}`}
+                id={User.data.id}
+                style={{
+                  borderColor: config.primaryColor,
+                  borderWidth: focused ? 1 : 0,
+                  borderStyle: "solid",
+                  padding: focused ? 1 : 0,
+                  margin: "auto",
+                }}
+              />
+            </View>
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  )
 }
 export default Home
 

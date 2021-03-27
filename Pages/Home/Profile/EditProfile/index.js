@@ -158,6 +158,7 @@ const EditProfile = ({ navigation, route }) => {
 
   const removePhoto = async () => {
     setImage("")
+    setShowChooser(false)
   }
 
   const saveEdits = async () => {
@@ -373,7 +374,14 @@ const EditProfile = ({ navigation, route }) => {
                 }
                 console.log(showChooser)
               }}>
-              <Text style={{ ...styles.textButton }}>Choose Profile Image</Text>
+              <Text
+                style={{
+                  ...styles.textButton,
+                  color: config.primaryColor,
+                  textAlign: "center",
+                }}>
+                Choose Profile Image
+              </Text>
             </TouchableOpacity>
           </View>
           <View

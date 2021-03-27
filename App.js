@@ -11,7 +11,7 @@ import Feather from "@expo/vector-icons/Feather"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { SignIn } from "./Pages"
-import config from "./config"
+import config, { configHook } from "./config"
 import SignUp from "./Pages/SignUp"
 import Home from "./Pages/Home"
 import Load from "./Load"
@@ -42,6 +42,8 @@ const App = () => {
   })
 
   const authenticated = isAuthenticated()
+
+  const cHook = configHook()
 
   console.log("loader page loaded")
   return (
@@ -78,7 +80,7 @@ const App = () => {
                 ),
                 title: "Post",
                 headerStyle: {
-                  backgroundColor: config.secondaryColor,
+                  backgroundColor: cHook.secondaryColor,
                   shadowOffset: { height: 0, width: 0 },
                 },
                 headerTintColor: config.primaryColor,
