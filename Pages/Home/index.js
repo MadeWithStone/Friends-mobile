@@ -171,7 +171,7 @@ const Home = ({ route, navigation }) => {
           badge: userData.friendRequests ? userData.friendRequests.length : 0,
           tabBarIcon: ({ focused, color }) => (
             <View style={styles.badgeIconView}>
-              {userData.friendRequests.length > 0 && (
+              {userData.friendRequests && userData.friendRequests.length > 0 && (
                 <Text
                   style={{
                     ...styles.badge,

@@ -51,7 +51,7 @@ const App = () => {
       <NavigationContainer
         linking={linking}
         theme={{ colors: { backgroundColor: "#000" } }}>
-        {authenticated ? (
+        {authenticated && authenticated.emailVerified ? (
           <Stack.Navigator
             screenOptions={{
               headerShown: false,

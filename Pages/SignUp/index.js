@@ -75,7 +75,7 @@ class SignUp extends React.Component {
     }
 
     // use firebase function to create new authentication email user
-    createEmailUser(userData.email, this.state.password)
+    createEmailUser(this.state.email, this.state.password)
       .then(async (resData) => {
         // send email verification email
         verifyEmail()
@@ -98,7 +98,6 @@ class SignUp extends React.Component {
           alert("Please Verifiy Your Email Through The Link Sent To You")
 
           // navigate back to sign in screen
-          this.props.navigation.goBack()
         })
       })
       .catch((err) => {
@@ -111,7 +110,7 @@ class SignUp extends React.Component {
   }
 
   /** change message displayed to alert user of info they must enter */
-  problemMessage = () => {
+  problemMessage = (reg) => {
     let problemMessage = ""
     let problem = false
     if (this.state.firstName.length <= 1) {
@@ -147,7 +146,7 @@ class SignUp extends React.Component {
       !this.state.tos ||
       !this.state.ageVerification
 
-    const { problemMessage, problem } = this.problemMessage()
+    const { problemMessage, problem } = this.problemMessage(reg)
 
     return (
       <View style={{ width: `${100}%`, height: `${100}%` }}>
