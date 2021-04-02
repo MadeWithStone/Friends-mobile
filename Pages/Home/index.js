@@ -82,6 +82,7 @@ const Home = ({ route, navigation }) => {
       barStyle={{
         backgroundColor: config.secondaryColor,
         height: 40 + initialWindowMetrics.insets.bottom,
+        marginBottom: 16,
       }}
       size={40}
       shifting
