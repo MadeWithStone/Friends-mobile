@@ -14,11 +14,12 @@ const createAnnouncement = (data) => {
 }
 const editAnnouncement = (data, announceID) => {
   if (User.data.roles && User.data.roles.includes("admin")) {
+    const date = new Date()
     return firebase
       .firestore()
       .collection("announcements")
       .doc(announceID)
-      .edit(data)
+      .update(data)
   }
   return new Promise((resolve, reject) => {
     reject()
