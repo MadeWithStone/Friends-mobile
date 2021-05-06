@@ -27,6 +27,7 @@ import User from "../../Data/User"
 import { ProfileImage } from "../../Components"
 
 import useUserData from "../../Firebase/useUserData"
+import Admin from "./Admin"
 
 const Tab = createMaterialBottomTabNavigator()
 /**
@@ -198,6 +199,22 @@ const Home = ({ route, navigation }) => {
           ),
         }}
       />
+      {userData.roles && userData.roles.findIndex((x) => x === "admin") !== -1 && (
+        <Tab.Screen
+          name="Admin"
+          component={Admin}
+          options={{
+            title: "Admin",
+            tabBarIcon: ({ focused, color }) => (
+              <Feather
+                name={"sliders"}
+                size={focused ? config.iconFocused : config.icon}
+                color={color}
+              />
+            ),
+          }}
+        />
+      )}
     </Tab.Navigator>
   )
 }
