@@ -69,7 +69,7 @@ const Admin = ({ navigation, route }) => {
 const Announcement = ({ item }) => {
   const [editing, setEditing] = React.useState(false)
   const [title, setTitle] = React.useState(item.title)
-  const [announcement, setAnnouncement] = React.useState(item.title)
+  const [announcement, setAnnouncement] = React.useState(item.announcement)
   const changeVisibility = () => {
     editAnnouncement({ visible: !item.visible }, item.id)
   }

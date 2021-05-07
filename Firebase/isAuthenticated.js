@@ -7,19 +7,20 @@ const isAuthenticated = () => {
   const [a, setAuth] = React.useState(
     authAPI.currentUser !== null ? authAPI.currentUser : null
   )
+  const [init, setInit] = React.useState(false)
 
   React.useEffect(() => {
     const unsubscribe = authAPI.onAuthStateChanged((user) => {
-      if (user) {
-        setAuth(user)
-      } else {
-        setAuth(user)
+      setInit(true)
+      setAuth(user)
+      if (a && !user) {
+        setInit(false)
       }
     })
     return () => unsubscribe()
   }, [])
 
-  return a
+  return [a, init]
 }
 
 export default isAuthenticated

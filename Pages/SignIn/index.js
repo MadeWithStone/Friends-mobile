@@ -39,7 +39,7 @@ class SignIn extends React.Component {
   }
 
   async componentDidMount() {
-    this.loadCredentials()
+    //this.loadCredentials()
   }
 
   /**
@@ -111,7 +111,7 @@ class SignIn extends React.Component {
   signIn = () => {
     // turn on loading indicator
     this.setState({ spinning: true, loading: true })
-
+    console.log("signing in user")
     // run firebase function with sign in info
     signIn(this.state.email, this.state.password)
       .then(async (d) => {

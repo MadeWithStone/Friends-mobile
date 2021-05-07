@@ -34,6 +34,7 @@ import {
   updateReports,
 } from "../../../Firebase/PostFunctions"
 import { getUsers, loadData } from "../../../Firebase/UserFunctions"
+import { getAllAnnouncements } from "../../../Firebase/AdminFunctions"
 
 // Navigation
 import AddFriend from "./AddFriend"
@@ -49,10 +50,11 @@ import {
   IconButton,
   LogoHorizontal,
   OptionsModal,
+  H3,
 } from "../../../Components"
 import FeedFunctions from "./feedFunctions"
 import User from "../../../Data/User"
-import config from "../../../config"
+import config, { configHook } from "../../../config"
 import FeedObject from "./FeedObject"
 
 let users = {}
@@ -68,6 +70,8 @@ const currentUser = ""
 const Feed = ({ route, navigation }) => {
   // list of post objects
   const [posts, setPosts] = React.useState([])
+
+  const [announcements, setAnnouncements] = React.useState([])
 
   // determines whether refresh indicator should show
   const [refreshing, setRefreshing] = React.useState(false)
@@ -96,14 +100,6 @@ const Feed = ({ route, navigation }) => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
     }
   }, [focused])
-
-  React.useEffect(() => {
-    // console.log("route params: " + JSON.stringify(route.params))
-    const code = route.params ? route.params.code : ""
-    if (code !== "" && code) {
-      navigation.navigate("AddFriend", { code })
-    }
-  }, [])
 
   React.useEffect(() => {
     if (focused) {
@@ -155,13 +151,13 @@ const Feed = ({ route, navigation }) => {
         // run download users and do not reset the posts
         runFunctions(false)
 
-        // if still focused
+        /*// if still focused
         if (focused) {
           // call itself after 60 seconds
           setTimeout(() => {
             getData()
           }, 60000)
-        }
+        }*/
       })
     }
   }
@@ -194,6 +190,12 @@ const Feed = ({ route, navigation }) => {
    * @param {boolean} refresh whether to refresh the data
    */
   const runFunctions = async (refresh) => {
+    getAllAnnouncements().then((snap) => {
+      let data = []
+      snap.forEach((doc) => data.push({ ...doc.data(), id: doc.id }))
+      setAnnouncements(data)
+    })
+
     // get users and post list
     const { pList, u } = await FeedFunctions.downloadUsers([...postList], {
       data: User.data,
@@ -370,6 +372,11 @@ const Feed = ({ route, navigation }) => {
             </Text>
           </View>
         }
+        ListHeaderComponent={
+          announcements && announcements.length > 0 ? (
+            <AnnouncementList announcements={announcements} />
+          ) : null
+        }
         renderItem={({ item, index, separators }) => {
           const post = item
           return (
@@ -420,44 +427,129 @@ const styles = StyleSheet.create({
   },
 })
 
-const Stack = createStackNavigator()
-const FeedPage = ({ navigation, route }) => (
-  <Stack.Navigator
-    options={{
-      headerStyle: { borderbottomColor: config.primaryColor },
-      cardStyle: { backgroundColor: config.secondaryColor },
-    }}
-    screenOptions={{
-      animationEnabled: false,
-    }}>
-    <Stack.Screen
-      name="FeedMain"
-      component={Feed}
-      initialParams={route.params}
-      options={{
-        headerLeft: () => null,
-        headerRight: () => (
-          <Btn
-            icon={
-              <Feather name="user-plus" size={30} color={config.primaryColor} />
-            }
-            type="clear"
-            onPress={() => navigation.navigate("AddFriend")}
-          />
-        ),
-        title: "Friends",
-        headerStyle: {
-          backgroundColor: config.secondaryColor,
-          shadowOffset: { height: 0, width: 0 },
-        },
-        headerTintColor: config.primaryColor,
-        headerTitleStyle: {
-          fontWeight: "bold",
-          fontSize: 30,
-        },
+const AnnouncementList = ({ announcements }) => {
+  const cHook = configHook()
+  return (
+    <FlatList
+      ListEmptyComponent={() => <Text>Announcements</Text>}
+      /*ListHeaderComponent={() => (
+        <H3
+          text="Announcements"
+          style={{ width: "100%", textAlign: "center", fontWeight: "bold" }}
+        />
+      )}*/
+      keyExtractor={(item) => item.id}
+      data={announcements.sort((a, b) => {
+        let d1 = new Date(a.date)
+        let d2 = new Date(b.date)
+        return d1 < d2
+      })}
+      style={{
+        backgroundColor: cHook.secondaryColor,
+        justifyContent: "center",
       }}
+      /*ItemSeparatorComponent={() => (
+        <View
+          style={{
+            width: "100%",
+            backgroundColor: "gray",
+            height: StyleSheet.hairlineWidth,
+          }}
+        />
+      )}*/
+      renderItem={({ item }) => (
+        <View style={aStyles.container}>
+          <Text style={{ ...aStyles.title, color: config.primaryColor }}>
+            {item.title}
+          </Text>
+          <Text style={{ ...aStyles.announcement, color: config.textColor }}>
+            {item.announcement}
+          </Text>
+        </View>
+      )}
     />
-  </Stack.Navigator>
-)
+  )
+}
+
+const aStyles = StyleSheet.create({
+  container: {
+    padding: 8,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 20,
+    width: "100%",
+    textAlign: "center",
+  },
+  announcement: {
+    fontSize: 17,
+    color: config.textColor,
+    width: "100%",
+    textAlign: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+})
+
+const Stack = createStackNavigator()
+const FeedPage = ({ navigation, route }) => {
+  const [code, setCode] = React.useState(null)
+  React.useEffect(() => {
+    setCode(route.params.code)
+  }, [])
+  React.useEffect(() => {
+    // console.log("route params: " + JSON.stringify(route.params))
+    console.log("feed code " + code)
+    if (code) {
+      console.log("navigating to add friend")
+      setCode(null)
+      navigation.navigate("AddFriend", { code })
+    }
+  }, [code])
+  return (
+    <Stack.Navigator
+      options={{
+        headerStyle: { borderbottomColor: config.primaryColor },
+        cardStyle: { backgroundColor: config.secondaryColor },
+      }}
+      screenOptions={{
+        animationEnabled: false,
+      }}>
+      <Stack.Screen
+        name="FeedMain"
+        component={Feed}
+        initialParams={route.params}
+        options={{
+          headerLeft: () => null,
+          headerRight: () => (
+            <Btn
+              icon={
+                <Feather
+                  name="user-plus"
+                  size={30}
+                  color={config.primaryColor}
+                />
+              }
+              type="clear"
+              onPress={() => navigation.replace("AddFriend")}
+            />
+          ),
+          title: "Friends",
+          headerStyle: {
+            backgroundColor: config.secondaryColor,
+            shadowOffset: { height: 0, width: 0 },
+          },
+          headerTintColor: config.primaryColor,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 30,
+          },
+        }}
+      />
+    </Stack.Navigator>
+  )
+}
 
 export default FeedPage

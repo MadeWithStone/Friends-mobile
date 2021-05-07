@@ -1,7 +1,7 @@
 import "react-native-gesture-handler"
 import { StatusBar } from "expo-status-bar"
 import React from "react"
-import { NavigationContainer } from "@react-navigation/native"
+import { CommonActions, NavigationContainer } from "@react-navigation/native"
 import { createStackNavigator } from "@react-navigation/stack"
 import { StyleSheet, Text, View, Image } from "react-native"
 import * as Linking from "expo-linking"
@@ -25,7 +25,7 @@ import isAuthenticated from "./Firebase/isAuthenticated"
 import { loadData } from "./Firebase/UserFunctions"
 import User from "./Data/User"
 import { firebase } from "./Firebase/config"
-import { CachedImage } from "./Components"
+import { CachedImage, LogoHorizontal } from "./Components"
 import FriendsSplash from "./assets/Friends-splash.png"
 
 const Stack = createStackNavigator()
@@ -36,12 +36,61 @@ const App = () => {
     prefixes: [prefix],
     config: {
       screens: {
-        Loader: "/signin/:code",
+        Home: "/FriendCode/:code",
       },
     },
   })
+  const [authenticated, init] = isAuthenticated()
 
-  const authenticated = isAuthenticated()
+  const [showMain, setShowMain] = React.useState(false)
+
+  const [code, setCode] = React.useState(null)
+
+  /**
+   * download user data from firebase firestore
+   * @method
+   */
+  const downloadUserData = () => {
+    // run firebase function to download firestore data for user
+    loadData(authenticated.uid).then((doc) => {
+      // set current user data object to downloaded data
+      User.data = doc.data()
+
+      setShowMain(true)
+    })
+  }
+
+  React.useEffect(() => {
+    config
+      .init()
+      .then(() => {
+        console.log("loading app")
+        if (authenticated && authenticated.emailVerified) {
+          User.auth = authenticated
+          downloadUserData()
+          Analytics.setAnalyticsCollectionEnabled(false)
+        } else {
+          setShowMain(false)
+        }
+      })
+      .catch((err) => {
+        console.warn(err)
+      })
+  }, [authenticated])
+
+  React.useEffect(() => {
+    console.log("loading url")
+    Linking.getInitialURL().then((url) => {
+      console.log("getting url")
+      if (url) {
+        let { path, queryParams } = Linking.parse(url)
+        console.log("used url " + JSON.stringify(queryParams))
+        if (queryParams.code) {
+          setCode(queryParams.code)
+        }
+      }
+    })
+  }, [])
 
   const cHook = configHook()
 
@@ -51,16 +100,33 @@ const App = () => {
       <NavigationContainer
         linking={linking}
         theme={{ colors: { backgroundColor: "#000" } }}>
-        {authenticated && authenticated.emailVerified ? (
+        {!init ||
+          (!showMain && (
+            <View
+              style={{
+                ...StyleSheet.absoluteFill,
+                justifyContent: "center",
+                alignItems: "center",
+              }}>
+              <LogoHorizontal
+                title="Friends"
+                style={{ width: "100%", margin: 16 }}
+              />
+            </View>
+          ))}
+        {showMain && init && (
           <Stack.Navigator
             screenOptions={{
               headerShown: false,
-              gestureEnabled: false,
+              gestureEnabled: true,
             }}
             detachInactiveScreens={false}
-            initialRouteName={"AuthLoader"}>
-            <Stack.Screen name="AuthLoader" component={AuthLoader} />
-            <Stack.Screen name="Home" component={Home} />
+            initialRouteName={"Home"}>
+            <Stack.Screen
+              name="Home"
+              component={Home}
+              initialParams={{ refresh: true, code: code }}
+            />
             <Stack.Screen
               name="PostView"
               component={PostView}
@@ -246,16 +312,15 @@ const App = () => {
               })}
             />
           </Stack.Navigator>
-        ) : (
+        )}
+        {!authenticated && !showMain && init && (
           <Stack.Navigator
             screenOptions={{
               headerShown: false,
               gestureEnabled: false,
             }}
             detachInactiveScreens={false}
-            initialRouteName={"Loader"}>
-            <Stack.Screen name="Loader" component={Loader} />
-            <Stack.Screen name="Load" component={Load} />
+            initialRouteName={"SignIn"}>
             <Stack.Screen name="SignIn" component={SignIn} />
             <Stack.Screen name="SignUp" component={SignUp} />
           </Stack.Navigator>
@@ -274,9 +339,9 @@ const Loader = ({ navigation, route }) => {
     .then(() => {
       console.log("loading app")
       // navigation.push(<Stack.Screen name="Load" component={Load} />)
-      navigation.navigate("SignIn", {
+      /*navigation.navigate("SignIn", {
         code: route.params ? route.params.code : "",
-      })
+      })*/
     })
     .catch((err) => {
       console.warn(err)
@@ -302,30 +367,22 @@ const AuthLoader = ({ navigation, route }) => {
     .then(() => {
       console.log("loading app")
       // navigation.push(<Stack.Screen name="Load" component={Load} />)
-      User.auth = firebase.auth().currentUser
-      loadData(User.auth.uid).then((doc) => {
-        // set current user data object to downloaded data
-        User.data = doc.data()
 
-        // save data
-        User.setCurrentUser()
-
-        // set up navigation and navigate to next screen
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              {
-                name: "Home",
-                params: {
-                  code: route.params ? route.params.code : "", // pass code to next screen if a friend code url was used
-                  refresh: true,
-                },
+      // set up navigation and navigate to next screen
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            {
+              name: "Home",
+              params: {
+                code: route.params ? route.params.code : "", // pass code to next screen if a friend code url was used
+                refresh: true,
               },
-            ],
-          })
-        )
-      })
+            },
+          ],
+        })
+      )
     })
     .catch((err) => {
       console.warn(err)
