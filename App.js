@@ -14,7 +14,6 @@ import { SignIn } from "./Pages"
 import config, { configHook } from "./config"
 import SignUp from "./Pages/SignUp"
 import Home from "./Pages/Home"
-import Load from "./Load"
 import PostView from "./Pages/Home/Feed/PostView"
 import AddFriend from "./Pages/Home/Feed/AddFriend"
 import FriendsList from "./Pages/Home/Profile/FriendsList"
@@ -67,6 +66,7 @@ const App = () => {
         console.log("loading app")
         if (authenticated && authenticated.emailVerified) {
           User.auth = authenticated
+          config.changed()
           downloadUserData()
           Analytics.setAnalyticsCollectionEnabled(false)
         } else {
@@ -83,8 +83,8 @@ const App = () => {
     Linking.getInitialURL().then((url) => {
       console.log("getting url")
       if (url) {
-        let { path, queryParams } = Linking.parse(url)
-        console.log("used url " + JSON.stringify(queryParams))
+        const { path, queryParams } = Linking.parse(url)
+        console.log(`used url ${JSON.stringify(queryParams)}`)
         if (queryParams.code) {
           setCode(queryParams.code)
         }
@@ -125,7 +125,7 @@ const App = () => {
             <Stack.Screen
               name="Home"
               component={Home}
-              initialParams={{ refresh: true, code: code }}
+              initialParams={{ refresh: true, code }}
             />
             <Stack.Screen
               name="PostView"
@@ -282,20 +282,7 @@ const App = () => {
                       />
                     }
                     type="clear"
-                    onPress={() => navigation.goBack()}
-                  />
-                ),
-                headerRight: () => (
-                  <Btn
-                    icon={
-                      <Feather
-                        name="user-plus"
-                        size={30}
-                        color={config.primaryColor}
-                      />
-                    }
-                    type="clear"
-                    onPress={() => navigation.navigate("AddFriend")}
+                    onPress={() => navigation.goBack("Home")}
                   />
                 ),
                 title: "Add Friend",
@@ -339,9 +326,9 @@ const Loader = ({ navigation, route }) => {
     .then(() => {
       console.log("loading app")
       // navigation.push(<Stack.Screen name="Load" component={Load} />)
-      /*navigation.navigate("SignIn", {
+      /* navigation.navigate("SignIn", {
         code: route.params ? route.params.code : "",
-      })*/
+      }) */
     })
     .catch((err) => {
       console.warn(err)

@@ -151,13 +151,13 @@ const Feed = ({ route, navigation }) => {
         // run download users and do not reset the posts
         runFunctions(false)
 
-        /*// if still focused
+        /* // if still focused
         if (focused) {
           // call itself after 60 seconds
           setTimeout(() => {
             getData()
           }, 60000)
-        }*/
+        } */
       })
     }
   }
@@ -191,7 +191,7 @@ const Feed = ({ route, navigation }) => {
    */
   const runFunctions = async (refresh) => {
     getAllAnnouncements().then((snap) => {
-      let data = []
+      const data = []
       snap.forEach((doc) => data.push({ ...doc.data(), id: doc.id }))
       setAnnouncements(data)
     })
@@ -432,23 +432,23 @@ const AnnouncementList = ({ announcements }) => {
   return (
     <FlatList
       ListEmptyComponent={() => <Text>Announcements</Text>}
-      /*ListHeaderComponent={() => (
+      /* ListHeaderComponent={() => (
         <H3
           text="Announcements"
           style={{ width: "100%", textAlign: "center", fontWeight: "bold" }}
         />
-      )}*/
+      )} */
       keyExtractor={(item) => item.id}
       data={announcements.sort((a, b) => {
-        let d1 = new Date(a.date)
-        let d2 = new Date(b.date)
+        const d1 = new Date(a.date)
+        const d2 = new Date(b.date)
         return d1 < d2
       })}
       style={{
         backgroundColor: cHook.secondaryColor,
         justifyContent: "center",
       }}
-      /*ItemSeparatorComponent={() => (
+      /* ItemSeparatorComponent={() => (
         <View
           style={{
             width: "100%",
@@ -456,7 +456,7 @@ const AnnouncementList = ({ announcements }) => {
             height: StyleSheet.hairlineWidth,
           }}
         />
-      )}*/
+      )} */
       renderItem={({ item }) => (
         <View style={aStyles.container}>
           <Text style={{ ...aStyles.title, color: config.primaryColor }}>
@@ -501,7 +501,7 @@ const FeedPage = ({ navigation, route }) => {
   }, [])
   React.useEffect(() => {
     // console.log("route params: " + JSON.stringify(route.params))
-    console.log("feed code " + code)
+    console.log(`feed code ${code}`)
     if (code) {
       console.log("navigating to add friend")
       setCode(null)
@@ -533,7 +533,7 @@ const FeedPage = ({ navigation, route }) => {
                 />
               }
               type="clear"
-              onPress={() => navigation.replace("AddFriend")}
+              onPress={() => navigation.navigate("AddFriend")}
             />
           ),
           title: "Friends",

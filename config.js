@@ -13,9 +13,10 @@ const configHook = () => {
   const [d, setD] = React.useState(config.toObj())
 
   React.useEffect(() => {
-    config.listener = (obj) => {
+    config.addListener((obj) => {
+      console.log("config updated")
       setD(obj)
-    }
+    })
   }, [])
 
   return d
@@ -56,7 +57,7 @@ export default class config {
     return this._iconFocused
   }
 
-  static set listener(func) {
+  static addListener(func) {
     this.listenFunc = func
   }
 

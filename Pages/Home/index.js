@@ -5,7 +5,7 @@ import {
   getFocusedRouteNameFromRoute,
   NavigationContainer,
 } from "@react-navigation/native"
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs"
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs"
 
 import Ionicons from "@expo/vector-icons/Ionicons"
 import Fontisto from "@expo/vector-icons/Fontisto"
@@ -29,7 +29,7 @@ import { ProfileImage } from "../../Components"
 import useUserData from "../../Firebase/useUserData"
 import Admin from "./Admin"
 
-const Tab = createMaterialBottomTabNavigator()
+const Tab = createMaterialTopTabNavigator()
 /**
  * home tab navigator
  *
@@ -78,21 +78,22 @@ const Home = ({ route, navigation }) => {
     <Tab.Navigator
       activeColor={config.primaryColor}
       inactiveColor={"gray"}
-      lazy={false}
       sceneContainerStyle={{ backgroundColor: "#000" }}
       barStyle={{
         backgroundColor: config.secondaryColor,
-        height: 40 + initialWindowMetrics.insets.bottom,
-        marginBottom: 16,
+        height: 40,
+        marginBottom: 16 + initialWindowMetrics.insets.bottom,
       }}
+      swipeEnabled
       size={40}
       shifting
-      labeled={true}
+      labeled={false}
+      showLabel
       backBehavior="none"
-      tabBarPosition={"bottom3"}
-      swipeEnabled
+      tabBarPosition={"bottom"}
       tabBarOptions={{
         showIcon: true,
+        showLabel: false,
         activeTintColor: config.primaryColor,
         inactiveTintColor: "gray",
         pressOpacity: 0.5,
@@ -101,15 +102,21 @@ const Home = ({ route, navigation }) => {
         },
         indicatorContainerStyle: {
           zIndex: 1,
+          marginBottom: 8 + initialWindowMetrics.insets.bottom,
+          justifyContent: "space-around",
         },
         tabStyle: {
           backgroundColor: config.secondaryColor,
           zIndex: 0,
+          height: 40,
+          marginBottom: 24 + initialWindowMetrics.insets.bottom,
         },
+        style: { backgroundColor: config.secondaryColor },
+        labelStyle: {
+          textTransform: "capitalize",
+        },
+        allowFontScaling: true,
       }}
-      options={({ route }) => ({
-        tabBarVisible: this.getTabBarVisibility(route),
-      })}
       /* screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName
@@ -144,7 +151,7 @@ const Home = ({ route, navigation }) => {
               color={color}
             />
           ),
-          tabBarVisible: this.getTabBarVisibility(route),
+          showLabel: ({ focused }) => focused,
         })}
       />
       <Tab.Screen
@@ -155,14 +162,22 @@ const Home = ({ route, navigation }) => {
           refresh: route.params ? route.params.refresh : false,
         }}
         options={{
-          title: "Friends",
+          title: "",
           tabBarIcon: ({ focused, color }) => (
-            <Feather
-              name={"users"}
-              size={focused ? config.iconFocused : config.icon}
-              color={color}
-            />
+            <View style={{ width: "100%" }}>
+              <Feather
+                name={"users"}
+                size={focused ? config.iconFocused : config.icon}
+                color={color}
+              />
+            </View>
           ),
+          indicatorStyle: {
+            backgroundColor: config.primaryColor,
+            width: "50%",
+            marginLeft: 20,
+          },
+          showLabel: true,
         }}
       />
       <Tab.Screen

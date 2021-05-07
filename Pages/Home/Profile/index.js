@@ -76,6 +76,30 @@ const Profile = ({ navigation, route }) => {
       listener()
     }
   }, [focused])
+  React.useEffect(() => {
+    console.log(`updating profile styles ${config.secondaryColor}`)
+    navigation.setOptions({
+      title: User.data != null ? `${User.data.firstName}` : "Profile",
+      headerStyle: {
+        backgroundColor: config.secondaryColor,
+        shadowOffset: { height: 0, width: 0 },
+      },
+      headerTintColor: config.primaryColor,
+      headerTitleStyle: {
+        fontWeight: "bold",
+        fontSize: 30,
+      },
+      headerRight: () => (
+        <Btn
+          icon={
+            <Feather name="settings" size={28} color={config.primaryColor} />
+          }
+          type="clear"
+          onPress={() => navigation.navigate("Settings")}
+        />
+      ),
+    })
+  }, [navigation, focused])
 
   getFriendRequests = () => {
     const freReqs =
@@ -173,25 +197,6 @@ const Profile = ({ navigation, route }) => {
     updateData()
   }
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      title:
-        User.data != null
-          ? `${User.data.firstName} ${User.data.lastName}`
-          : "Profile",
-      headerLeft: () => (
-        <Btn
-          onPress={() => {
-            navigation.navigate("EditProfile", {
-              user: { data: User.data, auth: User.auth },
-            })
-          }}
-          icon={<Feather name="edit" size={30} color={cHook.primaryColor} />}
-          type="clear"
-        />
-      ),
-    })
-  }, [navigation])
   return (
     <KeyboardAvoidingScrollView
       scrollEventThrottle={32}
@@ -501,28 +506,6 @@ const ProfilePage = ({ navigation }) => {
     console.log(`ProfilePage: configHook changed: ${cHook.secondaryColor}`)
   }, [cHook])
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      title:
-        User.data != null
-          ? `${User.data.firstName} ${User.data.lastName}`
-          : "Profile",
-      headerLeft: () => (
-        <Btn
-          onPress={() => {
-            navigation.navigate("EditProfile", {
-              user: { data: User.data, auth: User.auth },
-            })
-          }}
-          icon={<Feather name="edit" size={30} color={cHook.primaryColor} />}
-          type="clear"
-        />
-      ),
-      headerStyle: {
-        backgroundColor: cHook.secondaryColor,
-      },
-    })
-  }, [navigation])
   return (
     <Stack.Navigator
       options={({ navigation }) => ({})}
@@ -533,21 +516,12 @@ const ProfilePage = ({ navigation }) => {
         name="ProfileMain"
         component={Profile}
         options={{
-          headerRight: () => (
-            <Btn
-              icon={
-                <Feather name="settings" size={28} color={cHook.primaryColor} />
-              }
-              type="clear"
-              onPress={() => navigation.navigate("Settings")}
-            />
-          ),
-          title: "Profile",
+          title: User.data != null ? `${User.data.firstName}` : "Profile",
           headerStyle: {
-            backgroundColor: cHook.secondaryColor,
+            backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },
           },
-          headerTintColor: cHook.primaryColor,
+          headerTintColor: config.primaryColor,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 30,

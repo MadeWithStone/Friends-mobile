@@ -1,8 +1,9 @@
 import { createStackNavigator } from "@react-navigation/stack"
 import React from "react"
-import { FlatList, Text, View, StyleSheet } from "react-native"
+import { FlatList, Text, View, StyleSheet, StatusBar } from "react-native"
 import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
+import { useIsFocused } from "@react-navigation/native"
 import config, { configHook } from "../../../config"
 import useUserData from "../../../Firebase/useUserData"
 import { H3, IconButton, Input, MultilineInput } from "../../../Components"
@@ -15,6 +16,7 @@ import {
 const Admin = ({ navigation, route }) => {
   const cHook = configHook()
   const userData = useUserData()
+  const focused = useIsFocused()
   const [announcements, setAnnouncements] = React.useState([])
 
   let listener
@@ -37,21 +39,26 @@ const Admin = ({ navigation, route }) => {
       title: "Admin",
       headerRight: () => {},
       headerStyle: {
-        backgroundColor: cHook.secondaryColor,
+        backgroundColor: config.secondaryColor,
       },
     })
-  }, [navigation])
+  }, [navigation, focused])
   return (
     <FlatList
       ListEmptyComponent={() => <Text>Admin Page</Text>}
       ListHeaderComponent={CreateAnnouncementInput}
       keyExtractor={(item) => item.id}
       data={announcements.sort((a, b) => {
-        let d1 = new Date(a.date)
-        let d2 = new Date(b.date)
+        const d1 = new Date(a.date)
+        const d2 = new Date(b.date)
         return d1 < d2
       })}
-      style={{ backgroundColor: cHook.secondaryColor }}
+      ListFooterComponent={
+        <StatusBar
+          style={config.secondaryColor === "#000" ? "light" : "dark"}
+        />
+      }
+      style={{ backgroundColor: config.secondaryColor }}
       ItemSeparatorComponent={() => (
         <View
           style={{
@@ -77,7 +84,8 @@ const Announcement = ({ item }) => {
     editAnnouncement({ title, announcement }, item.id)
   }
   return (
-    <View style={aStyles.container}>
+    <View
+      style={{ ...aStyles.container, backgroundColor: config.secondaryColor }}>
       {!editing ? (
         <Text style={{ ...aStyles.title, color: config.primaryColor }}>
           {item.title}
@@ -168,7 +176,7 @@ const CreateAnnouncementInput = (props) => {
   const [announcement, setAnouncement] = React.useState("")
   const postAnnouncement = () => {
     const date = new Date()
-    let announcementData = {
+    const announcementData = {
       title,
       announcement,
       date: date.toISOString(),
@@ -186,7 +194,11 @@ const CreateAnnouncementInput = (props) => {
   }
   return (
     <View>
-      <View style={styles.createAnnouncementView}>
+      <View
+        style={{
+          ...styles.createAnnouncementView,
+          backgroundColor: config.secondaryColor,
+        }}>
         <View style={styles.titleInputView}>
           <H3 text="Create Announcement" />
 
@@ -194,7 +206,7 @@ const CreateAnnouncementInput = (props) => {
             onPress={() => {
               postAnnouncement()
             }}
-            icon={<Feather name="plus" size={30} color={cHook.primaryColor} />}
+            icon={<Feather name="plus" size={30} color={config.primaryColor} />}
             type="clear"
             style={styles.icon}
           />
