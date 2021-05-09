@@ -26,6 +26,7 @@ import User from "./Data/User"
 import { firebase } from "./Firebase/config"
 import { CachedImage, LogoHorizontal } from "./Components"
 import FriendsSplash from "./assets/Friends-splash.png"
+import Post from "./Pages/Home/Post"
 
 const Stack = createStackNavigator()
 const prefix = Linking.createURL("/")
@@ -266,6 +267,25 @@ const App = () => {
                   fontSize: 30,
                 },
                 headerShown: true,
+              })}
+            />
+            <Stack.Screen
+              name="Post"
+              component={Post}
+              options={({ route, navigation }) => ({
+                title: "Create Post",
+                headerStyle: {
+                  backgroundColor: config.secondaryColor,
+                  shadowOffset: { height: 0, width: 0 },
+                },
+                headerTintColor: config.primaryColor,
+                headerTitleStyle: {
+                  fontWeight: "bold",
+                  fontSize: 30,
+                },
+                headerShown: false,
+                gestureDirection: "horizontal-inverted",
+                gestureEnabled: false,
               })}
             />
             <Stack.Screen

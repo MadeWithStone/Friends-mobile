@@ -73,6 +73,7 @@ const Home = ({ route, navigation }) => {
 
     return true
   }
+  const [visible, setVisible] = React.useState(false)
 
   return (
     <Tab.Navigator
@@ -84,7 +85,7 @@ const Home = ({ route, navigation }) => {
         height: 40,
         marginBottom: 16 + initialWindowMetrics.insets.bottom,
       }}
-      swipeEnabled
+      swipeEnabled={false}
       size={40}
       shifting
       labeled={false}
@@ -99,17 +100,19 @@ const Home = ({ route, navigation }) => {
         pressOpacity: 0.5,
         indicatorStyle: {
           backgroundColor: config.primaryColor,
+          marginBottom: 38,
+          height: 2,
         },
         indicatorContainerStyle: {
           zIndex: 1,
-          marginBottom: 8 + initialWindowMetrics.insets.bottom,
+          marginBottom: initialWindowMetrics.insets.bottom + 16,
           justifyContent: "space-around",
         },
         tabStyle: {
           backgroundColor: config.secondaryColor,
           zIndex: 0,
           height: 40,
-          marginBottom: 24 + initialWindowMetrics.insets.bottom,
+          marginBottom: 16 + initialWindowMetrics.insets.bottom,
         },
         style: { backgroundColor: config.secondaryColor },
         labelStyle: {
@@ -140,8 +143,8 @@ const Home = ({ route, navigation }) => {
         })} */
       initialRouteName={"Feed"}>
       <Tab.Screen
-        name="Post"
         component={Post}
+        name="PostTab"
         options={({ route }) => ({
           title: "",
           tabBarIcon: ({ focused, color }) => (
@@ -152,6 +155,12 @@ const Home = ({ route, navigation }) => {
             />
           ),
           showLabel: ({ focused }) => focused,
+        })}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault()
+            navigation.navigate("Post")
+          },
         })}
       />
       <Tab.Screen

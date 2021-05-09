@@ -44,6 +44,7 @@ import Feed from "../Feed"
 import CreatePost from "./CreatePost"
 import config from "../../../config"
 import User from "../../../Data/User"
+import { set } from "react-native-reanimated"
 
 let maxVY = 0
 let maxVT = 0
@@ -52,7 +53,6 @@ let maxVT = 0
  * screen to choose or take pictures to post
  *
  * @class
- * @component
  */
 const Post = ({ route, navigation }) => {
   const [hasPermission, setHasPermission] = React.useState(false)
@@ -82,27 +82,26 @@ const Post = ({ route, navigation }) => {
   usePreventScreenCapture()
 
   React.useEffect(() => {
-    Animated.spring(heightAnim, {
+    Animated.timing(heightAnim, {
       toValue: y,
       duration: 0,
-      useNativeDriver: false,
-    }).start(({ finished }) => {})
+      useNativeDriver: true,
+    }).start(({ finished, value }) => {
+      if (finished) {
+        console.log("0")
+      }
+    })
   }, [y])
 
   React.useEffect(() => {
     heightAnim.addListener(({ value }) => {
-      console.log(`value: ${value}`)
-      if (Math.abs(value) <= 2) {
-        console.log(`maxVY: ${maxVY}; maxVT: ${maxVT}`)
-        if (maxVY < -1500 && maxVT < -100) {
-          maxVT = 0
-          maxVY = 0
-          heightAnim.stopAnimation()
-          navigation.jumpTo("Feed")
-          console.log("exiting")
-        }
+      //console.log(`maxVY: ${maxVY}; maxVT: ${maxVT}`)
+      console.log("value: " + value)
+      if (value <= -2 * dims.width + 100) {
         maxVT = 0
         maxVY = 0
+        navigation.goBack()
+        console.log("exiting")
       }
     })
   }, [])
@@ -110,6 +109,17 @@ const Post = ({ route, navigation }) => {
   React.useEffect(() => {
     if (panHandlerState === State.END) {
       setY(0)
+      if (maxVY < -800 || maxVT < -200) {
+        maxVT = 0
+        maxVY = 0
+        //navigation.jumpTo("Feed")
+        //console.log("exiting")
+        setY(-2 * dims.width)
+      } else {
+        setY(0)
+        maxVT = 0
+        maxVY = 0
+      }
     }
   }, [panHandlerState])
 
@@ -342,19 +352,21 @@ const Post = ({ route, navigation }) => {
 
   const onGestureEvent = (e) => {
     const { nativeEvent } = e
-    if (nativeEvent.translationY < 0) {
-      if (nativeEvent.velocityY < maxVY) maxVY = nativeEvent.velocityY
-      if (nativeEvent.translationY < maxVT) maxVT = nativeEvent.translationY
-      setY(nativeEvent.translationY)
+    if (nativeEvent.translationX < 0) {
+      maxVY = nativeEvent.velocityX
+      maxVT = nativeEvent.translationX
+      setY(nativeEvent.translationX)
+      //console.log("y: " + y)
     }
   }
   return (
     <View
       style={{
         ...styles.container,
-        backgroundColor: "#000",
+        backgroundColor: "transparent",
       }}>
-      <View style={{ ...StyleSheet.absoluteFill, backgroundColor: "#000" }}>
+      <View
+        style={{ ...StyleSheet.absoluteFill, backgroundColor: "transparent" }}>
         <PanGestureHandler
           maxPointers={1}
           onGestureEvent={onGestureEvent}
@@ -367,15 +379,9 @@ const Post = ({ route, navigation }) => {
               height: dims.height,
               transform: [
                 {
-                  scaleY: heightAnim.interpolate({
+                  translateX: heightAnim.interpolate({
                     inputRange: [-1000, 0],
-                    outputRange: [0.4, 1],
-                  }),
-                },
-                {
-                  scaleX: heightAnim.interpolate({
-                    inputRange: [-1000, 0],
-                    outputRange: [0.4, 1],
+                    outputRange: [-1000, 0],
                   }),
                 },
               ],
@@ -447,7 +453,7 @@ const Post = ({ route, navigation }) => {
                             color={config.primaryColor}
                           />
                         }
-                        onPressAction={() => navigation.jumpTo("Feed")}
+                        onPressAction={() => navigation.goBack()}
                       />
                     </View>
                     {dims.height !== 0 && dims.width !== 0 && (
@@ -690,15 +696,24 @@ const styles = StyleSheet.create({
 
 const Stack = createStackNavigator()
 const PostPage = ({ route, navigation }) => {
+  const [visible, setVisible] = React.useState(false)
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener("tabPress", (e) => {
+      // Prevent default behavior
+      e.preventDefault()
+      setVisible(true)
+      // Do something manually
+      // ...
+    })
+
+    return unsubscribe
+  }, [navigation])
   const focused = useIsFocused()
   return (
-    <Modal
-      visible={focused}
-      transparent={false}
-      supportedOrientations={["portrait", "landscape"]}
-      style={{ backgroundColor: "#000" }}>
-      <Stack.Navigator
-        options={{ headerStyle: { borderbottomColor: config.primaryColor } }}>
+    <Modal visible={visible} transparent={true}>
+      {/*<Stack.Navigator
+        options={{ headerStyle: { borderbottomColor: config.primaryColor } }}
+        initialRouteName="PostStack">
         <Stack.Screen
           name="PostStack"
           component={Post}
@@ -761,9 +776,9 @@ const PostPage = ({ route, navigation }) => {
             headerShown: true,
           })}
         />
-      </Stack.Navigator>
+        </Stack.Navigator>*/}
     </Modal>
   )
 }
 
-export default PostPage
+export default Post
