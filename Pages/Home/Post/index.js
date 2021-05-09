@@ -84,7 +84,7 @@ const Post = ({ route, navigation }) => {
   React.useEffect(() => {
     Animated.timing(heightAnim, {
       toValue: y,
-      duration: 0,
+      duration: 100,
       useNativeDriver: true,
     }).start(({ finished, value }) => {
       if (finished) {
@@ -381,7 +381,7 @@ const Post = ({ route, navigation }) => {
                 {
                   translateX: heightAnim.interpolate({
                     inputRange: [-1000, 0],
-                    outputRange: [-1000, 0],
+                    outputRange: [-500, 0],
                   }),
                 },
               ],

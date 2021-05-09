@@ -38,16 +38,11 @@ const getAnnouncement = (announceID) => {
   })
 }
 const getAllAnnouncements = (data) => {
-  if (User.data.roles && User.data.roles.includes("admin")) {
-    return firebase
-      .firestore()
-      .collection("announcements")
-      .where("visible", "==", true)
-      .get()
-  }
-  return new Promise((resolve, reject) => {
-    reject()
-  })
+  return firebase
+    .firestore()
+    .collection("announcements")
+    .where("visible", "==", true)
+    .get()
 }
 
 const getAnnouncementsListener = () =>

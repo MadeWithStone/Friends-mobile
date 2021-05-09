@@ -83,6 +83,8 @@ const Profile = ({ navigation, route }) => {
       headerStyle: {
         backgroundColor: config.secondaryColor,
         shadowOffset: { height: 0, width: 0 },
+
+        shadowColor: "transparent",
       },
       headerTintColor: config.primaryColor,
       headerTitleStyle: {

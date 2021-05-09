@@ -253,13 +253,15 @@ const App = () => {
                       />
                     }
                     type="clear"
-                    onPress={() => navigation.navigate("PostStack")}
+                    onPress={() => navigation.navigate("Post")}
                   />
                 ),
                 title: "Create Post",
                 headerStyle: {
                   backgroundColor: config.secondaryColor,
                   shadowOffset: { height: 0, width: 0 },
+
+                  shadowColor: "transparent",
                 },
                 headerTintColor: config.primaryColor,
                 headerTitleStyle: {
@@ -267,6 +269,7 @@ const App = () => {
                   fontSize: 30,
                 },
                 headerShown: true,
+                gestureDirection: "horizontal-inverted",
               })}
             />
             <Stack.Screen

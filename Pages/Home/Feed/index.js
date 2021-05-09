@@ -128,6 +128,8 @@ const Feed = ({ route, navigation }) => {
       headerStyle: {
         backgroundColor: config.secondaryColor,
         shadowOffset: { height: 0, width: 0 },
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
       },
       headerTintColor: config.primaryColor,
       headerTitleStyle: {
@@ -511,7 +513,10 @@ const FeedPage = ({ navigation, route }) => {
   return (
     <Stack.Navigator
       options={{
-        headerStyle: { borderbottomColor: config.primaryColor },
+        headerStyle: {
+          borderbottomColor: config.primaryColor,
+          borderBottomWidth: 0,
+        },
         cardStyle: { backgroundColor: config.secondaryColor },
       }}
       screenOptions={{
@@ -540,6 +545,7 @@ const FeedPage = ({ navigation, route }) => {
           headerStyle: {
             backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },
+            borderBottomWidth: 0,
           },
           headerTintColor: config.primaryColor,
           headerTitleStyle: {
