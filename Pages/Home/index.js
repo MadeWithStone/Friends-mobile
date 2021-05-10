@@ -28,6 +28,7 @@ import { ProfileImage } from "../../Components"
 
 import useUserData from "../../Firebase/useUserData"
 import Admin from "./Admin"
+import ModerationPage from "./Moderation"
 
 const Tab = createMaterialTopTabNavigator()
 /**
@@ -224,6 +225,26 @@ const Home = ({ route, navigation }) => {
           ),
         }}
       />
+      {userData.roles &&
+        userData.roles.findIndex((x) => x === "moderator") !== -1 && (
+          <Tab.Screen
+            name="Moderation"
+            component={ModerationPage}
+            options={{
+              title: "Mod",
+              tabBarIcon: ({ focused, color }) => (
+                <Feather
+                  name={"flag"}
+                  size={focused ? config.iconFocused : config.icon}
+                  color={color}
+                  style={{
+                    transform: [{ rotateY: focused ? "180deg" : "0deg" }],
+                  }}
+                />
+              ),
+            }}
+          />
+        )}
       {userData.roles && userData.roles.findIndex((x) => x === "admin") !== -1 && (
         <Tab.Screen
           name="Admin"
@@ -235,6 +256,7 @@ const Home = ({ route, navigation }) => {
                 name={"sliders"}
                 size={focused ? config.iconFocused : config.icon}
                 color={color}
+                style={{ transform: [{ rotate: focused ? "180deg" : "0deg" }] }}
               />
             ),
           }}
