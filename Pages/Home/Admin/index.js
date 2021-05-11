@@ -37,7 +37,13 @@ const Admin = ({ navigation, route }) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title: "Admin",
-      headerRight: () => {},
+      headerRight: () => (
+        <Btn
+          icon={<Feather name="user" size={30} color={config.primaryColor} />}
+          type="clear"
+          onPress={() => navigation.navigate("EditUser")}
+        />
+      ),
       headerStyle: {
         backgroundColor: config.secondaryColor,
       },

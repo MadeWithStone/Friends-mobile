@@ -27,6 +27,7 @@ import { firebase } from "./Firebase/config"
 import { CachedImage, LogoHorizontal } from "./Components"
 import FriendsSplash from "./assets/Friends-splash.png"
 import Post from "./Pages/Home/Post"
+import EditUser from "./Pages/Home/Admin/EditUser"
 
 const Stack = createStackNavigator()
 const prefix = Linking.createURL("/")
@@ -309,6 +310,36 @@ const App = () => {
                   />
                 ),
                 title: "Add Friend",
+                headerStyle: {
+                  backgroundColor: config.secondaryColor,
+                  shadowOffset: { height: 0, width: 0 },
+                },
+                headerTintColor: config.primaryColor,
+                headerTitleStyle: {
+                  fontWeight: "bold",
+                  fontSize: 30,
+                },
+                headerShown: true,
+              })}
+            />
+            <Stack.Screen
+              name="EditUser"
+              component={EditUser}
+              options={({ route, navigation }) => ({
+                headerLeft: () => (
+                  <Btn
+                    icon={
+                      <FontAwesome5
+                        name="chevron-left"
+                        size={30}
+                        color={config.primaryColor}
+                      />
+                    }
+                    type="clear"
+                    onPress={() => navigation.goBack()}
+                  />
+                ),
+                title: "EditUser",
                 headerStyle: {
                   backgroundColor: config.secondaryColor,
                   shadowOffset: { height: 0, width: 0 },

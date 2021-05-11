@@ -162,6 +162,8 @@ const postReference = (id) => {
   return postsRef.doc(id)
 }
 
+const postsReference = firebase.firestore().collection("posts")
+
 /**
  * update post comments
  *
@@ -216,4 +218,5 @@ export {
   postReference,
   updateReports,
   deletePost,
+  postsReference,
 }
