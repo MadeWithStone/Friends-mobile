@@ -90,7 +90,6 @@ const Settings = ({ navigation, route }) => {
     await SecureStore.deleteItemAsync("credentials")
     await signOut()
     console.log("signed out")
-    navigation.navigate("SignIn")
   }
 
   return (

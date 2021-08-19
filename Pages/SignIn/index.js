@@ -3,6 +3,7 @@ import React from "react"
 import { CommonActions } from "@react-navigation/native"
 import * as SecureStore from "expo-secure-store"
 import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native"
+import { KeyboardAvoidingScrollView } from "react-native-keyboard-avoiding-scroll-view"
 import { TouchableWithoutFeedback } from "react-native-gesture-handler"
 import config from "../../config"
 import User from "../../Data/User"
@@ -224,11 +225,19 @@ class SignIn extends React.Component {
       this.state.password.length < 8 || !reg.test(this.state.email)
     return (
       <View style={{ width: `${100}%`, height: `${100}%` }}>
-        <KeyboardAvoidingView
+        
+          <KeyboardAvoidingScrollView
+          scrollEventThrottle={32}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{
-            ...styles.mainContainer,
+          horizontal={false}
+          showsVerticalScrollIndicator={false}
+          style={{ backgroundColor: "100%" }}
+          containerStyle={{ backgroundColor: config.secondaryColor }}
+          contentContainerStyle={{
+            width: "100%",
+            height: !this.state.keyboardOpen ? "100%" : "auto",
             backgroundColor: config.secondaryColor,
+            justifyContent: "center",
           }}>
           <DismissKeyboardView style={styles.bodyContainer}>
             <View>
@@ -266,7 +275,7 @@ class SignIn extends React.Component {
               />
             </View>
           </DismissKeyboardView>
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingScrollView>
         <View
           style={{
             ...styles.footerContainer,

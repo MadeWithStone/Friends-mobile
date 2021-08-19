@@ -209,10 +209,10 @@ const Home = ({ route, navigation }) => {
                 </Text>
               )}
               <ProfileImage
-                image={User.data.profileImage}
+                image={userData.profileImage}
                 size={focused ? config.iconFocused : config.icon}
-                name={`${User.data.firstName} ${User.data.lastName}`}
-                id={User.data.id}
+                name={`${userData.firstName} ${userData.lastName}`}
+                id={userData.id}
                 style={{
                   borderColor: config.primaryColor,
                   borderWidth: focused ? 1 : 0,

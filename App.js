@@ -44,6 +44,7 @@ const App = () => {
   const [authenticated, init] = isAuthenticated()
 
   const [showMain, setShowMain] = React.useState(false)
+  const [showSignIn, setShowSignIn] = React.useState(false)
 
   const [code, setCode] = React.useState(null)
 
@@ -66,19 +67,25 @@ const App = () => {
       .init()
       .then(() => {
         console.log("loading app")
-        if (authenticated && authenticated.emailVerified) {
-          User.auth = authenticated
-          config.changed()
-          downloadUserData()
-          Analytics.setAnalyticsCollectionEnabled(false)
-        } else {
-          setShowMain(false)
+        if (init) {
+          if (authenticated && authenticated.emailVerified) {
+            setShowSignIn(false)
+            User.auth = authenticated
+            config.changed()
+            downloadUserData()
+            Analytics.setAnalyticsCollectionEnabled(false)
+          } else {
+            console.log("[Friends SignIn] not authenticated or email not verified")
+            setShowMain(false)
+            setShowSignIn(true)
+          }
         }
+        
       })
       .catch((err) => {
         console.warn(err)
       })
-  }, [authenticated])
+  }, [authenticated, init])
 
   React.useEffect(() => {
     console.log("loading url")
@@ -103,7 +110,7 @@ const App = () => {
         linking={linking}
         theme={{ colors: { backgroundColor: "#000" } }}>
         {!init ||
-          (!showMain && (
+          (!showMain && !showSignIn && (
             <View
               style={{
                 ...StyleSheet.absoluteFill,
@@ -354,7 +361,7 @@ const App = () => {
             />
           </Stack.Navigator>
         )}
-        {!authenticated && !showMain && init && (
+        {showSignIn && init && (
           <Stack.Navigator
             screenOptions={{
               headerShown: false,
