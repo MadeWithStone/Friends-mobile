@@ -19,7 +19,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "org.friendsmobile.friends",
       "buildNumber": "1.0.0.11",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDetection": "Friends would like access to your photo library so you can choose and upload pictures from your camera roll.",
+        "NSCameraUsageDetection": "Friends would like access to your camera so you can take and upload pictures using your camera."
+      }
     },
     "android": {
       "adaptiveIcon": {
