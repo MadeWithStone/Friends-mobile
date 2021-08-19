@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.friendsmobile.friends",
-      "buildNumber": "1.0.10",
+      "buildNumber": "1.0.0.11",
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
