@@ -339,7 +339,7 @@ const App = () => {
                     onPress={() => navigation.goBack()}
                   />
                 ),
-                title: "EditUser",
+                title: "Edit User",
                 headerStyle: {
                   backgroundColor: config.secondaryColor,
                   shadowOffset: { height: 0, width: 0 },

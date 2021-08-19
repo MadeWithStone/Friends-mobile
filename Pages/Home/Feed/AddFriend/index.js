@@ -12,6 +12,8 @@ import {
   Modal,
   LayoutAnimation,
   StatusBar,
+  TouchableOpacity,
+  Clipboard,
 } from "react-native"
 import { WebView } from "react-native-webview"
 import QRCode from "react-native-qrcode-svg"
@@ -260,13 +262,16 @@ const AddFriend = ({ navigation, route }) => {
                   color={config.primaryColor}
                 />
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text
-                    style={{
-                      ...styles.codeText,
-                      color: config.primaryColor,
-                    }}>
-                    {currentUserFC}
-                  </Text>
+                  <TouchableOpacity
+                    onPress={() => Clipboard.setString(currentUserFC)}>
+                    <Text
+                      style={{
+                        ...styles.codeText,
+                        color: config.primaryColor,
+                      }}>
+                      {currentUserFC}
+                    </Text>
+                  </TouchableOpacity>
                   <IconButton
                     onPressAction={() => resetFriendCode()}
                     icon={

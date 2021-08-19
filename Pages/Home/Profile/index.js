@@ -79,7 +79,10 @@ const Profile = ({ navigation, route }) => {
   React.useEffect(() => {
     console.log(`updating profile styles ${config.secondaryColor}`)
     navigation.setOptions({
-      title: User.data != null ? `${User.data.firstName}` : "Profile",
+      title:
+        User.data != null
+          ? `${User.data.firstName} ${User.data.lastName}`
+          : "Profile",
       headerStyle: {
         backgroundColor: config.secondaryColor,
         shadowOffset: { height: 0, width: 0 },

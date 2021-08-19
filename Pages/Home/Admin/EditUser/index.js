@@ -39,12 +39,13 @@ import { Button, Input, CancelButton, IconButton } from "../../../../Components"
 import config from "../../../../config"
 
 const EditUser = ({ navigation, route }) => {
-  const [friendCode, setFriendCode] = React.useState("13SWK1C")
+  const [friendCode, setFriendCode] = React.useState("")
   const [addBtnDis, setAddBtnDis] = React.useState(true)
   const [scan, setScan] = React.useState(false)
   const [showCode, setShowCode] = React.useState(true)
   const [share, setShare] = React.useState(false)
   const [roles, setRoles] = React.useState([])
+  const [user, setUser] = React.useState({})
 
   const heightAnim = React.useRef(new Animated.Value(100)).current
 
@@ -60,15 +61,7 @@ const EditUser = ({ navigation, route }) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <Btn
-          onPress={() => {
-            setShare(true)
-          }}
-          icon={<Feather name="share" size={30} color={config.primaryColor} />}
-          type="clear"
-        />
-      ),
+      headerRight: () => {},
     })
   }, [])
 
@@ -89,12 +82,23 @@ const EditUser = ({ navigation, route }) => {
 
   const getUser = () => {
     if (friendCode.length === 7) {
-      findUserWithFriendCode(friendCode).then((docs) => {
-        if (docs.length > 0) {
-          const user = { ...docs[0].data(), id: docs[0].id }
-          setRoles(user.roles ? user.roles : [])
-        }
-      })
+      findUserWithFriendCode(friendCode)
+        .then((querySnapshot) => {
+          let count = 0
+          querySnapshot.forEach((doc) => {
+            console.log(`doc ${count}`)
+            if (count === 0) {
+              const user = { ...doc.data(), id: doc.id }
+              setUser(user)
+              setRoles(user.roles ? user.roles : [])
+              console.log(`Roles: ${user.roles}`)
+            }
+            count++
+          })
+        })
+        .catch((err) => {
+          console.warn(err)
+        })
     }
   }
 
@@ -117,6 +121,16 @@ const EditUser = ({ navigation, route }) => {
     } else {
       setAddBtnDis(true)
     }
+  }
+
+  const adminAction = (action) => {
+    if (roles.includes(action)) {
+      var r = roles.filter((role) => role != action)
+    } else {
+      var r = [...roles]
+      r.push(action)
+    }
+    updateUser({ roles: r }, user.id).then(() => getUser())
   }
 
   const sendRequest = () => {
@@ -209,23 +223,35 @@ const EditUser = ({ navigation, route }) => {
                 />
               </View>
             </View>
-            <View style={styles.buttonView}>
-              <Button
-                text="Mod"
-                style={styles.button}
-                onPressAction={() => sendRequest()}
-              />
-              <Button
-                text="Admin"
-                style={styles.button}
-                onPressAction={() => sendRequest()}
-              />
-              <Button
-                text="Suspend"
-                style={styles.button}
-                onPressAction={() => sendRequest()}
-              />
-            </View>
+            {user && user.id && (
+              <View style={styles.buttonView}>
+                <Button
+                  text="Suspend"
+                  style={styles.button}
+                  onPressAction={() => sendRequest()}
+                />
+                <Button
+                  text="Moderator"
+                  style={{
+                    ...styles.button,
+                    backgroundColor: roles.includes("moderator")
+                      ? "gray"
+                      : config.primaryColor,
+                  }}
+                  onPressAction={() => adminAction("moderator")}
+                />
+                <Button
+                  text="Admin"
+                  style={{
+                    ...styles.button,
+                    backgroundColor: roles.includes("admin")
+                      ? "gray"
+                      : config.primaryColor,
+                  }}
+                  onPressAction={() => adminAction("admin")}
+                />
+              </View>
+            )}
           </SafeAreaView>
         </View>
         {scan && (

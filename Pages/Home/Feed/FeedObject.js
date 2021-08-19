@@ -12,6 +12,7 @@ import {
 import Entypo from "@expo/vector-icons/Entypo"
 import { IconButton, ProfileImage, CachedImage } from "../../../Components"
 import config from "../../../config"
+import User from "../../../Data/User"
 
 /**
  * Feed list component
@@ -43,10 +44,30 @@ class FeedObject extends React.Component {
             name={`${user.firstName} ${user.lastName}`}
             size={40}
             id={user.id}
+            style={{
+              borderColor: config.primaryColor,
+              borderWidth: User.data.id === user.id ? 1 : 0,
+              borderStyle: "solid",
+              padding: User.data.id === user.id ? 1 : 0,
+              margin: "auto",
+            }}
           />
+          {this.props.post.reports &&
+            User.data.roles &&
+            User.data.roles.includes("moderator") && (
+              <Text
+                style={{
+                  ...styles.profileName,
+                  color: config.primaryColor,
+                  marginRight: 8,
+                }}>
+                {this.props.post.reports.length}
+              </Text>
+            )}
           <Text style={{ ...styles.profileName, color: config.textColor }}>
             {user.firstName} {user.lastName}
           </Text>
+
           <View style={styles.optionsBtn}>
             <IconButton
               icon={

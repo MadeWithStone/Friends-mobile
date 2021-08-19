@@ -11,9 +11,13 @@ import { usePreventScreenCapture } from "expo-screen-capture"
 import { Text, Dimensions, View, StyleSheet } from "react-native"
 import Entypo from "@expo/vector-icons/Entypo"
 import MaterialIcons from "@expo/vector-icons/MaterialIcons"
-import { ScrollView } from "react-native-gesture-handler"
+import {
+  ScrollView,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler"
 import { KeyboardAccessoryView } from "@flyerhq/react-native-keyboard-accessory-view"
 import KeyboardListener from "react-native-keyboard-listener"
+import KeyboardSpacer from "react-native-keyboard-spacer"
 
 import {
   SafeAreaView,
@@ -40,6 +44,7 @@ import {
 import { updateUser } from "../../../../Firebase/UserFunctions"
 import User from "../../../../Data/User"
 import config from "../../../../config"
+import { Keyboard } from "react-native"
 
 /**
  * handles viewing of post after clicked in feed
@@ -71,6 +76,17 @@ const PostView = ({ route, navigation }) => {
   const focused = useIsFocused()
   let listener
 
+  React.useEffect(() => {
+    Keyboard.addListener("keyboardDidShow", () => setKeyboardOpen(true))
+    Keyboard.addListener("keyboardDidHide", () => setKeyboardOpen(false))
+
+    // cleanup function
+    return () => {
+      Keyboard.removeListener("keyboardDidShow")
+      Keyboard.removeListener("keyboardDidHide")
+    }
+  }, [])
+
   React.useLayoutEffect(() => {
     if (focused) {
       navigation.setOptions({
@@ -92,7 +108,26 @@ const PostView = ({ route, navigation }) => {
             name={`${params.user.firstName} ${params.user.lastName}`}
             id={params.user.id}
             size={40}
+            style={{
+              borderColor: config.primaryColor,
+              borderWidth: User.data.id === params.user.id ? 1 : 0,
+              borderStyle: "solid",
+              padding: User.data.id === params.user.id ? 1 : 0,
+              margin: "auto",
+            }}
           />
+          {params.post.reports &&
+            User.data.roles &&
+            User.data.roles.includes("moderator") && (
+              <Text
+                style={{
+                  ...styles.profileName,
+                  color: config.primaryColor,
+                  marginRight: 8,
+                }}>
+                {params.post.reports.length}
+              </Text>
+            )}
           <Text style={{ ...styles.profileName, color: config.primaryColor }}>
             {params.user.firstName} {params.user.lastName}
           </Text>
@@ -124,26 +159,21 @@ const PostView = ({ route, navigation }) => {
   }, [comments])
 
   React.useEffect(() => {
-    setComments(params.post.comments)
-    getPost(params.post.id).then((post) => {
-      params.post = post.data()
-      setComments(params.post.comments)
-    })
+    //setComments(params.post.comments)
     listener = postReference(params.post.id).onSnapshot((doc) => {
-      params.post = doc.data()
+      let post = doc.data()
       if (params.post === undefined) {
         navigation.goBack()
-      } else {
-        setComments(params.post.comments)
+      } else if (post) {
+        setComments(post.comments)
       }
     })
-  }, [])
-
-  React.useEffect(() => {
-    if (listener && !focused) {
-      listener()
+    return () => {
+      if (listener) {
+        listener()
+      }
     }
-  }, [focused])
+  }, [])
 
   React.useEffect(() => {
     getCommentUsers(comments).then((u) => {
@@ -222,71 +252,74 @@ const PostView = ({ route, navigation }) => {
   }
 
   const date = new Date(params.post.date)
-  const renderScrollable = (panHandlers) => (
+  /*const renderScrollable = (panHandlers) => (
     // Can be anything scrollable
-    <ScrollView
-      style={{ ...styles.scrollView, backgroundColor: config.secondaryColor }}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ backgroundColor: config.secondaryColor }}
-      scrollEventThrottle={64}
-      ref={scrollview}
-      keyboardDismissMode="interactive"
-      {...panHandlers}>
-      <View>
-        <CachedImage
-          source={{
-            uri: params.post.image,
-          }}
-          cacheKey={params.post.id}
-          style={{ width: dims.width, height: dims.width }}
-        />
-        <View style={styles.descriptionView}>
-          <Text style={{ ...styles.description, color: config.textColor }}>
-            <Text style={styles.descriptionStart}>
-              {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
-            </Text>{" "}
-            - {params.post.description}
-          </Text>
-          {users.length > 0 &&
-            comments.map((obj) => {
-              console.log(`user: ${JSON.stringify(users[0])}`)
-              return (
-                <CommentObj
-                  comment={obj}
-                  user={users.find((x) => x.id === obj.userID)}
-                  key={obj.date}
-                />
-              )
-            })}
-        </View>
-      </View>
-      <OptionsModal
-        showChooser={showChooser}
-        setShowChooser={setShowChooser}
-        reportAction={postOwner ? deletePost : reportPost}
-        reportOptions={
-          postOwner
-            ? ["Delete Post"]
-            : [
-                "Report for Sexually Explicit Content",
-                "Report for Copyright Infringement",
-                "Report for Violation of Terms of Service",
-                "Report for Violation of Privacy Policy",
-              ]
-        }
-      />
-    </ScrollView>
-  )
+    
+  )*/
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: config.secondaryColor }}
-      edges={["bottom"]}>
-      <KeyboardAccessoryView
-        renderScrollable={renderScrollable}
-        contentContainerStyle={{
-          backgroundColor: config.secondaryColor,
-        }}
-        style={{ backgroundColor: config.secondaryColor }}>
+    <View style={{ flex: 1 }}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: config.secondaryColor }}
+        edges={["bottom"]}>
+        <ScrollView
+          style={{
+            ...styles.scrollView,
+            backgroundColor: config.secondaryColor,
+          }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ backgroundColor: config.secondaryColor }}
+          scrollEventThrottle={64}
+          ref={scrollview}
+          keyboardDismissMode="none">
+          <View>
+            <CachedImage
+              source={{
+                uri: params.post.image,
+              }}
+              cacheKey={params.post.id}
+              style={{ width: dims.width, height: dims.width }}
+            />
+            <View style={styles.descriptionView}>
+              <Text style={{ ...styles.description, color: config.textColor }}>
+                <Text style={styles.descriptionStart}>
+                  {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
+                </Text>{" "}
+                - {params.post.description}
+              </Text>
+              {users.length > 0 &&
+                comments.map((obj) => {
+                  console.log(`user: ${JSON.stringify(users[0])}`)
+                  return (
+                    <CommentObj
+                      comment={obj}
+                      user={users.find((x) => x.id === obj.userID)}
+                      key={obj.date}
+                    />
+                  )
+                })}
+            </View>
+          </View>
+          <OptionsModal
+            showChooser={showChooser}
+            setShowChooser={setShowChooser}
+            reportAction={
+              postOwner ||
+              (User.data.roles && User.data.roles.includes("moderator"))
+                ? deletePost
+                : reportPost
+            }
+            reportOptions={
+              postOwner
+                ? ["Delete Post"]
+                : [
+                    "Report for Sexually Explicit Content",
+                    "Report for Copyright Infringement",
+                    "Report for Violation of Terms of Service",
+                    "Report for Violation of Privacy Policy",
+                  ]
+            }
+          />
+        </ScrollView>
         <View
           style={{
             ...styles.inputView,
@@ -312,16 +345,9 @@ const PostView = ({ route, navigation }) => {
             onPress={() => newComment()}
           />
         </View>
-      </KeyboardAccessoryView>
-      <KeyboardListener
-        onWillShow={() => {
-          setKeyboardOpen(true)
-        }}
-        onWillHide={() => {
-          setKeyboardOpen(false)
-        }}
-      />
-    </SafeAreaView>
+      </SafeAreaView>
+      <KeyboardSpacer topSpacing={-32} />
+    </View>
   )
 }
 
@@ -419,11 +445,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginBottom: 36,
   },
-  scrollView: {
-    flexShrink: 1,
-    flexGrow: 1,
-    height: "100%",
-  },
+  scrollView: {},
   tView: {
     display: "flex",
     flexDirection: "row",

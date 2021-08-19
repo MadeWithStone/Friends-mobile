@@ -46,6 +46,12 @@ const Admin = ({ navigation, route }) => {
       ),
       headerStyle: {
         backgroundColor: config.secondaryColor,
+        shadowOffset: { height: 0, width: 0 },
+      },
+      headerTintColor: config.primaryColor,
+      headerTitleStyle: {
+        fontWeight: "bold",
+        fontSize: 30,
       },
     })
   }, [navigation, focused])
@@ -104,7 +110,7 @@ const Announcement = ({ item }) => {
         />
       )}
       {!editing ? (
-        <Text style={{ ...aStyles.announcement, color: config.primaryColor }}>
+        <Text style={{ ...aStyles.announcement, color: config.textColor }}>
           {item.announcement}
         </Text>
       ) : (
@@ -164,11 +170,11 @@ const aStyles = StyleSheet.create({
     padding: 8,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 20,
   },
   announcement: {
-    fontSize: 18,
+    fontSize: 17,
+    color: config.textColor,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -262,6 +268,21 @@ const Stack = createStackNavigator()
 
 const AdminPage = ({ navigation, route }) => {
   const cHook = configHook()
+  const focused = useIsFocused()
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: "Admin",
+      headerStyle: {
+        backgroundColor: config.secondaryColor,
+        shadowOffset: { height: 0, width: 0 },
+      },
+      headerTintColor: config.primaryColor,
+      headerTitleStyle: {
+        fontWeight: "bold",
+        fontSize: 30,
+      },
+    })
+  }, [navigation, focused])
   return (
     <Stack.Navigator>
       <Stack.Screen

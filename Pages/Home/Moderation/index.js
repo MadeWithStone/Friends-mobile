@@ -52,6 +52,12 @@ const Moderation = ({ navigation, route }) => {
       headerRight: () => {},
       headerStyle: {
         backgroundColor: config.secondaryColor,
+        shadowOffset: { height: 0, width: 0 },
+      },
+      headerTintColor: config.primaryColor,
+      headerTitleStyle: {
+        fontWeight: "bold",
+        fontSize: 30,
       },
     })
   }, [navigation, focused])
@@ -81,7 +87,13 @@ const Moderation = ({ navigation, route }) => {
           user={item.user}
           key={item.id}
           menuAction={() => {}}
-          onImagePress={() => {}}
+          onImagePress={() => {
+            navigation.navigate("PostView", {
+              post: item,
+              user: item.user,
+              currentUser: { ...userData },
+            })
+          }}
         />
       )}
     />
