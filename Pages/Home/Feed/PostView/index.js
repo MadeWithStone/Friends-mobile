@@ -210,33 +210,74 @@ const PostView = ({ route, navigation }) => {
     addComment(newComments, params.post.id)
   }
 
+  const removeFriend = (id) => {
+    getUser(id).then((data) => {
+      const f = data.data().friends
+      const idx = f.findIndex((x) => x.userID === User.data.id)
+      f.splice(idx, 1)
+      updateUser({ friends: f }, id).then(() => {
+        const h = User.data.friends
+        const idx = h.findIndex((x) => x.userID === id)
+        h.splice(idx, 1)
+        updateUser({ friends: h }, User.data.id).then(() => {})
+      })
+    })
+  }
+
   /**
-   * add a report to the current post
+   * adds a report to the currently selected post
+   *
+   * @param {number} type optiens menu number
    */
   const reportPost = (type) => {
-    // get list of reports
-    let reports = [...params.post.reports]
+    // find current post in list of posts
+    let reports = posts.find((x) => x.id === currentPost)
 
-    // make empty list if reports does not exist
-    reports = reports || []
-
-    // check if user has already reported
-    if (reports.findIndex((x) => x.userID === User.data.id) === -1) {
-      // add new report if not already reported
-      reports.push({
-        userID: User.data.id,
-        report: type,
-        date: new Date().toISOString(),
-      })
-
-      // run firebase function to update the post's reports
-      updateReports(params.post.id, reports).then(() => {
-        // close the report chooser
-        setShowChooser(false)
-      })
+    if (type == 0) {
+      removeFriend(users[reports.userID].id)
     } else {
-      // if already reported close chooser
-      setShowChooser(false)
+      // get reports array for post
+      reports = reports.reports ? reports.reports : []
+
+      // check if user has not already reported the post
+      if (reports.findIndex((x) => x.userID === User.data.id) === -1) {
+        // add new report
+        reports.push({
+          userID: User.data.id,
+          report: type - 1,
+          date: new Date().toISOString(),
+        })
+
+        // run update reports firebase function
+        updateReports(currentPost, reports).then(() => {
+          // get updated post
+          getPost(currentPost).then((post) => {
+            // update posts with new post
+            setPosts((pPosts) => {
+              // get copy of posts array
+              const prevPosts = [...pPosts]
+
+              // find index of updated post
+              const idx = prevPosts.findIndex((x) => x.id === currentPost)
+
+              // update post
+              prevPosts[idx] = post.data()
+
+              // save results
+              return prevPosts
+            })
+
+            // clean posts
+            setCleaned(false)
+
+            // close chooser
+            setShowChooser(false)
+          })
+        })
+      } else {
+        // close chooser if already reported
+        setShowChooser(false)
+      }
     }
   }
 
