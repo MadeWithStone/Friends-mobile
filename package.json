@@ -1,9 +1,8 @@
 {
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "web": "expo start --web",
     "eject": "expo eject",
     "prettier": "prettier **/*.js --write",
@@ -47,7 +46,7 @@
     "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
+    "react-native": "~0.63.4",
     "react-native-elements": "^3.0.0-alpha.1",
     "react-native-gesture-handler": "~1.8.0",
     "react-native-image-resizer": "^1.4.1",
@@ -72,7 +71,10 @@
     "react-native-uuid-generator": "^6.1.1",
     "react-native-web": "~0.13.12",
     "react-native-webview": "11.0.0",
-    "svg": "^0.1.0"
+    "svg": "^0.1.0",
+    "expo-splash-screen": "~0.8.0",
+    "expo-updates": "~0.4.0",
+    "react-native-unimodules": "~0.12.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
@@ -87,7 +89,10 @@
     "husky": "^4.3.6",
     "jsdoc-strip-async-await": "^0.1.0",
     "lint-staged": "^10.5.3",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "babel-jest": "~25.2.6",
+    "jest": "~25.2.6",
+    "react-test-renderer": "~16.13.1"
   },
   "prettier": {
     "jsxBracketSameLine": true,
@@ -119,5 +124,7 @@
       "/node_modules/(?!react-native|react-clone-referenced-element|react-navigation)"
     ]
   },
-  "private": true
+  "private": true,
+  "name": "Friends-mobile",
+  "version": "1.0.0"
 }

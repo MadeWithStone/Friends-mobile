@@ -14,7 +14,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.friendsmobile.friends",
@@ -29,7 +31,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/Friends-purple.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "org.friendsmobile.friends"
     },
     "web": {
       "favicon": "./assets/favicon.png",
