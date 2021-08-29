@@ -37,6 +37,7 @@ import {
 import User from "../../../../Data/User"
 import { Button, Input, CancelButton, IconButton } from "../../../../Components"
 import config from "../../../../config"
+import useUserData from "../../../../Firebase/useUserData"
 
 const EditUser = ({ navigation, route }) => {
   const [friendCode, setFriendCode] = React.useState("")
@@ -48,6 +49,8 @@ const EditUser = ({ navigation, route }) => {
   const [user, setUser] = React.useState({})
 
   const heightAnim = React.useRef(new Animated.Value(100)).current
+
+  const userData = useUserData()
 
   React.useEffect(() => {
     Animated.timing(heightAnim, {
@@ -112,8 +115,8 @@ const EditUser = ({ navigation, route }) => {
     }
     states[name](d)
     console.log(
-      `AddFriend.onChangeText: ${d} not ${User.data.friendCode}: ${
-        d !== User.data.friendCode.toUpperCase()
+      `AddFriend.onChangeText: ${d} not ${userData.friendCode}: ${
+        d !== userData.friendCode.toUpperCase()
       }`
     )
     if (d.length === 7) {
@@ -153,7 +156,7 @@ const EditUser = ({ navigation, route }) => {
                 friend.data.friendRequests.length > 0
               ) {
                 friend.data.friendRequests.forEach((request) => {
-                  if (request.userID === take.user.data.id) {
+                  if (request.userID === take.userData.id) {
                     alreadyRequested = true
                   }
                 })

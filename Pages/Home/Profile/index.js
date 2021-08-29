@@ -43,6 +43,7 @@ import {
 import EditProfile from "./EditProfile"
 import Settings from "./Settings"
 import FriendsList from "./FriendsList"
+import useUserData from "../../../Firebase/useUserData"
 
 let pList = []
 const Profile = ({ navigation, route }) => {
@@ -54,6 +55,7 @@ const Profile = ({ navigation, route }) => {
   const [currentPost, setCurrentPost] = React.useState("")
 
   const focused = useIsFocused()
+  const userData = useUserData()
   const cHook = configHook()
   let listener
 
@@ -66,9 +68,9 @@ const Profile = ({ navigation, route }) => {
   React.useEffect(() => {
     if (focused) {
       updateData()
-      listener = userReference(User.data.id).onSnapshot((doc) => {
+      listener = userReference(userData.id).onSnapshot((doc) => {
         // console.log("snap data: " + JSON.stringify(doc.data()))
-        User.data = doc.data()
+        userData = doc.data()
         getFriendRequests()
         getUserPosts()
       })
@@ -80,8 +82,8 @@ const Profile = ({ navigation, route }) => {
     console.log(`updating profile styles ${config.secondaryColor}`)
     navigation.setOptions({
       title:
-        User.data != null
-          ? `${User.data.firstName} ${User.data.lastName}`
+        userData != null
+          ? `${userData.firstName} ${userData.lastName}`
           : "Profile",
       headerStyle: {
         backgroundColor: config.secondaryColor,
@@ -108,7 +110,7 @@ const Profile = ({ navigation, route }) => {
 
   getFriendRequests = () => {
     const freReqs =
-      User.data.friendRequests != null ? User.data.friendRequests : []
+      userData.friendRequests != null ? userData.friendRequests : []
     const uList = []
     freReqs.forEach((req) => uList.push(req.userID))
     getUsers(uList).then((res) => {
@@ -128,7 +130,7 @@ const Profile = ({ navigation, route }) => {
   }
 
   getUserPosts = () => {
-    const postList = User.data.posts != null ? User.data.posts : []
+    const postList = userData.posts != null ? userData.posts : []
     pList = postList
     console.log(`Profile.getUserPosts: postList: ${postList}`)
     getPosts(postList).then((result) => {
@@ -145,7 +147,7 @@ const Profile = ({ navigation, route }) => {
 
   friendRequestCallback = (accept, req) => {
     if (accept) {
-      acceptFriendRequest(req.userID, friendRequests, User.data.friends)
+      acceptFriendRequest(req.userID, friendRequests, userData.friends)
         .then(() => {
           // complete
           alert(
@@ -176,13 +178,13 @@ const Profile = ({ navigation, route }) => {
         // console.log("### done getData")
         navigation.setOptions({
           title:
-            User.data != null
-              ? `${User.data.firstName} ${User.data.lastName}`
+            userData != null
+              ? `${userData.firstName} ${userData.lastName}`
               : "Profile",
           headerLeft: () => (
             <Btn
               onPress={() => {
-                navigation.navigate("EditProfile", { user: User.data })
+                navigation.navigate("EditProfile", { user: userData })
               }}
               icon={
                 <Feather name="edit" size={30} color={config.primaryColor} />
@@ -210,8 +212,8 @@ const Profile = ({ navigation, route }) => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
       }>
-      {User.data != null && (
-        <ProfileDataView user={{ data: User.data, auth: User.auth }} />
+      {userData != null && (
+        <ProfileDataView user={{ data: userData, auth: User.auth }} />
       )}
       <Button
         text="Friends"
@@ -230,8 +232,8 @@ const Profile = ({ navigation, route }) => {
         openModal={(post) => {
           navigation.navigate("PostView", {
             post,
-            user: User.data,
-            currentUser: User.data,
+            user: userData,
+            currentUser: userData,
           })
         }}
         navigation={navigation}
@@ -249,13 +251,13 @@ const Profile = ({ navigation, route }) => {
 const ProfileDataView = (props) => (
   <View style={dvStyles.container}>
     <ProfileImage
-      image={props.user.data.profileImage}
+      image={props.userData.profileImage}
       size={100}
-      name={`${props.user.data.firstName} ${props.user.data.lastName}`}
-      id={props.user.data.id}
+      name={`${props.userData.firstName} ${props.userData.lastName}`}
+      id={props.userData.id}
     />
     <Text style={{ ...dvStyles.text, color: config.textColor }}>
-      {`${props.user.data.firstName} ${props.user.data.lastName}`}
+      {`${props.userData.firstName} ${props.userData.lastName}`}
     </Text>
   </View>
 )
@@ -521,7 +523,7 @@ const ProfilePage = ({ navigation }) => {
         name="ProfileMain"
         component={Profile}
         options={{
-          title: User.data != null ? `${User.data.firstName}` : "Profile",
+          title: userData != null ? `${userData.firstName}` : "Profile",
           headerStyle: {
             backgroundColor: config.secondaryColor,
             shadowOffset: { height: 0, width: 0 },
