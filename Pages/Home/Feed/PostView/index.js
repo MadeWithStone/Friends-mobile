@@ -45,6 +45,7 @@ import { updateUser } from "../../../../Firebase/UserFunctions"
 import User from "../../../../Data/User"
 import config from "../../../../config"
 import { Keyboard } from "react-native"
+import useUserData from "../../../../Firebase/useUserData"
 
 /**
  * handles viewing of post after clicked in feed
@@ -62,8 +63,9 @@ const PostView = ({ route, navigation }) => {
 
   const scrollview = React.useRef()
   const safeArea = useSafeAreaInsets()
+  const userData = useUserData()
 
-  const postOwner = params.user.id === User.data.id
+  const postOwner = params.user.id === userData.id
 
   const [keyboardOpen, setKeyboardOpen] = React.useState(false)
   const [comments, setComments] = React.useState([])
@@ -110,15 +112,15 @@ const PostView = ({ route, navigation }) => {
             size={40}
             style={{
               borderColor: config.primaryColor,
-              borderWidth: User.data.id === params.user.id ? 1 : 0,
+              borderWidth: userData.id === params.user.id ? 1 : 0,
               borderStyle: "solid",
-              padding: User.data.id === params.user.id ? 1 : 0,
+              padding: userData.id === params.user.id ? 1 : 0,
               margin: "auto",
             }}
           />
           {params.post.reports &&
-            User.data.roles &&
-            User.data.roles.includes("moderator") && (
+            userData.roles &&
+            userData.roles.includes("moderator") && (
               <Text
                 style={{
                   ...styles.profileName,
@@ -198,7 +200,7 @@ const PostView = ({ route, navigation }) => {
 
     // add new comment object
     newComments.push({
-      userID: User.data.id,
+      userID: userData.id,
       comment: commentInput,
       date: new Date().toISOString(),
     })
@@ -213,13 +215,13 @@ const PostView = ({ route, navigation }) => {
   const removeFriend = (id) => {
     getUser(id).then((data) => {
       const f = data.data().friends
-      const idx = f.findIndex((x) => x.userID === User.data.id)
+      const idx = f.findIndex((x) => x.userID === userData.id)
       f.splice(idx, 1)
       updateUser({ friends: f }, id).then(() => {
-        const h = User.data.friends
+        const h = userData.friends
         const idx = h.findIndex((x) => x.userID === id)
         h.splice(idx, 1)
-        updateUser({ friends: h }, User.data.id).then(() => {})
+        updateUser({ friends: h }, userData.id).then(() => {})
       })
     })
   }
@@ -240,10 +242,10 @@ const PostView = ({ route, navigation }) => {
       reports = reports.reports ? reports.reports : []
 
       // check if user has not already reported the post
-      if (reports.findIndex((x) => x.userID === User.data.id) === -1) {
+      if (reports.findIndex((x) => x.userID === userData.id) === -1) {
         // add new report
         reports.push({
-          userID: User.data.id,
+          userID: userData.id,
           report: type - 1,
           date: new Date().toISOString(),
         })
@@ -283,10 +285,10 @@ const PostView = ({ route, navigation }) => {
 
   const deletePost = () => {
     deletePostFunc(params.post.id).then(async () => {
-      const posts = [...User.data.posts]
+      const posts = [...userData.posts]
       const idx = posts.findIndex((x) => x === params.post.id)
       posts.splice(idx, 1)
-      await updateUser({ posts }, User.data.id)
+      await updateUser({ posts }, userData.id)
       setShowChooser(false)
       navigation.goBack()
     })
@@ -345,7 +347,7 @@ const PostView = ({ route, navigation }) => {
             setShowChooser={setShowChooser}
             reportAction={
               postOwner ||
-              (User.data.roles && User.data.roles.includes("moderator"))
+              (userData.roles && userData.roles.includes("moderator"))
                 ? deletePost
                 : reportPost
             }

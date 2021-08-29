@@ -31,15 +31,16 @@ const FriendsList = ({ route, navigation }) => {
   const [fObj, setFOBJ] = React.useState([])
 
   const focused = useIsFocused()
+  const userData = useUserData()
 
   let listener
 
   React.useEffect(() => {
     if (focused) {
       getFriends()
-      listener = userReference(User.data.id).onSnapshot((doc) => {
+      listener = userReference(userData.id).onSnapshot((doc) => {
         console.log(`snap data: ${JSON.stringify(doc.data())}`)
-        User.data = doc.data()
+        userData = doc.data()
         getFriends()
       })
     } else if (listener) {
@@ -68,7 +69,7 @@ const FriendsList = ({ route, navigation }) => {
   }, [navigation])
 
   const getFriends = () => {
-    const fre = User.data.friends != null ? User.data.friends : []
+    const fre = userData.friends != null ? userData.friends : []
     const uList = []
     fre.forEach((req) => uList.push(req.userID))
     getUsers(uList).then((res) => {
@@ -83,13 +84,13 @@ const FriendsList = ({ route, navigation }) => {
   const removeFriend = (id) => {
     getUser(id).then((data) => {
       const f = data.data().friends
-      const idx = f.findIndex((x) => x.userID === User.data.id)
+      const idx = f.findIndex((x) => x.userID === userData.id)
       f.splice(idx, 1)
       updateUser({ friends: f }, id).then(() => {
-        const h = User.data.friends
+        const h = userData.friends
         const idx = h.findIndex((x) => x.userID === id)
         h.splice(idx, 1)
-        updateUser({ friends: h }, User.data.id).then(() => {})
+        updateUser({ friends: h }, userData.id).then(() => {})
       })
     })
   }

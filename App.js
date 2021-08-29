@@ -75,12 +75,13 @@ const App = () => {
             downloadUserData()
             Analytics.setAnalyticsCollectionEnabled(false)
           } else {
-            console.log("[Friends SignIn] not authenticated or email not verified")
+            console.log(
+              "[Friends SignIn] not authenticated or email not verified"
+            )
             setShowMain(false)
             setShowSignIn(true)
           }
         }
-        
       })
       .catch((err) => {
         console.warn(err)
@@ -318,7 +319,7 @@ const App = () => {
                 ),
                 title: "Add Friend",
                 headerStyle: {
-                  backgroundColor: config.secondaryColor,
+                  backgroundColor: cHook.secondaryColor,
                   shadowOffset: { height: 0, width: 0 },
                 },
                 headerTintColor: config.primaryColor,

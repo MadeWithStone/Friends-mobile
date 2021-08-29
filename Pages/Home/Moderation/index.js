@@ -85,6 +85,7 @@ const Moderation = ({ navigation, route }) => {
         <FeedObject
           post={item}
           user={item.user}
+          currentUser={userData}
           key={item.id}
           menuAction={() => {}}
           onImagePress={() => {

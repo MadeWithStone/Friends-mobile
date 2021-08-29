@@ -15,12 +15,14 @@ import config from "../../../../config"
 import { Button } from "../../../../Components"
 import User from "../../../../Data/User"
 import { signOut } from "../../../../Firebase/UserFunctions"
+import useUserData from "../../../../Firebase/useUserData"
 
 const Settings = ({ navigation, route }) => {
   const dims = {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
   }
+  const userData = useUserData()
   const palletWidth = dims.width / 2 - 12
   const colorList = [
     {
@@ -81,13 +83,6 @@ const Settings = ({ navigation, route }) => {
     navigation.goBack()
   }
   const signOutUser = async () => {
-    console.log("signing out")
-    User.data = null
-    console.log("deleted userdata")
-    await SecureStore.deleteItemAsync("currentAuth")
-    User.auth = null
-    console.log("deleted authdata")
-    await SecureStore.deleteItemAsync("credentials")
     await signOut()
     console.log("signed out")
   }

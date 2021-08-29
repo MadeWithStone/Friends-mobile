@@ -35,6 +35,7 @@ class FeedObject extends React.Component {
   render() {
     const date = new Date(this.props.post.date)
     const user = this.props.user ? this.props.user : {}
+    const currentUser = this.props.currentUser
     return (
       <View
         style={{ ...styles.mainView, backroundColor: config.secondaryColor }}>
@@ -46,15 +47,15 @@ class FeedObject extends React.Component {
             id={user.id}
             style={{
               borderColor: config.primaryColor,
-              borderWidth: User.data.id === user.id ? 1 : 0,
+              borderWidth: currentUser.id === user.id ? 1 : 0,
               borderStyle: "solid",
-              padding: User.data.id === user.id ? 1 : 0,
+              padding: currentUser.id === user.id ? 1 : 0,
               margin: "auto",
             }}
           />
           {this.props.post.reports &&
-            User.data.roles &&
-            User.data.roles.includes("moderator") && (
+            currentUser.roles &&
+            currentUser.roles.includes("moderator") && (
               <Text
                 style={{
                   ...styles.profileName,

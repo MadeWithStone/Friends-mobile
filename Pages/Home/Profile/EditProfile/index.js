@@ -34,6 +34,7 @@ import {
   updateUser,
 } from "../../../../Firebase/UserFunctions"
 import { uploadImage } from "../../../../Firebase/PostFunctions"
+import useUserData from "../../../../Firebase/useUserData"
 
 const EditProfile = ({ navigation, route }) => {
   const [image, setImage] = useState("")
@@ -50,13 +51,15 @@ const EditProfile = ({ navigation, route }) => {
   }
   let camera = {}
 
+  const userData = useUserData()
+
   const updateImage = (img) => {
     setImage(img)
   }
   React.useEffect(() => {
-    setImage(User.data.profileImage)
-    setFirstName(User.data.firstName)
-    setLastName(User.data.lastName)
+    setImage(userData.profileImage)
+    setFirstName(userData.firstName)
+    setLastName(userData.lastName)
   }, [])
   React.useEffect(() => {
     console.log(`updated image: ${image}`)
@@ -165,13 +168,13 @@ const EditProfile = ({ navigation, route }) => {
     console.log(`firstname: ${firstName}`)
     if (firstName.length <= 0) {
       alert("You must enter a first name")
-    } else if (User.data !== null) {
-      let imgURL = User.data.profileImage
+    } else if (userData !== null) {
+      let imgURL = userData.profileImage
       if (image !== null && image.length > 0 && image !== imgURL) {
         imgURL = await uploadUserImg()
       } else if (image === "" && imgURL !== image) {
         imgURL = ""
-        await removeProfileImage(User.data.id)
+        await removeProfileImage(userData.id)
       }
       setImage(imgURL)
       console.log(`firstname: ${firstName}`)
@@ -182,7 +185,7 @@ const EditProfile = ({ navigation, route }) => {
       }
 
       console.log(`new data: ${JSON.stringify(newData)}`)
-      updateUser(newData, User.data.id).then(async () => {
+      updateUser(newData, userData.id).then(async () => {
         navigation.goBack()
       })
     }
@@ -196,7 +199,7 @@ const EditProfile = ({ navigation, route }) => {
     return new Promise((resolve, reject) => {
       uploadImage(
         uploadUri,
-        User.data.id,
+        userData.id,
         (snapshot) => {
           /* setProgress(
             Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 0.5

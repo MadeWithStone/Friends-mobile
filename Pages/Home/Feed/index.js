@@ -56,6 +56,7 @@ import FeedFunctions from "./feedFunctions"
 import User from "../../../Data/User"
 import config, { configHook } from "../../../config"
 import FeedObject from "./FeedObject"
+import useUserData from "../../../Firebase/useUserData"
 
 let users = {}
 let postList = []
@@ -87,6 +88,8 @@ const Feed = ({ route, navigation }) => {
 
   // hook to determine whether the component is mounted
   const focused = useIsFocused()
+
+  const userData = useUserData()
 
   // hook to prevent screen capture when mounted
   usePreventScreenCapture()
@@ -200,7 +203,7 @@ const Feed = ({ route, navigation }) => {
 
     // get users and post list
     const { pList, u } = await FeedFunctions.downloadUsers([...postList], {
-      data: User.data,
+      data: userData,
     })
 
     // set updated users
@@ -269,13 +272,13 @@ const Feed = ({ route, navigation }) => {
   const removeFriend = (id) => {
     getUser(id).then((data) => {
       const f = data.data().friends
-      const idx = f.findIndex((x) => x.userID === User.data.id)
+      const idx = f.findIndex((x) => x.userID === userData.id)
       f.splice(idx, 1)
       updateUser({ friends: f }, id).then(() => {
-        const h = User.data.friends
+        const h = userData.friends
         const idx = h.findIndex((x) => x.userID === id)
         h.splice(idx, 1)
-        updateUser({ friends: h }, User.data.id).then(() => {})
+        updateUser({ friends: h }, userData.id).then(() => {})
       })
     })
   }
@@ -296,10 +299,10 @@ const Feed = ({ route, navigation }) => {
       reports = reports.reports ? reports.reports : []
 
       // check if user has not already reported the post
-      if (reports.findIndex((x) => x.userID === User.data.id) === -1) {
+      if (reports.findIndex((x) => x.userID === userData.id) === -1) {
         // add new report
         reports.push({
-          userID: User.data.id,
+          userID: userData.id,
           report: type - 1,
           date: new Date().toISOString(),
         })
@@ -403,13 +406,14 @@ const Feed = ({ route, navigation }) => {
             <FeedObject
               post={post}
               user={users[post.userID]}
+              currentUser={userData}
               key={post.date}
               menuAction={() => menu(post.id)}
               onImagePress={() => {
                 navigation.navigate("PostView", {
                   post,
                   user: users[post.userID],
-                  currentUser: User.data,
+                  currentUser: userData,
                 })
               }}
             />
@@ -421,7 +425,7 @@ const Feed = ({ route, navigation }) => {
         setShowChooser={setShowChooser}
         reportAction={reportPost}
         reportOptions={
-          currentPost.userID === User.data.id
+          currentPost.userID === userData.id
             ? []
             : [
                 "Block User",

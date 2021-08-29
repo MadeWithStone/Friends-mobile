@@ -45,6 +45,7 @@ import CreatePost from "./CreatePost"
 import config from "../../../config"
 import User from "../../../Data/User"
 import { set } from "react-native-reanimated"
+import useUserData from "../../../Firebase/useUserData"
 
 let maxVY = 0
 let maxVT = 0
@@ -67,6 +68,7 @@ const Post = ({ route, navigation }) => {
   const [modalOs, setModalOs] = React.useState(["portrait"])
 
   const focused = useIsFocused()
+  const userData = useUserData()
   let camera
   const [dims, setDims] = React.useState({
     width: Dimensions.get("screen").width,
@@ -187,7 +189,7 @@ const Post = ({ route, navigation }) => {
       setUpPermisions()
     }
     if (focused) {
-      if (User.data.posts && User.data.posts.length >= 6) {
+      if (userData.posts && userData.posts.length >= 6) {
         alert(
           "You have hit your post maximum. Please delete 1 or more posts to post a new one."
         )

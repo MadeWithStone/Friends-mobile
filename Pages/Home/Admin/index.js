@@ -12,26 +12,36 @@ import {
   announcementsRef,
   editAnnouncement,
 } from "../../../Firebase/AdminFunctions"
+import isAuthenticated from "../../../Firebase/isAuthenticated"
 
 const Admin = ({ navigation, route }) => {
   const cHook = configHook()
   const userData = useUserData()
   const focused = useIsFocused()
+  const [auth, init] = isAuthenticated()
   const [announcements, setAnnouncements] = React.useState([])
 
   let listener
 
   React.useEffect(() => {
-    listener = announcementsRef.onSnapshot((snapshot) => {
-      const data = []
-      snapshot.forEach((doc) => {
-        data.push({ ...doc.data(), id: doc.id })
+    if (auth) {
+      listener = announcementsRef.onSnapshot((snapshot) => {
+        if (snapshot) {
+          const data = []
+          snapshot.forEach((doc) => {
+            data.push({ ...doc.data(), id: doc.id })
+          })
+          console.log(JSON.stringify(data))
+          setAnnouncements(data)
+        }
       })
-      console.log(JSON.stringify(data))
-      setAnnouncements(data)
-    })
-    return () => {
-      listener()
+      return () => {
+        listener()
+      }
+    } else {
+      if (listener) {
+        listener()
+      }
     }
   }, [])
   React.useLayoutEffect(() => {

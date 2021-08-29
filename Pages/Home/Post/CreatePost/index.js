@@ -36,6 +36,7 @@ import FeedPage from "../../Feed"
 
 import config from "../../../../config"
 import { IconButton, MultilineInput } from "../../../../Components"
+import useUserData from "../../../../Firebase/useUserData"
 
 const _this = null
 let desc = ""
@@ -54,9 +55,10 @@ export default function HomeScreen({ navigation, route }) {
 
   usePreventScreenCapture()
   const focused = useIsFocused()
+  const userData = useUserData()
 
   React.useEffect(() => {
-    if (focused && User.data.posts && User.data.posts.length >= 6) {
+    if (focused && userData.posts && userData.posts.length >= 6) {
       alert(
         "You have reached your post maximum of 6. Please go to your profile and delete posts."
       )
@@ -112,7 +114,7 @@ export default function HomeScreen({ navigation, route }) {
         const createPost = await createPostData(postData, postID)
         setProgress(0.8)
         updateProgressText("Sharing with Friends")
-        let postList = User.data.posts
+        let postList = userData.posts
 
         if (postList == null) {
           postList = [postID]
