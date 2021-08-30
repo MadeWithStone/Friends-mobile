@@ -63,21 +63,9 @@ const Profile = ({ navigation, route }) => {
 
   React.useEffect(() => {
     // console.log("running use effect")
-  }, [focused])
+    updateData()
+  }, [focused, userData])
 
-  React.useEffect(() => {
-    if (focused) {
-      updateData()
-      listener = userReference(userData.id).onSnapshot((doc) => {
-        // console.log("snap data: " + JSON.stringify(doc.data()))
-        userData = doc.data()
-        getFriendRequests()
-        getUserPosts()
-      })
-    } else if (listener) {
-      listener()
-    }
-  }, [focused])
   React.useEffect(() => {
     console.log(`updating profile styles ${config.secondaryColor}`)
     navigation.setOptions({
@@ -173,29 +161,24 @@ const Profile = ({ navigation, route }) => {
   }
 
   const updateData = () => {
-    if (focused) {
-      User.getUpdatedData().then(() => {
-        // console.log("### done getData")
-        navigation.setOptions({
-          title:
-            userData != null
-              ? `${userData.firstName} ${userData.lastName}`
-              : "Profile",
-          headerLeft: () => (
-            <Btn
-              onPress={() => {
-                navigation.navigate("EditProfile", { user: userData })
-              }}
-              icon={
-                <Feather name="edit" size={30} color={config.primaryColor} />
-              }
-              type="clear"
-            />
-          ),
-        })
-        getFriendRequests()
-        getUserPosts()
+    if (focused && userData) {
+      navigation.setOptions({
+        title:
+          userData != null
+            ? `${userData.firstName} ${userData.lastName}`
+            : "Profile",
+        headerLeft: () => (
+          <Btn
+            onPress={() => {
+              navigation.navigate("EditProfile", { user: userData })
+            }}
+            icon={<Feather name="edit" size={30} color={config.primaryColor} />}
+            type="clear"
+          />
+        ),
       })
+      getFriendRequests()
+      getUserPosts()
     }
   }
 
@@ -212,9 +195,7 @@ const Profile = ({ navigation, route }) => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={_onRefresh} />
       }>
-      {userData != null && (
-        <ProfileDataView user={{ data: userData, auth: User.auth }} />
-      )}
+      {userData && <ProfileDataView user={{ ...userData, auth: User.auth }} />}
       <Button
         text="Friends"
         onPressAction={() => navigation.navigate("YourFriends")}
@@ -248,19 +229,24 @@ const Profile = ({ navigation, route }) => {
   )
 }
 
-const ProfileDataView = (props) => (
-  <View style={dvStyles.container}>
-    <ProfileImage
-      image={props.userData.profileImage}
-      size={100}
-      name={`${props.userData.firstName} ${props.userData.lastName}`}
-      id={props.userData.id}
-    />
-    <Text style={{ ...dvStyles.text, color: config.textColor }}>
-      {`${props.userData.firstName} ${props.userData.lastName}`}
-    </Text>
-  </View>
-)
+const ProfileDataView = (props) => {
+  console.log(
+    "[Friends PostPage.ProfileDataView] user: " + JSON.stringify(props.user)
+  )
+  return (
+    <View style={dvStyles.container}>
+      <ProfileImage
+        image={props.user.profileImage}
+        size={100}
+        name={`${props.user.firstName} ${props.user.lastName}`}
+        id={props.user.id}
+      />
+      <Text style={{ ...dvStyles.text, color: config.textColor }}>
+        {`${props.user.firstName} ${props.user.lastName}`}
+      </Text>
+    </View>
+  )
+}
 
 const FriendRequestView = (props) => (
   <View>
@@ -508,6 +494,7 @@ const dvStyles = StyleSheet.create({
 const Stack = createStackNavigator()
 const ProfilePage = ({ navigation }) => {
   const cHook = configHook()
+  const userData = useUserData()
 
   React.useEffect(() => {
     console.log(`ProfilePage: configHook changed: ${cHook.secondaryColor}`)

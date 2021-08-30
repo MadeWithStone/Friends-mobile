@@ -50,7 +50,6 @@ const EditProfile = ({ navigation, route }) => {
     height: Dimensions.get("window").height,
   }
   let camera = {}
-
   const userData = useUserData()
 
   const updateImage = (img) => {
@@ -168,7 +167,7 @@ const EditProfile = ({ navigation, route }) => {
     console.log(`firstname: ${firstName}`)
     if (firstName.length <= 0) {
       alert("You must enter a first name")
-    } else if (userData !== null) {
+    } else if (userData != null) {
       let imgURL = userData.profileImage
       if (image !== null && image.length > 0 && image !== imgURL) {
         imgURL = await uploadUserImg()
