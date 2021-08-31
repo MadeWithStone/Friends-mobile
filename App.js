@@ -31,6 +31,7 @@ import EditUser from "./Pages/Home/Admin/EditUser"
 
 const Stack = createStackNavigator()
 const prefix = Linking.createURL("/")
+const titleText = "Friends"
 
 const App = () => {
   const [linking, setLinking] = React.useState({
@@ -47,6 +48,7 @@ const App = () => {
   const [showSignIn, setShowSignIn] = React.useState(false)
 
   const [code, setCode] = React.useState(null)
+  const [len, setLen] = React.useState(titleText.length - 1)
 
   /**
    * download user data from firebase firestore
@@ -61,6 +63,17 @@ const App = () => {
       setShowMain(true)
     })
   }
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setLen((prev) => {
+        let newVal = (prev += 1)
+        if (newVal > titleText.length) newVal = 0
+        return newVal
+      })
+    }, 500)
+    return () => clearInterval(interval)
+  }, [])
 
   React.useEffect(() => {
     config
@@ -119,7 +132,7 @@ const App = () => {
                 alignItems: "center",
               }}>
               <LogoHorizontal
-                title="Friends"
+                title={titleText.substring(0, len)}
                 style={{ width: "100%", margin: 16 }}
               />
             </View>

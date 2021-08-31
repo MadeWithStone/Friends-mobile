@@ -25,6 +25,7 @@ import {
   updateUser,
   loadData as getUser,
 } from "../../../../Firebase/UserFunctions"
+import useUserData from "../../../../Firebase/useUserData"
 
 const FriendsList = ({ route, navigation }) => {
   const [friends, setFriends] = React.useState([])
@@ -36,17 +37,10 @@ const FriendsList = ({ route, navigation }) => {
   let listener
 
   React.useEffect(() => {
-    if (focused) {
+    if (userData) {
       getFriends()
-      listener = userReference(userData.id).onSnapshot((doc) => {
-        console.log(`snap data: ${JSON.stringify(doc.data())}`)
-        userData = doc.data()
-        getFriends()
-      })
-    } else if (listener) {
-      listener()
     }
-  }, [focused])
+  }, [focused, userData])
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
