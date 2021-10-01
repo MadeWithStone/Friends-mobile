@@ -1,3 +1,4 @@
+import { doc } from "prettier"
 import { firebase } from "../config"
 import { getUsers } from "../UserFunctions"
 import User from "../../Data/User"
@@ -208,6 +209,41 @@ const deleteImage = async (uid, postID) => {
   return reference.delete()
 }
 
+const getMemes = async (minTime) =>
+  new Promise((resolve, reject) => {
+    firebase
+      .firestore()
+      .collection("posts")
+      .where("meme", "==", true)
+      .where("date", ">=", minTime)
+      .orderBy("date", "desc")
+      .limit(10)
+      .get()
+      .then((snaps) => {
+        let docs = []
+        snaps.forEach((snap) => {
+          docs.push({ ...snap.data(), id: snap.id })
+        })
+        const usersToGet = docs
+          .map((doc) => doc.userID)
+          .filter((userID, idx, self) => self.indexOf(userID) === idx)
+        getUsers(usersToGet).then((userSnaps) => {
+          const users = []
+          userSnaps.forEach((user) => {
+            users.push({ ...user.data(), id: user.id })
+          })
+
+          docs = docs.map((doc) => ({
+            ...doc,
+            user: users.find((u) => u.id === doc.userID),
+          }))
+          docs = docs.filter((doc) => doc.user)
+
+          resolve(docs)
+        })
+      })
+  })
+
 export {
   uploadImage,
   createPostData,
@@ -219,4 +255,5 @@ export {
   updateReports,
   deletePost,
   postsReference,
+  getMemes,
 }

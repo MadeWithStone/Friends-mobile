@@ -3,8 +3,8 @@ import { StatusBar } from "expo-status-bar"
 import React from "react"
 import { CommonActions, NavigationContainer } from "@react-navigation/native"
 import { createStackNavigator } from "@react-navigation/stack"
-import { StyleSheet, Text, View, Image } from "react-native"
-import * as Linking from "expo-linking"
+import { StyleSheet, Text, View, Image, Linking } from "react-native"
+// import * as Linking from "expo-linking"
 import * as Analytics from "expo-firebase-analytics"
 import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
@@ -30,7 +30,7 @@ import Post from "./Pages/Home/Post"
 import EditUser from "./Pages/Home/Admin/EditUser"
 
 const Stack = createStackNavigator()
-const prefix = Linking.createURL("/")
+const prefix = "friends:///" /// Linking.createURL("/")
 const titleText = "Friends"
 
 const App = () => {
@@ -67,7 +67,7 @@ const App = () => {
   React.useEffect(() => {
     const interval = setInterval(() => {
       setLen((prev) => {
-        let newVal = (prev += 1)
+        let newVal = prev + 1
         if (newVal > titleText.length) newVal = 0
         return newVal
       })
@@ -117,7 +117,6 @@ const App = () => {
 
   const cHook = configHook()
 
-  console.log("loader page loaded")
   return (
     <View style={{ flex: 1, backgroundColor: config.secondaryColor }}>
       <NavigationContainer

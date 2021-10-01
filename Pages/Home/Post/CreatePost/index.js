@@ -107,10 +107,11 @@ export default function HomeScreen({ navigation, route }) {
         const date = new Date()
         const postData = {
           image: imgUrl,
-          date: date.toISOString(),
+          date: date.getTime(),
           comments: [],
         }
         postData.description = desc
+        postData.meme = desc.indexOf("#meme") !== -1
         const createPost = await createPostData(postData, postID)
         setProgress(0.8)
         updateProgressText("Sharing with Friends")
@@ -168,7 +169,9 @@ export default function HomeScreen({ navigation, route }) {
               fontWeight: "bold",
               textAlign: "center",
             }}>
-            Posts are only viewable within two days of posting.
+            Posts are only viewable within two days of posting. Use "#meme" in
+            your description to post to the meme page. Note this will make it
+            available outside of your private network.
           </Text>
         }
         innerRef={(ref) => {

@@ -29,6 +29,7 @@ import { ProfileImage } from "../../Components"
 import useUserData from "../../Firebase/useUserData"
 import Admin from "./Admin"
 import ModerationPage from "./Moderation"
+import MemesPage from "./Memes"
 
 const Tab = createMaterialTopTabNavigator()
 /**
@@ -177,6 +178,28 @@ const Home = ({ route, navigation }) => {
             <View style={{ width: "100%" }}>
               <Feather
                 name={"users"}
+                size={focused ? config.iconFocused : config.icon}
+                color={color}
+              />
+            </View>
+          ),
+          indicatorStyle: {
+            backgroundColor: config.primaryColor,
+            width: "50%",
+            marginLeft: 20,
+          },
+          showLabel: true,
+        }}
+      />
+      <Tab.Screen
+        name="Memes"
+        component={MemesPage}
+        options={{
+          title: "",
+          tabBarIcon: ({ focused, color }) => (
+            <View style={{ width: "100%" }}>
+              <Feather
+                name={"hash"}
                 size={focused ? config.iconFocused : config.icon}
                 color={color}
               />

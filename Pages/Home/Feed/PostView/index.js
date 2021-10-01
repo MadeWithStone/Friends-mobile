@@ -8,7 +8,7 @@ import { useIsFocused, useScrollToTop } from "@react-navigation/native"
 import { usePreventScreenCapture } from "expo-screen-capture"
 
 // Components
-import { Text, Dimensions, View, StyleSheet } from "react-native"
+import { Text, Dimensions, View, StyleSheet, Keyboard } from "react-native"
 import Entypo from "@expo/vector-icons/Entypo"
 import MaterialIcons from "@expo/vector-icons/MaterialIcons"
 import {
@@ -44,7 +44,6 @@ import {
 import { updateUser } from "../../../../Firebase/UserFunctions"
 import User from "../../../../Data/User"
 import config from "../../../../config"
-import { Keyboard } from "react-native"
 import useUserData from "../../../../Firebase/useUserData"
 
 /**
@@ -109,6 +108,7 @@ const PostView = ({ route, navigation }) => {
             image={params.user.profileImage ? params.user.profileImage : ""}
             name={`${params.user.firstName} ${params.user.lastName}`}
             id={params.user.id}
+            noCache={false}
             size={40}
             style={{
               borderColor: config.primaryColor,
@@ -161,9 +161,9 @@ const PostView = ({ route, navigation }) => {
   }, [comments])
 
   React.useEffect(() => {
-    //setComments(params.post.comments)
+    // setComments(params.post.comments)
     listener = postReference(params.post.id).onSnapshot((doc) => {
-      let post = doc.data()
+      const post = doc.data()
       if (params.post === undefined) {
         navigation.goBack()
       } else if (post) {
@@ -235,7 +235,7 @@ const PostView = ({ route, navigation }) => {
     // find current post in list of posts
     let reports = posts.find((x) => x.id === currentPost)
 
-    if (type == 0) {
+    if (type === 0) {
       removeFriend(users[reports.userID].id)
     } else {
       // get reports array for post
@@ -295,10 +295,10 @@ const PostView = ({ route, navigation }) => {
   }
 
   const date = new Date(params.post.date)
-  /*const renderScrollable = (panHandlers) => (
+  /* const renderScrollable = (panHandlers) => (
     // Can be anything scrollable
     
-  )*/
+  ) */
   return (
     <View style={{ flex: 1 }}>
       <SafeAreaView
@@ -352,7 +352,9 @@ const PostView = ({ route, navigation }) => {
                 : reportPost
             }
             reportOptions={
-              postOwner
+              postOwner ||
+              (userData.roles &&
+                userData.roles.find((role) => role === "moderator") !== -1)
                 ? ["Delete Post"]
                 : [
                     "Report for Sexually Explicit Content",
@@ -406,6 +408,7 @@ const CommentObj = (props) => {
           name={user ? `${user.firstName} ${user.lastName}` : ""}
           id={user.id}
           size={30}
+          noCache={false}
         />
       )}
       <Text style={{ ...styles.textView, color: config.textColor }}>

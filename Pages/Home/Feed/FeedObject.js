@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native"
 import Entypo from "@expo/vector-icons/Entypo"
+import { Feather } from "@expo/vector-icons"
 import { IconButton, ProfileImage, CachedImage } from "../../../Components"
 import config from "../../../config"
 import User from "../../../Data/User"
@@ -35,7 +36,7 @@ class FeedObject extends React.Component {
   render() {
     const date = new Date(this.props.post.date)
     const user = this.props.user ? this.props.user : {}
-    const currentUser = this.props.currentUser
+    const { currentUser } = this.props
     return (
       <View
         style={{ ...styles.mainView, backroundColor: config.secondaryColor }}>
@@ -45,6 +46,7 @@ class FeedObject extends React.Component {
             name={`${user.firstName} ${user.lastName}`}
             size={40}
             id={user.id}
+            noCache={false}
             style={{
               borderColor: config.primaryColor,
               borderWidth: currentUser.id === user.id ? 1 : 0,
@@ -98,6 +100,20 @@ class FeedObject extends React.Component {
             </Text>{" "}
             - {this.props.post.description}
           </Text>
+          <TouchableWithoutFeedback onPress={this.props.onImagePress}>
+            <Feather
+              name="message-circle"
+              size={24}
+              style={{
+                marginLeft: 8,
+              }}
+              color={
+                this.props.post.comments && this.props.post.comments.length > 0
+                  ? config.primaryColor
+                  : config.textColor
+              }
+            />
+          </TouchableWithoutFeedback>
         </View>
       </View>
     )
@@ -125,6 +141,7 @@ const styles = StyleSheet.create({
     // color: config.primaryColor,
     fontSize: 17,
     fontWeight: "bold",
+    marginRight: 8,
   },
   optionsBtn: {
     display: "flex",
@@ -135,9 +152,16 @@ const styles = StyleSheet.create({
   },
   descriptionView: {
     margin: 8,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   description: {
+    display: "flex",
     fontSize: 15,
+    alignItems: "center",
+    justifyContent: "center",
   },
   descriptionStart: {
     fontWeight: "bold",

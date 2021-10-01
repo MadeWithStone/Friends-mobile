@@ -29,6 +29,7 @@ import { Button as Btn } from "react-native-elements"
 import Feather from "@expo/vector-icons/Feather"
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5"
 import {
+  getMemes,
   getPost,
   getPosts,
   updateReports,
@@ -37,8 +38,7 @@ import { getUsers, loadData } from "../../../Firebase/UserFunctions"
 import { getAllAnnouncements } from "../../../Firebase/AdminFunctions"
 
 // Navigation
-import AddFriend from "./AddFriend"
-import PostView from "./PostView"
+import PostView from "../Feed/PostView"
 
 // Components
 import {
@@ -52,23 +52,23 @@ import {
   OptionsModal,
   H3,
 } from "../../../Components"
-import FeedFunctions from "./feedFunctions"
+import FeedFunctions from "../Feed/feedFunctions"
 import User from "../../../Data/User"
 import config, { configHook } from "../../../config"
-import FeedObject from "./FeedObject"
+import FeedObject from "../Feed/FeedObject"
 import useUserData from "../../../Firebase/useUserData"
 
-let users = {}
-let postList = []
+const users = {}
+const postList = []
 const currentUser = ""
 
 /**
- * @name Feed
+ * @name Memes
  *
  * @class
  * @component
  */
-const Feed = ({ route, navigation }) => {
+const Memes = ({ route, navigation }) => {
   // list of post objects
   const [posts, setPosts] = React.useState([])
 
@@ -106,28 +106,13 @@ const Feed = ({ route, navigation }) => {
 
   React.useEffect(() => {
     if (focused) {
-      const refresh = route.params ? route.params.refresh : false
-      if (refresh) {
-        console.log("refreshing data")
-        setPosts([])
-        postList = []
-      }
+      updateData()
     }
-  }, [navigation])
-
-  React.useEffect(() => {
-    console.log(`### posts cleaning: ${posts.length}`)
-    if (posts.length > 1 && !cleaned) {
-      FeedFunctions.cleanOldPosts(posts).then((cleanedPosts) => {
-        setPosts(cleanedPosts)
-        setCleaned(true)
-      })
-    }
-  }, [posts])
+  }, [focused])
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: () => <LogoHorizontal title={"Friends"} />,
+      headerTitle: () => <LogoHorizontal title={"Memes"} />,
       headerStyle: {
         backgroundColor: config.secondaryColor,
         shadowOffset: { height: 0, width: 0 },
@@ -151,10 +136,8 @@ const Feed = ({ route, navigation }) => {
       // get updated user data from firestore
       // reset the users list
       // users = []
-
       // run download users and do not reset the posts
-      runFunctions(false)
-
+      // runFunctions(false)
       /* // if still focused
       if (focused) {
         // call itself after 60 seconds
@@ -169,78 +152,14 @@ const Feed = ({ route, navigation }) => {
    * update feed data
    */
   const updateData = () => {
-    console.log("running update data")
-
-    // if component mounted
-    if (focused) {
-      // get updated user data from firestore
-      // reset the post list
-      postList = []
-
-      // reset the user list
-      // users = {}
-
-      // download users and reset the posts
-      runFunctions(true)
-    }
-  }
-
-  /**
-   * runs the functions that get firestore data in the FeedFunctions class
-   *
-   * @param {boolean} refresh whether to refresh the data
-   */
-  const runFunctions = async (refresh) => {
-    getAllAnnouncements().then((snap) => {
-      const data = []
-      snap.forEach((doc) => data.push({ ...doc.data(), id: doc.id }))
-      setAnnouncements(data)
+    setRefreshing(true)
+    let minTime = new Date().getTime()
+    minTime -= 1000 * 60 * 60 * 24 * 2
+    console.log(`[Friends Memes] getting memes ${new Date().getTime()}`)
+    getMemes(minTime).then((docs) => {
+      console.log(`[Friends Memes.getMemes] docs: ${docs.length}`)
+      setPosts(docs)
     })
-
-    // get users and post list
-    const { pList, u } = await FeedFunctions.downloadUsers([...postList], {
-      data: userData,
-    })
-
-    // set updated users
-    users = u
-
-    // get post data
-    const postData = await FeedFunctions.downloadPosts(pList, postList)
-
-    const removeIndexes = []
-    postList.forEach((item, index) => {
-      if (pList.find((x) => x.id === item) === -1) {
-        removeIndexes.push(index)
-      }
-    })
-
-    for (let i = removeIndexes.length - 1; i >= 0; i--) {
-      postList.splice(removeIndexes[i], 1)
-    }
-
-    // update postList
-    postList = [...postList, ...pList]
-
-    // set new posts to state
-    setPosts((old) => {
-      const pCopy = !refresh ? [...old] : []
-      // loop through pCopy backwards
-      for (let i = pCopy.length - 1; i >= 0; i--) {
-        // if post is not in new list of posts
-        if (postList.findIndex((x) => x === pCopy[i].id) === -1) {
-          // remove post
-          pCopy.splice(i, 1)
-        }
-      }
-      const toSet = [...pCopy, ...postData]
-      return toSet
-    })
-
-    // clean new posts
-    setCleaned(false)
-
-    // stop refresh indicator
     setRefreshing(false)
   }
 
@@ -301,7 +220,7 @@ const Feed = ({ route, navigation }) => {
         reports.push({
           userID: userData.id,
           report: type - 1,
-          date: new Date().toISOString(),
+          date: new Date().getTime(),
         })
 
         // run update reports firebase function
@@ -350,20 +269,12 @@ const Feed = ({ route, navigation }) => {
         }}
         showsVerticalScrollIndicator={false}
         horizontal={false}
-        data={posts
-          .filter((item, index) => {
-            if (item) {
-              const date = new Date(item.date)
-              return date >= cuttOff && posts.indexOf(item) === index
-            }
-            return false
-          })
-          .sort((a, b) => {
-            const dA = new Date(a.date)
-            const dB = new Date(b.date)
-            console.log(`[Friends Feed] Sorting Dates ${dA} < ${dB}`)
-            return dB - dA
-          })}
+        data={posts.sort((a, b) => {
+          const dA = new Date(a.date)
+          const dB = new Date(b.date)
+          console.log(`[Friends Feed] Sorting Dates ${dA} < ${dB}`)
+          return dB - dA
+        })}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -374,36 +285,20 @@ const Feed = ({ route, navigation }) => {
         ListEmptyComponent={
           <View>
             <Text style={{ ...styles.starterText, color: config.textColor }}>
-              Here's where you can see your friends' posts. Unfortunately there
-              aren't any right now.
+              Here's where you can see memes from the Friends community.
+              Unfortunately there aren't any right now.
             </Text>
             <Text style={{ ...styles.starterText, color: config.textColor }}>
-              Share your{" "}
-              <TextButton
-                text="Friend Code"
-                textStyle={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: -3,
-                  fontWeight: "bold",
-                }}
-                onPressAction={() => navigation.navigate("AddFriend")}
-              />{" "}
-              to make friends
+              Use "#meme" in your post description to add it to the memes page.
             </Text>
           </View>
-        }
-        ListHeaderComponent={
-          announcements && announcements.length > 0 ? (
-            <AnnouncementList announcements={announcements} />
-          ) : null
         }
         renderItem={({ item, index, separators }) => {
           const post = item
           return (
             <FeedObject
               post={post}
-              user={users[post.userID]}
+              user={post.user}
               currentUser={userData}
               key={post.date}
               menuAction={() => menu(post.id)}
@@ -411,7 +306,7 @@ const Feed = ({ route, navigation }) => {
               onImagePress={() => {
                 navigation.navigate("PostView", {
                   post,
-                  user: users[post.userID],
+                  user: post.user,
                   currentUser: userData,
                 })
               }}
@@ -452,50 +347,6 @@ const styles = StyleSheet.create({
   },
 })
 
-const AnnouncementList = ({ announcements }) => {
-  const cHook = configHook()
-  return (
-    <FlatList
-      ListEmptyComponent={() => <Text>Announcements</Text>}
-      /* ListHeaderComponent={() => (
-        <H3
-          text="Announcements"
-          style={{ width: "100%", textAlign: "center", fontWeight: "bold" }}
-        />
-      )} */
-      keyExtractor={(item) => item.id}
-      data={announcements.sort((a, b) => {
-        const d1 = new Date(a.date)
-        const d2 = new Date(b.date)
-        return d1 < d2
-      })}
-      style={{
-        backgroundColor: cHook.secondaryColor,
-        justifyContent: "center",
-      }}
-      /* ItemSeparatorComponent={() => (
-        <View
-          style={{
-            width: "100%",
-            backgroundColor: "gray",
-            height: StyleSheet.hairlineWidth,
-          }}
-        />
-      )} */
-      renderItem={({ item }) => (
-        <View style={aStyles.container}>
-          <Text style={{ ...aStyles.title, color: config.primaryColor }}>
-            {item.title}
-          </Text>
-          <Text style={{ ...aStyles.announcement, color: config.textColor }}>
-            {item.announcement}
-          </Text>
-        </View>
-      )}
-    />
-  )
-}
-
 const aStyles = StyleSheet.create({
   container: {
     padding: 8,
@@ -519,66 +370,38 @@ const aStyles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
-const FeedPage = ({ navigation, route }) => {
-  const [code, setCode] = React.useState(null)
-  React.useEffect(() => {
-    setCode(route.params.code)
-  }, [])
-  React.useEffect(() => {
-    // console.log("route params: " + JSON.stringify(route.params))
-    console.log(`feed code ${code}`)
-    if (code) {
-      console.log("navigating to add friend")
-      setCode(null)
-      navigation.navigate("AddFriend", { code })
-    }
-  }, [code])
-  return (
-    <Stack.Navigator
+const MemesPage = ({ navigation, route }) => (
+  <Stack.Navigator
+    options={{
+      headerStyle: {
+        borderbottomColor: config.primaryColor,
+        borderBottomWidth: 0,
+      },
+      cardStyle: { backgroundColor: config.secondaryColor },
+    }}
+    screenOptions={{
+      animationEnabled: false,
+    }}>
+    <Stack.Screen
+      name="MemeMain"
+      component={Memes}
       options={{
+        headerLeft: () => null,
+        headerRight: () => null,
+        title: `Friends`,
         headerStyle: {
-          borderbottomColor: config.primaryColor,
+          backgroundColor: config.secondaryColor,
+          shadowOffset: { height: 0, width: 0 },
           borderBottomWidth: 0,
         },
-        cardStyle: { backgroundColor: config.secondaryColor },
+        headerTintColor: config.primaryColor,
+        headerTitleStyle: {
+          fontWeight: "bold",
+          fontSize: 30,
+        },
       }}
-      screenOptions={{
-        animationEnabled: false,
-      }}>
-      <Stack.Screen
-        name="FeedMain"
-        component={Feed}
-        initialParams={route.params}
-        options={{
-          headerLeft: () => null,
-          headerRight: () => (
-            <Btn
-              icon={
-                <Feather
-                  name="user-plus"
-                  size={30}
-                  color={config.primaryColor}
-                />
-              }
-              type="clear"
-              onPress={() => navigation.navigate("AddFriend")}
-            />
-          ),
-          title: `Friends ${code}`,
-          headerStyle: {
-            backgroundColor: config.secondaryColor,
-            shadowOffset: { height: 0, width: 0 },
-            borderBottomWidth: 0,
-          },
-          headerTintColor: config.primaryColor,
-          headerTitleStyle: {
-            fontWeight: "bold",
-            fontSize: 30,
-          },
-        }}
-      />
-    </Stack.Navigator>
-  )
-}
+    />
+  </Stack.Navigator>
+)
 
-export default FeedPage
+export default MemesPage

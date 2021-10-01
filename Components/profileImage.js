@@ -33,22 +33,22 @@ class ProfileImage extends PureComponent {
           borderRadius: this.props.size != null ? this.props.size / 2 : 20,
         }}
         key={this.props.image + this.props.name}>
-        {useImage && !this.props.noCache && (
+        {useImage && (
           <CachedImageView
             image={this.props.image}
             id={this.props.id}
             radius={this.props.size != null ? this.props.size / 2 : 20}
-            key={this.props.image + this.props.name}
+            key={this.props.id}
           />
         )}
-        {useImage && this.props.noCache && (
+        {/* useImage && this.props.noCache && (
           <ImageView
             image={this.props.image}
             id={this.props.id}
             radius={this.props.size != null ? this.props.size / 2 : 20}
             key={this.props.image + this.props.name}
           />
-        )}
+        ) */}
         {!useImage && (
           <NameView
             initials={initials}
@@ -65,7 +65,7 @@ class ProfileImage extends PureComponent {
 const CachedImageView = (props) => (
   <CachedImage
     source={{ uri: props.image ? props.image : "" }}
-    cacheKey={props.id ? props.id + props.image : ""}
+    cacheKey={props.id ? props.id : "default"}
     style={{ ...styles.circleView, borderRadius: props.radius }}
   />
 )
